@@ -48,4 +48,4 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 ### Who do I talk to? ###
 
-<support@americanmagnetics.com>
+[support@americanmagnetics.com](mailto:support@americanmagnetics.com)
