@@ -1,3 +1,7 @@
+[logo]: https://bytebucket.org/americanmagneticsinc/magnet-daq/raw/a8e812c7b855a3b1dd1eab6d87ce9634597e33eb/Magnet-DAQ/Resources/AMIlogo.png "AMI Logo"
+
+![logo]
+
 ## Magnet-DAQ Application ##
 
 This repository is the source code and binary distribution point for the Magnet-DAQ application for comprehensive remote control of the AMI Model 430 Programmer.
