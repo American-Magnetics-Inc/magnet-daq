@@ -46,10 +46,15 @@ void magnetdaq::syncRampdownEvents(QString str)
 
 			// next find event date
 			index = str.indexOf("Rampdown number", index);
-			index = str.indexOf("detected ", index);
-			index += 9;		// should be at date of event
-			
-			titles.append("Event " + QString::number(count) + ": " + str.mid(index, 10));
+
+			if (index != -1)
+			{
+				index = str.indexOf("detected ", index);
+				index += 9;		// should be at date of event
+
+				titles.append("Event " + QString::number(count) + ": " + str.mid(index, 10));
+			}
+
 			index = str.indexOf("****************************************************************************", index);
 			
 			if (index != -1)
@@ -117,10 +122,15 @@ void magnetdaq::syncQuenchEvents(QString str)
 
 			// next find event date
 			index = str.indexOf("Quench number", index);
-			index = str.indexOf("detected ", index);
-			index += 9;		// should be at date of event
 
-			titles.append("Event " + QString::number(count) + ": " + str.mid(index, 10));
+			if (index != -1)
+			{
+				index = str.indexOf("detected ", index);
+				index += 9;		// should be at date of event
+
+				titles.append("Event " + QString::number(count) + ": " + str.mid(index, 10));
+			}
+
 			index = str.indexOf("****************************************************************************", index);
 
 			if (index != -1)

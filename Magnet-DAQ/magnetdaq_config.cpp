@@ -193,7 +193,7 @@ void magnetdaq::menuValueChanged(int index)
 			{
 				QApplication::setOverrideCursor(Qt::WaitCursor);
 
-				socket->sendCommand("CONF:RAMP:RATE:UNITS " + QString::number(temp) + "\r\n");
+				socket->sendBlockingCommand("CONF:RAMP:RATE:UNITS " + QString::number(temp) + "\r\n");
 				model430.rampRateUnits = temp;
 			}
 		}
@@ -401,7 +401,7 @@ void magnetdaq::rampSegmentValueChanged(void)
 						valueChanged = true;
 						QString queryStr = "CONF:RAMP:RATE:CURR " + QString::number(i + 1) + "," +
 							QString::number(model430.currentRampRates[i](), 'f', 7) + "," + QString::number(temp, 'f', 1) + "\r\n";
-						socket->sendCommand(queryStr);
+						socket->sendBlockingCommand(queryStr);
 						model430.currentRampLimits[i] = temp;
 					}
 				}
@@ -413,7 +413,7 @@ void magnetdaq::rampSegmentValueChanged(void)
 						valueChanged = true;
 						QString queryStr = "CONF:RAMP:RATE:FIELD " + QString::number(i + 1) + "," +
 							QString::number(model430.fieldRampRates[i](), 'f', 7) + "," + QString::number(temp, 'f', 1) + "\r\n";
-						socket->sendCommand(queryStr);
+						socket->sendBlockingCommand(queryStr);
 						model430.fieldRampLimits[i] = temp;
 					}
 				}
@@ -431,7 +431,7 @@ void magnetdaq::rampSegmentValueChanged(void)
 						valueChanged = true;
 						QString queryStr = "CONF:RAMP:RATE:CURR " + QString::number(i + 1) + "," +
 							QString::number(temp, 'f', 7) + "," + QString::number(model430.currentRampLimits[i](), 'f', 1) + "\r\n";
-						socket->sendCommand(queryStr);
+						socket->sendBlockingCommand(queryStr);
 						model430.currentRampRates[i] = temp;
 					}
 				}
@@ -443,7 +443,7 @@ void magnetdaq::rampSegmentValueChanged(void)
 						valueChanged = true;
 						QString queryStr = "CONF:RAMP:RATE:FIELD " + QString::number(i + 1) + "," +
 							QString::number(temp, 'f', 7) + "," + QString::number(model430.fieldRampLimits[i](), 'f', 1) + "\r\n";
-						socket->sendCommand(queryStr);
+						socket->sendBlockingCommand(queryStr);
 						model430.fieldRampRates[i] = temp;
 					}
 				}
@@ -500,7 +500,7 @@ void magnetdaq::rampdownSegmentValueChanged(void)
 						valueChanged = true;
 						QString queryStr = "CONF:RAMPD:RATE:CURR " + QString::number(i + 1) + "," +
 							QString::number(model430.currentRampdownRates[i](), 'f', 7) + "," + QString::number(temp, 'f', 1) + "\r\n";
-						socket->sendCommand(queryStr);
+						socket->sendBlockingCommand(queryStr);
 						model430.currentRampdownLimits[i] = temp;
 					}
 				}
@@ -512,7 +512,7 @@ void magnetdaq::rampdownSegmentValueChanged(void)
 						valueChanged = true;
 						QString queryStr = "CONF:RAMPD:RATE:FIELD " + QString::number(i + 1) + "," +
 							QString::number(model430.fieldRampdownRates[i](), 'f', 7) + "," + QString::number(temp, 'f', 1) + "\r\n";
-						socket->sendCommand(queryStr);
+						socket->sendBlockingCommand(queryStr);
 						model430.fieldRampdownLimits[i] = temp;
 					}
 				}
@@ -530,7 +530,7 @@ void magnetdaq::rampdownSegmentValueChanged(void)
 						valueChanged = true;
 						QString queryStr = "CONF:RAMPD:RATE:CURR " + QString::number(i + 1) + "," +
 							QString::number(temp, 'f', 7) + "," + QString::number(model430.currentRampdownLimits[i](), 'f', 1) + "\r\n";
-						socket->sendCommand(queryStr);
+						socket->sendBlockingCommand(queryStr);
 						model430.currentRampdownRates[i] = temp;
 					}
 				}
@@ -542,7 +542,7 @@ void magnetdaq::rampdownSegmentValueChanged(void)
 						valueChanged = true;
 						QString queryStr = "CONF:RAMPD:RATE:FIELD " + QString::number(i + 1) + "," +
 							QString::number(temp, 'f', 7) + "," + QString::number(model430.fieldRampdownLimits[i](), 'f', 1) + "\r\n";
-						socket->sendCommand(queryStr);
+						socket->sendBlockingCommand(queryStr);
 						model430.fieldRampdownRates[i] = temp;
 					}
 				}

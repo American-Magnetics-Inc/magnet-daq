@@ -310,7 +310,7 @@ void magnetdaq::addDataPoint(qint64 time, double magField, double magCurrent, do
 
 		// write data to log file
 		char buffer[120];
-		sprintf(buffer, "%0.8lf,%0.9lf,%0.8lf,%0.3lf,%0.8lf,%0.6lf\n", timebase, magField, magCurrent, magVoltage, supCurrent, supVoltage);
+		sprintf(buffer, "%lld,%0.8lf,%0.9lf,%0.8lf,%0.3lf,%0.8lf,%0.6lf\n", time, timebase, magField, magCurrent, magVoltage, supCurrent, supVoltage);
 		logFile->write(buffer);
 
 		// flush every 300 lines (~1 minute)
@@ -389,9 +389,9 @@ void magnetdaq::writeLogHeader(void)
 
 		// write data column header
 		if (ui.secondsRadioButton->isChecked())
-			logFile->write(QString("Time(sec),Magnet Field" + unitsStr + ",Magnet Current(A),Magnet Voltage(V),Supply Current(A),Supply Voltage(V)\n").toLocal8Bit());
+			logFile->write(QString("Unix time,Elapsed Time(sec),Magnet Field" + unitsStr + ",Magnet Current(A),Magnet Voltage(V),Supply Current(A),Supply Voltage(V)\n").toLocal8Bit());
 		else
-			logFile->write(QString("Time(min),Magnet Field" + unitsStr + ",Magnet Current(A),Magnet Voltage(V),Supply Current(A),Supply Voltage(V)\n").toLocal8Bit());
+			logFile->write(QString("Unix time,Elapsed Time(min),Magnet Field" + unitsStr + ",Magnet Current(A),Magnet Voltage(V),Supply Current(A),Supply Voltage(V)\n").toLocal8Bit());
 	}
 }
 
@@ -530,7 +530,10 @@ void magnetdaq::titleDoubleClick(QMouseEvent* event)
 		dlg.setWindowTitle("Set Plot Title");
 		dlg.setLabelText("New plot title:");
 		dlg.setTextValue(mainPlotTitle);
-		dlg.restoreGeometry(settings.value("LabelDialog/Geometry").toByteArray());
+
+		// save/restore different geometry for different DPI screens
+		QString dpiStr = QString::number(QApplication::desktop()->screen()->logicalDpiX());
+		dlg.restoreGeometry(settings.value("LabelDialog/Geometry/" + dpiStr).toByteArray());
 		ok = dlg.exec();
 
 		if (ok)
@@ -565,7 +568,10 @@ void magnetdaq::axisLabelDoubleClick(QCPAxis *axis, QCPAxis::SelectablePart part
 		else if (axis == voltageAxis)
 			dlg.setTextValue(mainPlotY2Title);
 
-		dlg.restoreGeometry(settings.value("LabelDialog/Geometry").toByteArray());
+		
+		// save/restore different geometry for different DPI screens
+		QString dpiStr = QString::number(QApplication::desktop()->screen()->logicalDpiX());
+		dlg.restoreGeometry(settings.value("LabelDialog/Geometry/" + dpiStr).toByteArray());
 		ok = dlg.exec();
 
 		if (ok)
@@ -603,7 +609,7 @@ void magnetdaq::axisLabelDoubleClick(QCPAxis *axis, QCPAxis::SelectablePart part
 			ui.plotWidget->replot();
 		}
 
-		settings.setValue("LabelDialog/Geometry", dlg.saveGeometry());
+		settings.setValue("LabelDialog/Geometry/" + dpiStr, dlg.saveGeometry());
 	}
 }
 
@@ -624,7 +630,10 @@ void magnetdaq::legendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item
 		dlg.setWindowTitle("Set Graph Name");
 		dlg.setLabelText("New graph name:");
 		dlg.setTextValue(plItem->plottable()->name());
-		dlg.restoreGeometry(settings.value("LabelDialog/Geometry").toByteArray());
+
+		// save/restore different geometry for different DPI screens
+		QString dpiStr = QString::number(QApplication::desktop()->screen()->logicalDpiX());
+		dlg.restoreGeometry(settings.value("LabelDialog/Geometry/" + dpiStr).toByteArray());
 		ok = dlg.exec();
 
 		if (ok)
@@ -633,7 +642,7 @@ void magnetdaq::legendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item
 			ui.plotWidget->replot();
 		}
 
-		settings.setValue("LabelDialog/Geometry", dlg.saveGeometry());
+		settings.setValue("LabelDialog/Geometry/" + dpiStr, dlg.saveGeometry());
 	}
 }
 

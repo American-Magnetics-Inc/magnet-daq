@@ -12,7 +12,7 @@ magnetdaq::magnetdaq(QWidget *parent)
 {
 	QCoreApplication::setOrganizationName("American Magnetics Inc.");
 	QCoreApplication::setApplicationName("MagnetDAQ");
-	QCoreApplication::setApplicationVersion("0.97");
+	QCoreApplication::setApplicationVersion("0.98");
 	QCoreApplication::setOrganizationDomain("AmericanMagnetics.com");
 
 	// add application-specific fonts
@@ -26,6 +26,7 @@ magnetdaq::magnetdaq(QWidget *parent)
 
 	// default is hidden docked widgets
 	ui.setupDockWidget->hide();
+	ui.plotDockWidget->hide();
 	ui.keypadDockWidget->hide();
 
 	this->setWindowTitle(QCoreApplication::applicationName() + " - v" + QCoreApplication::applicationVersion() + "   (AMI Model 430 Remote Control)");
@@ -86,8 +87,15 @@ magnetdaq::magnetdaq(QWidget *parent)
 
 	// restore window position and gui state
 	QSettings settings;
-	restoreGeometry(settings.value("MainWindow/Geometry").toByteArray());
+
+	// restore different geometry for different DPI screens
+	QString dpiStr = QString::number(QApplication::desktop()->screen()->logicalDpiX());
+	restoreGeometry(settings.value("MainWindow/Geometry/" + dpiStr).toByteArray());
 	restoreState(settings.value("MainWindow/WindowState").toByteArray());
+	ui.rampRateTabSplitter->restoreGeometry(settings.value("RampSplitter/Geometry/" + dpiStr).toByteArray());
+	ui.rampRateTabSplitter->restoreState(settings.value("RampSplitter/WindowState").toByteArray());
+	ui.rampdownTabSplitter->restoreGeometry(settings.value("RampdownSplitter/Geometry/" + dpiStr).toByteArray());
+	ui.rampdownTabSplitter->restoreState(settings.value("RampdownSplitter/WindowState").toByteArray());
 	ui.ipAddressEdit->setText(settings.value("IPAddr", "").toString());
 	ui.ipNameEdit->setText(settings.value("IPName", "").toString());
 	ui.logFileEdit->setText(settings.value("Logfile", "").toString());
@@ -126,7 +134,19 @@ magnetdaq::magnetdaq(QWidget *parent)
 
 	// create plotTimer
 	plotTimer = new QTimer(this);
-	plotTimer->setInterval(100);	// 10 updates per second max rate
+
+#if defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
+	// For Linux and macOS, setting the plotTimer data collection rate too high results 
+	// in a lagging user interface. On the Mac, the display can go long periods
+	// without a refresh. Limit the max update rate here to keep the interface responsive.
+	plotTimer->setInterval(200);	// 5 updates per second max rate on Linux/macOS
+#else
+	// Windows seems to give preference to the user interface updates at the
+	// expense of slowing the plotTimer data collection rate, so we set the update 
+	// rate to a higher value and let the interface dictate the actual achieved rate.
+	plotTimer->setInterval(100);	// 10 updates per second max rate on Windows
+#endif
+	
 	connect(plotTimer, SIGNAL(timeout()), this, SLOT(timeout()));
 
 	// restore plot saved settings
@@ -279,10 +299,18 @@ magnetdaq::~magnetdaq()
 
 	// save window position and state
 	QSettings settings;
-	settings.setValue("MainWindow/Geometry", saveGeometry());
+
+	// save different geometry for different DPI screens
+	QString dpiStr = QString::number(QApplication::desktop()->screen()->logicalDpiX());
+
+	settings.setValue("MainWindow/Geometry/" + dpiStr, saveGeometry());
 	settings.setValue("MainWindow/WindowState", saveState());
+	settings.setValue("RampSplitter/Geometry/" + dpiStr, ui.rampRateTabSplitter->saveGeometry());
+	settings.setValue("RampSplitter/WindowState", ui.rampRateTabSplitter->saveState());
+	settings.setValue("RampdownSplitter/Geometry/" + dpiStr, ui.rampdownTabSplitter->saveGeometry());
+	settings.setValue("RampdownSplitter/WindowState", ui.rampdownTabSplitter->saveState());
 	settings.setValue("DeviceList/HorizontalState", ui.devicesTableWidget->horizontalHeader()->saveState());
-	settings.setValue("DeviceList/HorizontalGeometry", ui.devicesTableWidget->horizontalHeader()->saveGeometry());
+	settings.setValue("DeviceList/HorizontalGeometry/" + dpiStr, ui.devicesTableWidget->horizontalHeader()->saveGeometry());
 	settings.setValue("IPAddr", ui.ipAddressEdit->text());
 	settings.setValue("IPName", ui.ipNameEdit->text());
 	settings.setValue("Graph/Xmin", ui.xminEdit->text());
@@ -355,7 +383,7 @@ void magnetdaq::actionRun(void)
 		// query firmware version and suffix
 		socket->getFirmwareVersion();
 
-		// requires firmware version 2.50 or later, or 3.00 or later
+		// requires firmware version 2.51 or later, or 3.01 or later
 		if (checkFirmwareVersion())
 		{
 			// connect the socket data ready signal to the plot
@@ -384,7 +412,7 @@ void magnetdaq::actionRun(void)
 			// connect signal for configuration changes
 			connect(&model430, SIGNAL(configurationChanged(QueryState)), this, SLOT(configurationChanged(QueryState)));
 
-			// initialize the 430 configuration GUI, show progress dialog and checking for cancelation
+			// initialize the 430 configuration GUI, show progress dialog and checking for cancellation
 			model430.syncSupplySetup();
 			progressDialog.setValue(20);
 			if (progressDialog.wasCanceled())
@@ -478,7 +506,7 @@ void magnetdaq::actionRun(void)
 
 					// write date/time of start
 					logFile->write("\n");
-					logFile->write(QDateTime::currentDateTime().toString("MM/dd/yyyy: h:m:s ap").toLatin1());
+					logFile->write(QDateTime::currentDateTime().toString("MM/dd/yyyy: hh:mm:ss ap").toLatin1());
 					logFile->write("\n");
 					logFile->flush();
 				}
@@ -608,6 +636,12 @@ void magnetdaq::actionStop(void)
 //---------------------------------------------------------------------------
 void magnetdaq::actionSetup(void)
 {
+	// initially open into a docked tab item
+	if (ui.plotDockWidget->isVisible())
+		QMainWindow::tabifyDockWidget(ui.setupDockWidget, ui.plotDockWidget);
+	else if (ui.keypadDockWidget->isVisible())
+		QMainWindow::tabifyDockWidget(ui.setupDockWidget, ui.keypadDockWidget);
+
 	ui.setupDockWidget->show();
 	ui.setupDockWidget->raise();
 }
@@ -619,7 +653,7 @@ void magnetdaq::actionPlot_Settings(void)
 	if (ui.setupDockWidget->isVisible())
 		QMainWindow::tabifyDockWidget(ui.setupDockWidget, ui.plotDockWidget);
 	else if (ui.keypadDockWidget->isVisible())
-		QMainWindow::tabifyDockWidget(ui.keypadDockWidget, ui.plotDockWidget);
+		QMainWindow::tabifyDockWidget(ui.plotDockWidget, ui.keypadDockWidget);
 
 	ui.plotDockWidget->show();
 	ui.plotDockWidget->raise();

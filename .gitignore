@@ -248,4 +248,8 @@ ModelManifest.xml
 Linux-diffs/
 Magnet-DAQ/Resources/Legacy/Model430.zip
 help/
-/Docs
+Docs/
+Magnet-DAQ/GeneratedFiles/
+Distribution/
+
+

@@ -27,7 +27,10 @@ void magnetdaq::restoreDeviceList(QSettings *settings)
 
 	// restore header layout
 	ui.devicesTableWidget->horizontalHeader()->restoreState(settings->value("DeviceList/HorizontalState").toByteArray());
-	ui.devicesTableWidget->horizontalHeader()->restoreGeometry(settings->value("DeviceList/HorizontalGeometry").toByteArray());
+
+	// restore different geometry for different DPI screens
+	QString dpiStr = QString::number(QApplication::desktop()->screen()->logicalDpiX());
+	ui.devicesTableWidget->horizontalHeader()->restoreGeometry(settings->value("DeviceList/HorizontalGeometry/" + dpiStr).toByteArray());
 
 	// make connections
 	connect(ui.ipNameEdit, SIGNAL(editingFinished()), this, SLOT(ipNameChanged()));

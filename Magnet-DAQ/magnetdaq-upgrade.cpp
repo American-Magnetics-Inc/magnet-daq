@@ -17,13 +17,13 @@ bool ReplyTimeout::timeoutOccurred = false;
 //---------------------------------------------------------------------------
 
 // required firmware version
-const double requiredLegacyFirmwareId = 2.50;
-const double requiredFirmwareId = 3.00;
+const double requiredLegacyFirmwareId = 2.51;
+const double requiredFirmwareId = 3.01;
 
 // firmware versions included in Resource file (update these values when new version is included)
-const double legacyFirmwareId = 2.50;
+const double legacyFirmwareId = 2.51;
 const QString legacyFirmwareSuffix = "";
-const double firmwareId = 3.00;
+const double firmwareId = 3.01;
 const QString firmwareSuffix = "";
 
 //---------------------------------------------------------------------------
