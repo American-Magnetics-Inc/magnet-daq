@@ -12,7 +12,7 @@ magnetdaq::magnetdaq(QWidget *parent)
 {
 	QCoreApplication::setOrganizationName("American Magnetics Inc.");
 	QCoreApplication::setApplicationName("MagnetDAQ");
-	QCoreApplication::setApplicationVersion("0.98");
+	QCoreApplication::setApplicationVersion("0.99");
 	QCoreApplication::setOrganizationDomain("AmericanMagnetics.com");
 
 	// add application-specific fonts
@@ -383,7 +383,7 @@ void magnetdaq::actionRun(void)
 		// query firmware version and suffix
 		socket->getFirmwareVersion();
 
-		// requires firmware version 2.51 or later, or 3.01 or later
+		// check for required firmware update
 		if (checkFirmwareVersion())
 		{
 			// connect the socket data ready signal to the plot
