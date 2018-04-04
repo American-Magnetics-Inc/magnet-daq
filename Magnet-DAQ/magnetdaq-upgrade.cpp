@@ -17,13 +17,13 @@ bool ReplyTimeout::timeoutOccurred = false;
 //---------------------------------------------------------------------------
 
 // required firmware version
-const double requiredLegacyFirmwareId = 2.52;
-const double requiredFirmwareId = 3.02;
+const double requiredLegacyFirmwareId = 2.55;
+const double requiredFirmwareId = 3.05;
 
 // firmware versions included in Resource file (update these values when new version is included)
-const double legacyFirmwareId = 2.52;
+const double legacyFirmwareId = 2.55;
 const QString legacyFirmwareSuffix = "";
-const double firmwareId = 3.02;
+const double firmwareId = 3.05;
 const QString firmwareSuffix = "";
 
 //---------------------------------------------------------------------------
@@ -33,33 +33,40 @@ bool magnetdaq::checkFirmwareVersion(void)
 {
 	double version = model430.firmwareVersion();
 	QString suffix = model430.getFirmwareSuffix();
+	bool isLegacy = model430.firmwareVersion() < 3.00 ? true : false;
 
-	if (version >= requiredFirmwareId)
+	if (!isLegacy)
 	{
-		if (version > requiredFirmwareId)
-			return true;
-
-		if (version == requiredFirmwareId)
+		if (version >= requiredFirmwareId)
 		{
-			if (suffix.isEmpty())
+			if (version > requiredFirmwareId)
 				return true;
 
-			if (suffix >= firmwareSuffix)	// minor upgrades
-				return true;
+			if (version == requiredFirmwareId)
+			{
+				if (suffix.isEmpty())
+					return true;
+
+				if (suffix >= firmwareSuffix)	// minor upgrades
+					return true;
+			}
 		}
 	}
-	else if (version >= requiredLegacyFirmwareId)
+	else
 	{
-		if (version > requiredLegacyFirmwareId)
-			return true;
-
-		if (version == requiredLegacyFirmwareId)
+		if (version >= requiredLegacyFirmwareId)
 		{
-			if (suffix.isEmpty())
+			if (version > requiredLegacyFirmwareId)
 				return true;
 
-			if (suffix >= legacyFirmwareSuffix)	// minor upgrades
-				return true;
+			if (version == requiredLegacyFirmwareId)
+			{
+				if (suffix.isEmpty())
+					return true;
+
+				if (suffix >= legacyFirmwareSuffix)	// minor upgrades
+					return true;
+			}
 		}
 	}
 	
@@ -240,7 +247,7 @@ void magnetdaq::finishedFirmwareUpload(QNetworkReply *reply)
 	if (reply->error() == QNetworkReply::NoError)
 	{
 		finishedPageLabel->setText("New firmware has been uploaded to the Model 430. Please Finish this wizard and cycle the Model 430 power.<br><br>"
-			"Observe the displayed message during Model 430 boot to verify the firmware has been upgraded to version 2.50 or later.");
+			"Observe the displayed message during Model 430 boot to verify the firmware has been upgraded to version " + formatFirmwareUpgradeStr() + ".");
 		qDebug() << "Successful firmware upload to " + ui.ipAddressEdit->text();
 	}
 	else if (ReplyTimeout::timeoutOccurred)

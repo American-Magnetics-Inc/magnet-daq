@@ -116,6 +116,7 @@ enum QueryState
 	// state
 	SAMPLE_CURRENT,
 	SAMPLE_VOLTAGE,
+	STATE,
 
 	// rampdown and quench event files
 	RAMPDOWN_COUNT,
@@ -138,6 +139,21 @@ enum QueryState
 	IDLE_STATE
 };
 
+enum State
+{
+	RAMPING = 1,
+	HOLDING,
+	PAUSED,
+	MANUAL_UP,
+	MANUAL_DOWN,
+	ZEROING,
+	QUENCH,
+	AT_ZERO,
+	SWITCH_HEATING,
+	SWITCH_COOLING,
+	EXTERNAL_RAMPDOWN
+};
+
 class Model430 : public QObject {
 	Q_OBJECT
 
@@ -147,19 +163,31 @@ public:
 
 	// setter/getter
 	void setSocket(Socket *aSocket) { socket = aSocket; }
+	Socket *getSocket(void) { return socket; }
 	void setFirmwareVersion(double value) { firmwareVersion = value; }
 	void setFirmwareSuffix(QString str) { firmwareSuffix = str; }
 	QString getFirmwareSuffix(void) { return firmwareSuffix; }
 	void setRampdownFile(QString str);
 	void setQuenchFile(QString str);
 	void setSettings(QString str);
+	void setCurrentData(qint64 time, double magField, double magCurrent, double magVoltage, double supCurrent, double supVoltage);
 	void setIpName(QString str) { ipName = str; }
 	QString getIpName(void) { return ipName; }
 
-	// public properties
+	// public data and properties
+	qint64 timestamp;
+	double magnetField;
+	double magnetCurrent;
+	double magnetVoltage;
+	double supplyCurrent;
+	double supplyVoltage;
+	double quenchCurrent;
 
 	Property<double> firmwareVersion;
+	Property<int> serialNumber;
 	Property<int> mode;
+	Property<State> state;
+
 #if defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
 	Property<unsigned char> statusByte;
 #else

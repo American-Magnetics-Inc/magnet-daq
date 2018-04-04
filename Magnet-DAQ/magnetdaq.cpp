@@ -10,11 +10,6 @@
 magnetdaq::magnetdaq(QWidget *parent)
 	: QMainWindow(parent)
 {
-	QCoreApplication::setOrganizationName("American Magnetics Inc.");
-	QCoreApplication::setApplicationName("MagnetDAQ");
-	QCoreApplication::setApplicationVersion("0.99");
-	QCoreApplication::setOrganizationDomain("AmericanMagnetics.com");
-
 	// add application-specific fonts
 	QFontDatabase::addApplicationFont(":/magnetdaq/Resources/BFN____.otf");	// family: Bubbledot Fine Negative
 	QFontDatabase::addApplicationFont(":/magnetdaq/Resources/BFP____.otf");	// family: Bubbledot Fine Positive
@@ -75,6 +70,8 @@ magnetdaq::magnetdaq(QWidget *parent)
 	ui.persistSwitchControlButton->setFont(QFont(".SF NS Text", 13));
 	ui.targetFieldSetpointButton->setFont(QFont(".SF NS Text", 13));
 	ui.rampPauseButton->setFont(QFont(".SF NS Text", 13));
+    ui.serialNumLabel->setFont(QFont(".SF NS Text", 11));
+    ui.serialNumEdit->setFont(QFont(".SF NS Text", 11));
 
 	// remove unsightly frame outlines
 	ui.keypadFrame->setStyleSheet("border: 0;");
@@ -85,21 +82,121 @@ magnetdaq::magnetdaq(QWidget *parent)
 	ui.mainTabWidget->tabBar()->setStyleSheet("font-size: 9pt");
 #endif
 
+	/************************************************************
+	The command line parser allows several options:
+
+	-h	Hide the Magnet-DAQ interface on launch.
+	-x	Label the Magnet-DAQ window as "X Axis" and superimpose
+		an X on the app icon.
+	-y	Label the Magnet-DAQ window as "Y Axis" and superimpose
+		a Y on the app icon.
+	-z	Label the Magnet-DAQ window as "Z Axis" and superimpose
+		a Z on the app icon.
+	-p	Start the stdin/stdout parser function (for QProcess use).
+
+	-a address		Start and auto-connect to IP address.
+	--port xxxx		Connect to specified port (for simulation use only)
+	--telnet xxxx	Echo display to specified port (for simulation use only)
+	************************************************************/
+
+	// define and parse optional command line argument(s)
+	parser = NULL;
+	isXAxis = false;
+	isYAxis = false;
+	isZAxis = false;
+	startHidden = false;
+	parseInput = false;
+	port = 7180;
+	tport = 23;
+	QCommandLineParser parser;
+
+	// An ip address option with a value (-a, --address)
+	QCommandLineOption targetIPOption(QStringList() << "a" << "address",
+		QCoreApplication::translate("main", "Automatically connect to <IP address>."),
+		QCoreApplication::translate("main", "address"));
+	parser.addOption(targetIPOption);
+
+	// A specific port to connect (--port) (for simulation use only)
+	QCommandLineOption portOption("port", 
+		QCoreApplication::translate("main", "Connect to specified <ip-port>."),
+		QCoreApplication::translate("main", "ip-port"));
+	parser.addOption(portOption);
+
+	// A specific telnet port to connect (--telnet) (for simulation use only)
+	QCommandLineOption telnetOption("telnet", 
+		QCoreApplication::translate("main", "Echo display to specified <port>."),
+		QCoreApplication::translate("main", "ip-port"));
+	parser.addOption(telnetOption);
+
+	// A boolean option (-x)
+	QCommandLineOption xAxisOption("x", QCoreApplication::translate("main", "Label as X axis."));
+	parser.addOption(xAxisOption);
+
+	// A boolean option (-y)
+	QCommandLineOption yAxisOption("y", QCoreApplication::translate("main", "Label as Y axis."));
+	parser.addOption(yAxisOption);
+
+	// A boolean option (-z)
+	QCommandLineOption zAxisOption("z", QCoreApplication::translate("main", "Label as Z axis."));
+	parser.addOption(zAxisOption);
+
+	// A boolean option with multiple names (-h, --hidden)
+	QCommandLineOption hiddenOption(QStringList() << "h" << "hidden",
+		QCoreApplication::translate("main", "Start in minimized (hidden) mode."));
+	parser.addOption(hiddenOption);
+
+	// A boolean option with multiple names (-p, --parser)
+	QCommandLineOption parsingOption(QStringList() << "p" << "parser",
+		QCoreApplication::translate("main", "Enable stdin parsing for interprocess communication."));
+	parser.addOption(parsingOption);
+
+	// Process the actual command line arguments given by the user
+	parser.process(*(QCoreApplication::instance()));
+
+	const QStringList args = parser.positionalArguments();
+	// source is args.at(0), destination is args.at(1)
+
+	// options for labeling as X, Y, or Z axis in three axis systems
+	// use axisStr as prefix for saving/restoring app state
+	if (isXAxis = parser.isSet(xAxisOption))
+	{
+		this->setWindowIcon(QIcon(":magnetdaq/Resources/Magnet-DAQ-x.ico"));
+		axisStr = "XAxis/";
+	}
+	else if (isYAxis = parser.isSet(yAxisOption))
+	{
+		this->setWindowIcon(QIcon(":magnetdaq/Resources/Magnet-DAQ-y.ico"));
+		axisStr = "YAxis/";
+	}
+	else if (isZAxis = parser.isSet(zAxisOption))
+	{
+		this->setWindowIcon(QIcon(":magnetdaq/Resources/Magnet-DAQ-z.ico"));
+		axisStr = "ZAxis/";
+	}
+	else
+	{
+		axisStr = "";
+	}
+
+	// hidden start and parsing function options
+	startHidden = parser.isSet(hiddenOption);
+	parseInput = parser.isSet(parsingOption);
+
 	// restore window position and gui state
 	QSettings settings;
 
 	// restore different geometry for different DPI screens
 	QString dpiStr = QString::number(QApplication::desktop()->screen()->logicalDpiX());
-	restoreGeometry(settings.value("MainWindow/Geometry/" + dpiStr).toByteArray());
-	restoreState(settings.value("MainWindow/WindowState").toByteArray());
-	ui.rampRateTabSplitter->restoreGeometry(settings.value("RampSplitter/Geometry/" + dpiStr).toByteArray());
-	ui.rampRateTabSplitter->restoreState(settings.value("RampSplitter/WindowState").toByteArray());
-	ui.rampdownTabSplitter->restoreGeometry(settings.value("RampdownSplitter/Geometry/" + dpiStr).toByteArray());
-	ui.rampdownTabSplitter->restoreState(settings.value("RampdownSplitter/WindowState").toByteArray());
-	ui.ipAddressEdit->setText(settings.value("IPAddr", "").toString());
-	ui.ipNameEdit->setText(settings.value("IPName", "").toString());
-	ui.logFileEdit->setText(settings.value("Logfile", "").toString());
-	ui.remoteLockoutCheckBox->setChecked(settings.value("RemoteLockout", false).toBool());
+	restoreGeometry(settings.value(axisStr + "MainWindow/Geometry/" + dpiStr).toByteArray());
+	restoreState(settings.value(axisStr + "MainWindow/WindowState/" + dpiStr).toByteArray());
+	ui.rampRateTabSplitter->restoreGeometry(settings.value(axisStr + "RampSplitter/Geometry/" + dpiStr).toByteArray());
+	ui.rampRateTabSplitter->restoreState(settings.value(axisStr + "RampSplitter/WindowState/" + dpiStr).toByteArray());
+	ui.rampdownTabSplitter->restoreGeometry(settings.value(axisStr + "RampdownSplitter/Geometry/" + dpiStr).toByteArray());
+	ui.rampdownTabSplitter->restoreState(settings.value(axisStr + "RampdownSplitter/WindowState/" + dpiStr).toByteArray());
+	ui.ipAddressEdit->setText(settings.value(axisStr + "IPAddr", "").toString());
+	ui.ipNameEdit->setText(settings.value(axisStr + "IPName", "").toString());
+	ui.logFileEdit->setText(settings.value(axisStr + "Logfile", "").toString());
+	ui.remoteLockoutCheckBox->setChecked(settings.value(axisStr + "RemoteLockout", false).toBool());
 
 	// no context menu for toolbar or dock widgets
 	ui.mainToolBar->setContextMenuPolicy(Qt::PreventContextMenu);
@@ -135,17 +232,24 @@ magnetdaq::magnetdaq(QWidget *parent)
 	// create plotTimer
 	plotTimer = new QTimer(this);
 
+	if (parseInput)
+	{
+		plotTimer->setInterval(1000);	// 1 update per second if this app is QProcess slave
+	}
+	else
+	{
 #if defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
-	// For Linux and macOS, setting the plotTimer data collection rate too high results 
-	// in a lagging user interface. On the Mac, the display can go long periods
-	// without a refresh. Limit the max update rate here to keep the interface responsive.
-	plotTimer->setInterval(200);	// 5 updates per second max rate on Linux/macOS
+		// For Linux and macOS, setting the plotTimer data collection rate too high results 
+		// in a lagging user interface. On the Mac, the display can go long periods
+		// without a refresh. Limit the max update rate here to keep the interface responsive.
+		plotTimer->setInterval(200);	// 5 updates per second max rate on Linux/macOS
 #else
-	// Windows seems to give preference to the user interface updates at the
-	// expense of slowing the plotTimer data collection rate, so we set the update 
-	// rate to a higher value and let the interface dictate the actual achieved rate.
-	plotTimer->setInterval(100);	// 10 updates per second max rate on Windows
+		// Windows seems to give preference to the user interface updates at the
+		// expense of slowing the plotTimer data collection rate, so we set the update 
+		// rate to a higher value and let the interface dictate the actual achieved rate.
+		plotTimer->setInterval(125);	// 8 updates per second max rate on Windows
 #endif
+	}
 	
 	connect(plotTimer, SIGNAL(timeout()), this, SLOT(timeout()));
 
@@ -276,6 +380,38 @@ magnetdaq::magnetdaq(QWidget *parent)
 	connect(ui.rampdownRefreshButton, SIGNAL(clicked()), this, SLOT(refreshRampdownList()));
 	connect(ui.quenchListWidget, SIGNAL(currentRowChanged(int)), this, SLOT(quenchEventSelectionChanged(int)));
 	connect(ui.quenchRefreshButton, SIGNAL(clicked()), this, SLOT(refreshQuenchList()));
+
+	// More command line options parsing
+	QString portStr = parser.value(portOption);
+	if (!portStr.isEmpty())
+	{
+		bool ok;
+		port = portStr.toInt(&ok);
+
+		if (!ok)
+			port = 7180;
+	}
+
+	QString telnetStr = parser.value(telnetOption);
+	if (!telnetStr.isEmpty())
+	{
+		bool ok;
+		tport = telnetStr.toInt(&ok);
+
+		if (!ok)
+			tport = 23;
+	}
+
+	targetIP = parser.value(targetIPOption);
+	if (!targetIP.isEmpty())
+	{
+		ui.ipAddressEdit->setText(targetIP);
+
+		if(startHidden)	// hide main window on start
+			this->showMinimized();
+
+		actionRun();	// automatically Connect
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -303,47 +439,47 @@ magnetdaq::~magnetdaq()
 	// save different geometry for different DPI screens
 	QString dpiStr = QString::number(QApplication::desktop()->screen()->logicalDpiX());
 
-	settings.setValue("MainWindow/Geometry/" + dpiStr, saveGeometry());
-	settings.setValue("MainWindow/WindowState", saveState());
-	settings.setValue("RampSplitter/Geometry/" + dpiStr, ui.rampRateTabSplitter->saveGeometry());
-	settings.setValue("RampSplitter/WindowState", ui.rampRateTabSplitter->saveState());
-	settings.setValue("RampdownSplitter/Geometry/" + dpiStr, ui.rampdownTabSplitter->saveGeometry());
-	settings.setValue("RampdownSplitter/WindowState", ui.rampdownTabSplitter->saveState());
-	settings.setValue("DeviceList/HorizontalState", ui.devicesTableWidget->horizontalHeader()->saveState());
-	settings.setValue("DeviceList/HorizontalGeometry/" + dpiStr, ui.devicesTableWidget->horizontalHeader()->saveGeometry());
-	settings.setValue("IPAddr", ui.ipAddressEdit->text());
-	settings.setValue("IPName", ui.ipNameEdit->text());
-	settings.setValue("Graph/Xmin", ui.xminEdit->text());
-	settings.setValue("Graph/Xmax", ui.xmaxEdit->text());
-	settings.setValue("Graph/Ymin", ui.yminEdit->text());
-	settings.setValue("Graph/Ymax", ui.ymaxEdit->text());
-	settings.setValue("Graph/Vmin", ui.vminEdit->text());
-	settings.setValue("Graph/Vmax", ui.vmaxEdit->text());
-	settings.setValue("Logfile", ui.logFileEdit->text());
-	settings.setValue("RemoteLockout", ui.remoteLockoutCheckBox->isChecked());
-	settings.setValue("Graph/UseSeconds", ui.secondsRadioButton->isChecked());
-	settings.setValue("Graph/AutoscrollX", ui.autoscrollXCheckBox->isChecked());
+	settings.setValue(axisStr + "MainWindow/Geometry/" + dpiStr, saveGeometry());
+	settings.setValue(axisStr + "MainWindow/WindowState/" + dpiStr, saveState());
+	settings.setValue(axisStr + "RampSplitter/Geometry/" + dpiStr, ui.rampRateTabSplitter->saveGeometry());
+	settings.setValue(axisStr + "RampSplitter/WindowState/" + dpiStr, ui.rampRateTabSplitter->saveState());
+	settings.setValue(axisStr + "RampdownSplitter/Geometry/" + dpiStr, ui.rampdownTabSplitter->saveGeometry());
+	settings.setValue(axisStr + "RampdownSplitter/WindowState/" + dpiStr, ui.rampdownTabSplitter->saveState());
+	settings.setValue(axisStr + "DeviceList/HorizontalState/" + dpiStr, ui.devicesTableWidget->horizontalHeader()->saveState());
+	settings.setValue(axisStr + "DeviceList/HorizontalGeometry/" + dpiStr, ui.devicesTableWidget->horizontalHeader()->saveGeometry());
+	settings.setValue(axisStr + "IPAddr", ui.ipAddressEdit->text());
+	settings.setValue(axisStr + "IPName", ui.ipNameEdit->text());
+	settings.setValue(axisStr + "Graph/Xmin", ui.xminEdit->text());
+	settings.setValue(axisStr + "Graph/Xmax", ui.xmaxEdit->text());
+	settings.setValue(axisStr + "Graph/Ymin", ui.yminEdit->text());
+	settings.setValue(axisStr + "Graph/Ymax", ui.ymaxEdit->text());
+	settings.setValue(axisStr + "Graph/Vmin", ui.vminEdit->text());
+	settings.setValue(axisStr + "Graph/Vmax", ui.vmaxEdit->text());
+	settings.setValue(axisStr + "Logfile", ui.logFileEdit->text());
+	settings.setValue(axisStr + "RemoteLockout", ui.remoteLockoutCheckBox->isChecked());
+	settings.setValue(axisStr + "Graph/UseSeconds", ui.secondsRadioButton->isChecked());
+	settings.setValue(axisStr + "Graph/AutoscrollX", ui.autoscrollXCheckBox->isChecked());
 
 	// save titles (minus units)
-	settings.setValue("Graph/Title", mainPlotTitle);
-	settings.setValue("Graph/TitleX", mainPlotXTitle);
-	settings.setValue("Graph/TitleYCurrent", mainPlotYTitleCurrent);
-	settings.setValue("Graph/TitleYField", mainPlotYTitleField);
-	settings.setValue("Graph/TitleY2", mainPlotY2Title);
-	settings.setValue("Graph/Legend0", mainLegend[0]);
-	settings.setValue("Graph/Legend1", mainLegend[1]);
-	settings.setValue("Graph/Legend2", mainLegend[2]);
-	settings.setValue("Graph/Legend3", mainLegend[3]);
-	settings.setValue("Graph/Legend4", mainLegend[4]);
+	settings.setValue(axisStr + "Graph/Title", mainPlotTitle);
+	settings.setValue(axisStr + "Graph/TitleX", mainPlotXTitle);
+	settings.setValue(axisStr + "Graph/TitleYCurrent", mainPlotYTitleCurrent);
+	settings.setValue(axisStr + "Graph/TitleYField", mainPlotYTitleField);
+	settings.setValue(axisStr + "Graph/TitleY2", mainPlotY2Title);
+	settings.setValue(axisStr + "Graph/Legend0", mainLegend[0]);
+	settings.setValue(axisStr + "Graph/Legend1", mainLegend[1]);
+	settings.setValue(axisStr + "Graph/Legend2", mainLegend[2]);
+	settings.setValue(axisStr + "Graph/Legend3", mainLegend[3]);
+	settings.setValue(axisStr + "Graph/Legend4", mainLegend[4]);
 
 	// save main plot settings
-	settings.setValue("Graph/PlotField", ui.magnetFieldRadioButton->isChecked());
-	settings.setValue("Graph/PlotMagnetVoltage", ui.magnetVoltageCheckBox->isChecked());
-	settings.setValue("Graph/PlotSupplyCurrent", ui.supplyCurrentCheckBox->isChecked());
-	settings.setValue("Graph/PlotSupplyVoltage", ui.supplyVoltageCheckBox->isChecked());
+	settings.setValue(axisStr + "Graph/PlotField", ui.magnetFieldRadioButton->isChecked());
+	settings.setValue(axisStr + "Graph/PlotMagnetVoltage", ui.magnetVoltageCheckBox->isChecked());
+	settings.setValue(axisStr + "Graph/PlotSupplyCurrent", ui.supplyCurrentCheckBox->isChecked());
+	settings.setValue(axisStr + "Graph/PlotSupplyVoltage", ui.supplyVoltageCheckBox->isChecked());
 
 	// save support settings
-	settings.setValue("Support/Subject", ui.caseEdit->text());
+	settings.setValue(axisStr + "Support/Subject", ui.caseEdit->text());
 }
 
 //---------------------------------------------------------------------------
@@ -359,14 +495,17 @@ void magnetdaq::actionRun(void)
 	statusConnectState->clear();
 
 	// Display the dialog and start the event loop.
-	progressDialog.show();
-	progressDialog.setWindowModality(Qt::WindowModal);
-	progressDialog.setValue(0);
-	QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+	if (!startHidden)
+	{
+		progressDialog.show();
+		progressDialog.setWindowModality(Qt::WindowModal);
+		progressDialog.setValue(0);
+		QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+	}
 
-	// use the port 7180 socket to collect high-speed data queries
+	// use the port 7180 (default) socket to collect high-speed data queries
 	socket = new Socket(&model430, this);
-	socket->connectToModel430(ui.ipAddressEdit->text(), 7180);
+	socket->connectToModel430(ui.ipAddressEdit->text(), port);
 
 	if (socket->isConnected())
 	{
@@ -382,6 +521,7 @@ void magnetdaq::actionRun(void)
 
 		// query firmware version and suffix
 		socket->getFirmwareVersion();
+		ui.serialNumEdit->setText(QString::number(model430.serialNumber()));
 
 		// check for required firmware update
 		if (checkFirmwareVersion())
@@ -414,43 +554,67 @@ void magnetdaq::actionRun(void)
 
 			// initialize the 430 configuration GUI, show progress dialog and checking for cancellation
 			model430.syncSupplySetup();
-			progressDialog.setValue(20);
-			if (progressDialog.wasCanceled())
-				actionStop();
-			QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+
+			if (!startHidden)
+			{
+				progressDialog.setValue(20);
+				if (progressDialog.wasCanceled())
+					actionStop();
+				QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+			}
 
 			model430.syncLoadSetup();
-			progressDialog.setValue(40);
-			if (progressDialog.wasCanceled())
-				actionStop();
-			QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+
+			if (!startHidden)
+			{
+				progressDialog.setValue(40);
+				if (progressDialog.wasCanceled())
+					actionStop();
+				QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+			}
 
 			model430.syncSwitchSetup();
-			progressDialog.setValue(60);
-			if (progressDialog.wasCanceled())
-				actionStop();
-			QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+
+			if (!startHidden)
+			{
+				progressDialog.setValue(60);
+				if (progressDialog.wasCanceled())
+					actionStop();
+				QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+			}
 
 			model430.syncProtectionSetup();
-			progressDialog.setValue(80);
-			if (progressDialog.wasCanceled())
-				actionStop();
-			QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+
+			if (!startHidden)
+			{
+				progressDialog.setValue(80);
+				if (progressDialog.wasCanceled())
+					actionStop();
+				QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+			}
 
 			model430.syncEventCounts();
-			progressDialog.setValue(85);
-			if (progressDialog.wasCanceled())
-				actionStop();
-			QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+
+			if (!startHidden)
+			{
+				progressDialog.setValue(85);
+				if (progressDialog.wasCanceled())
+					actionStop();
+				QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+			}
 
 			model430.syncRampRates();
-			progressDialog.setValue(100);
-			if (progressDialog.wasCanceled())
-				actionStop();
 
-			// use the port 23 telnet socket for configuration and keypad simulation
+			if (!startHidden)
+			{
+				progressDialog.setValue(100);
+				if (progressDialog.wasCanceled())
+					actionStop();
+			}
+
+			// use the port 23 (default) telnet socket for configuration and keypad simulation
 			telnet = new Socket(&model430, this);
-			telnet->connectToModel430(ui.ipAddressEdit->text(), 23);	// capture display/keypad broadcasts
+			telnet->connectToModel430(ui.ipAddressEdit->text(), tport);	// capture display/keypad broadcasts
 
 			if (telnet->isConnected())
 			{
@@ -515,6 +679,22 @@ void magnetdaq::actionRun(void)
 				ui.ipNameEdit->setText(model430.getIpName());
 				addOrUpdateDevice(ui.ipAddressEdit->text(), model430.getIpName());
 				setDeviceWindowTitle();
+
+				// start Parser if enabled
+				if (parseInput)
+				{
+					QThread* parserThread = new QThread;
+					parser = new Parser(NULL);
+
+					parser->setDataSource(&model430);
+					parser->moveToThread(parserThread);
+					connect(parser, SIGNAL(error(QString)), this, SLOT(errorString(QString)));
+					connect(parserThread, SIGNAL(started()), parser, SLOT(process()));
+					connect(parser, SIGNAL(finished()), parserThread, SLOT(quit()));
+					connect(parser, SIGNAL(finished()), parser, SLOT(deleteLater()));
+					connect(parserThread, SIGNAL(finished()), parserThread, SLOT(deleteLater()));
+					parserThread->start();
+				}
 			}
 			else
 			{
@@ -529,12 +709,28 @@ void magnetdaq::actionRun(void)
 		}
 		else
 		{
-			// firmware too old, offer upgrade
+			// firmware needs updating
 			progressDialog.close();
 			socket->deleteLater();
 			socket = NULL;
 			telnet = NULL;
 
+			if (parseInput)	// cannot upgrade firmware when under remote control as upgrade process can be interrupted
+			{
+				QMessageBox msgBox;
+
+				msgBox.setText("A firmware upgrade is required to use this application with the device at network address " + ui.ipAddressEdit->text() + ".");
+				msgBox.setInformativeText("Cannot upgrade the firmware during a multi-axis control session. Manually restart Magnet-DAQ and connect to the device to perform a firmware upgrade.");
+				msgBox.setStandardButtons(QMessageBox::Ok);
+				msgBox.setDefaultButton(QMessageBox::Ok);
+
+				msgBox.setIcon(QMessageBox::Critical);
+				int ret = msgBox.exec();
+
+				statusConnectState->setStyleSheet("color: red; font: bold");
+				statusConnectState->setText("Firmware update required!");
+			}
+			else
 			{
 				QMessageBox msgBox;
 
@@ -550,8 +746,8 @@ void magnetdaq::actionRun(void)
 				{
 					msgBox.setText(formatFirmwareUpgradeMsg());
 
-					// firmware versions older than v1.60 may use non-compatible kernel
-					if (model430.firmwareVersion() >= 1.60)
+					// firmware versions older than v2.00 may use non-compatible WinCE kernel
+					if (model430.firmwareVersion() >= 2.00)
 					{
 						msgBox.setInformativeText("Do you wish to upgrade the firmware?");
 						msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
@@ -631,45 +827,73 @@ void magnetdaq::actionStop(void)
 	statusConnectState->setStyleSheet("color: red; font: bold");
 	statusConnectState->setText("Disconnected");
 	statusSampleRate->clear();
+
+	// stop and destroy parser and associated thread if it exists
+	if (parser)
+	{
+		parser->stop();
+		parser = NULL;
+	}
 }
 
 //---------------------------------------------------------------------------
 void magnetdaq::actionSetup(void)
 {
-	// initially open into a docked tab item
-	if (ui.plotDockWidget->isVisible())
-		QMainWindow::tabifyDockWidget(ui.setupDockWidget, ui.plotDockWidget);
-	else if (ui.keypadDockWidget->isVisible())
-		QMainWindow::tabifyDockWidget(ui.setupDockWidget, ui.keypadDockWidget);
+	if (ui.setupDockWidget->isVisible() && !ui.setupDockWidget->visibleRegion().isEmpty())
+	{
+		ui.setupDockWidget->hide();
+	}
+	else
+	{
+		// initially open into a docked tab item
+		if (ui.plotDockWidget->isVisible())
+			QMainWindow::tabifyDockWidget(ui.setupDockWidget, ui.plotDockWidget);
+		else if (ui.keypadDockWidget->isVisible())
+			QMainWindow::tabifyDockWidget(ui.setupDockWidget, ui.keypadDockWidget);
 
-	ui.setupDockWidget->show();
-	ui.setupDockWidget->raise();
+		ui.setupDockWidget->show();
+		ui.setupDockWidget->raise();
+	}
 }
 
 //---------------------------------------------------------------------------
 void magnetdaq::actionPlot_Settings(void)
 {
-	// initially open into a docked tab item
-	if (ui.setupDockWidget->isVisible())
-		QMainWindow::tabifyDockWidget(ui.setupDockWidget, ui.plotDockWidget);
-	else if (ui.keypadDockWidget->isVisible())
-		QMainWindow::tabifyDockWidget(ui.plotDockWidget, ui.keypadDockWidget);
+	if (ui.plotDockWidget->isVisible() && !ui.plotDockWidget->visibleRegion().isEmpty())
+	{
+		ui.plotDockWidget->hide();
+	}
+	else
+	{
+		// initially open into a docked tab item
+		if (ui.setupDockWidget->isVisible())
+			QMainWindow::tabifyDockWidget(ui.setupDockWidget, ui.plotDockWidget);
+		else if (ui.keypadDockWidget->isVisible())
+			QMainWindow::tabifyDockWidget(ui.plotDockWidget, ui.keypadDockWidget);
 
-	ui.plotDockWidget->show();
-	ui.plotDockWidget->raise();
+		ui.plotDockWidget->show();
+		ui.plotDockWidget->raise();
+	}
 }
 
 //---------------------------------------------------------------------------
 void magnetdaq::actionShow_Keypad(void)
 {
-	// initially open into a docked tab item
-	if (ui.setupDockWidget->isVisible())
-		QMainWindow::tabifyDockWidget(ui.setupDockWidget, ui.keypadDockWidget);
-	else if (ui.plotDockWidget->isVisible())
-		QMainWindow::tabifyDockWidget(ui.plotDockWidget, ui.keypadDockWidget);
+	if (ui.keypadDockWidget->isVisible() && !ui.keypadDockWidget->visibleRegion().isEmpty())
+	{
+		ui.keypadDockWidget->hide();
+	}
+	else
+	{
+		// initially open into a docked tab item
+		if (ui.setupDockWidget->isVisible())
+			QMainWindow::tabifyDockWidget(ui.setupDockWidget, ui.keypadDockWidget);
+		else if (ui.plotDockWidget->isVisible())
+			QMainWindow::tabifyDockWidget(ui.plotDockWidget, ui.keypadDockWidget);
 
-	ui.keypadDockWidget->show();
-	ui.keypadDockWidget->raise();
+		ui.keypadDockWidget->show();
+		ui.keypadDockWidget->raise();
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -691,7 +915,13 @@ void magnetdaq::actionPrint(void)
 //---------------------------------------------------------------------------
 void magnetdaq::actionHelp(void)
 {
+#if defined(Q_OS_MACOS)
+    QString link = "file:///" + QCoreApplication::applicationDirPath() + "//..//Resources//Help//index.html";
+#else
+	QString link = "file:///" + QCoreApplication::applicationDirPath() + "//Help//index.html";
+#endif
 
+	QDesktopServices::openUrl(QUrl(link));
 }
 
 //---------------------------------------------------------------------------
@@ -699,6 +929,13 @@ void magnetdaq::actionAbout(void)
 {
 	aboutdialog about;
 	about.exec();
+}
+
+//---------------------------------------------------------------------------
+// Outputs parser function errors
+void magnetdaq::errorString(QString err)
+{
+	qDebug() << err;
 }
 
 //---------------------------------------------------------------------------
@@ -711,14 +948,22 @@ void magnetdaq::ipAddressEdited(QString text)
 //---------------------------------------------------------------------------
 void magnetdaq::setDeviceWindowTitle(void)
 {
+	QString optionalAxisLabel = "";
+	if (isXAxis)
+		optionalAxisLabel = "X Axis - ";
+	else if (isYAxis)
+		optionalAxisLabel = "Y Axis - ";
+	else if (isZAxis)
+		optionalAxisLabel = "Z Axis - ";
+
 	if (socket)
 	{
-		this->setWindowTitle(QCoreApplication::applicationName() + " - v" + QCoreApplication::applicationVersion() + "      Connected to: " +
+		this->setWindowTitle(optionalAxisLabel + QCoreApplication::applicationName() + " - v" + QCoreApplication::applicationVersion() + "      Connected to: " +
 			ui.ipNameEdit->text() + " @ " + ui.ipAddressEdit->text());
 	}
 	else
 	{
-		this->setWindowTitle(QCoreApplication::applicationName() + " - v" + QCoreApplication::applicationVersion() + "      " +
+		this->setWindowTitle(optionalAxisLabel + QCoreApplication::applicationName() + " - v" + QCoreApplication::applicationVersion() + "      " +
 			ui.ipNameEdit->text() + " @ " + ui.ipAddressEdit->text());
 	}
 }
@@ -749,6 +994,13 @@ void magnetdaq::timeout(void)
 {
 	// plotTimer fired, request next data point from socket
 	socket->getNextDataPoint();
+
+	// fetch STATE? every sample if a QProcess slave
+	if (parseInput)
+	{
+		// if parser input we reduce data collection rate to 1 Hz
+		socket->getState();
+	}
 }
 
 //---------------------------------------------------------------------------

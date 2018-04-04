@@ -728,6 +728,7 @@ void magnetdaq::syncLoadTab(void)
 void magnetdaq::syncSwitchTab(void)
 {
 	ui.switchInstalledComboBox->setCurrentIndex((int)model430.switchInstalled());
+	ui.stabilityResistorCheckBox->setChecked(model430.stabilityResistor());
 	ui.switchCurrentEdit->setText(QString::number(model430.switchCurrent(), 'f', 1));
 	ui.switchTransitionComboBox->setCurrentIndex(model430.switchTransition());
 	ui.switchHeatedTimeEdit->setText(QString::number(model430.switchHeatedTime()));

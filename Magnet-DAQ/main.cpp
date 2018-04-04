@@ -63,8 +63,13 @@ public:
 //---------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
+	QCoreApplication::setOrganizationName("American Magnetics Inc.");
+	QCoreApplication::setApplicationName("MagnetDAQ");
+	QCoreApplication::setApplicationVersion("1.00");
+	QCoreApplication::setOrganizationDomain("AmericanMagnetics.com");
 	QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-	//qputenv("QT_SCALE_FACTOR", "1.0");
+	QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+	//qputenv("QT_SCALE_FACTOR", "1.0");	// for testing
 
 #ifndef DEBUG
 	MyApplication a(argc, argv);

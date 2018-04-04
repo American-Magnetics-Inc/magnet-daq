@@ -52,6 +52,7 @@ void Socket::connectToModel430(QString ipaddress, quint16 port)
 	connect(socket, SIGNAL(connected()), this, SLOT(connected()));
 	connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
 	connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
+	connect(socket, SIGNAL(bytesWritten(qint64)), this, SLOT(bytesWritten(qint64)));
 
 	ipAddress = ipaddress;
 	ipPort = port;
@@ -89,7 +90,7 @@ void Socket::disconnected()
 void Socket::bytesWritten(qint64 bytes)
 {
 #ifdef DEBUG
-	qDebug() << "Bytes written: " << bytes;
+	//qDebug() << "Bytes written: " << bytes;
 #endif
 }
 
@@ -102,7 +103,7 @@ void Socket::readyRead()
 	{
 		qDebug() << "WELCOME_STRING: " << reply;
 
-		if (ipPort == 23)
+		if (ipPort == 23 || ipPort > 7189)
 			queryState = MSG_UPDATE;	// receive broadcast MSG's on telnet port only, no commands or queries!
 		else
 			queryState = IDLE_STATE;	// commands and queries to port 7180
@@ -115,6 +116,9 @@ void Socket::readyRead()
 		// read return data
 		// split at the , delimiters
 		QStringList strList = reply.split(",");
+
+		// parse serial number
+		model430->serialNumber.set(strList.at(2).toInt());
 
 		// firmware revision is always last string
 		QString versionStr = strList.last();
@@ -229,7 +233,8 @@ void Socket::readyRead()
 			 queryState == PROTECTION_MODE	  || queryState == MODE				  ||
 			 queryState == RAMP_UNITS		  || queryState == FIELD_UNITS		  ||
 			 queryState == RAMP_SEGMENTS	  || queryState == RAMPDOWN_SEGMENTS  ||
-			 queryState == RAMPDOWN_COUNT	  || queryState	== QUENCH_COUNT)
+			 queryState == RAMPDOWN_COUNT	  || queryState	== QUENCH_COUNT		  ||
+			 queryState == STATE)
 	{
 		#ifdef DEBUG
 		if (queryState == SUPPLY_TYPE)
@@ -264,6 +269,8 @@ void Socket::readyRead()
 			qDebug() << "RAMPD:COUNT? Reply : " << reply;
 		else if (queryState == QUENCH_COUNT)
 			qDebug() << "QU:COUNT? Reply : " << reply;
+		else if (queryState == STATE)
+			qDebug() << "STATE? Reply : " << reply;
 		#endif
 
 		// read return data
@@ -304,6 +311,8 @@ void Socket::readyRead()
 				model430->rampdownEventsCount = temp;
 			else if (queryState == QUENCH_COUNT)
 				model430->quenchEventsCount = temp;
+			else if (queryState == STATE)
+				model430->state = (State)temp;
 		}
 		queryState = IDLE_STATE;
 	}
@@ -511,6 +520,10 @@ void Socket::readyRead()
 			qDebug() << "MSG_DISP_UPDATE::" + strList[1] + "::" + strList[2];
 			#endif
 
+			// expect 9 substrings -- if incomplete, ignore
+			if (strList.count() < 9)
+				return;
+
 			QString displayStr = strList[1] + "\n" + strList[2];
 			bool leds[6] = { false, false, false, false, false, false };
 
@@ -518,6 +531,21 @@ void Socket::readyRead()
 			{
 				if (strList[i + 3] == "1")
 					leds[i] = true;
+			}
+
+			if (model430->state() == QUENCH)
+			{
+				// parse quench current from display string
+				QString quenchStr;
+				int start = displayStr.indexOf("Quench Detect @");
+				start += 15;
+				quenchStr = displayStr.mid(start, 12);
+				quenchStr.replace("A", " ");
+				
+				bool ok;
+				double temp = quenchStr.toDouble(&ok);
+				if (ok)
+					model430->quenchCurrent = temp;
 			}
 
 			emit updateFrontPanel(displayStr, leds[0], leds[1], leds[2], leds[3], leds[4]);
@@ -670,7 +698,8 @@ void Socket::commandTimerTimeout(void)
 			}
 
 			QString cmd = commandQueue.dequeue();
-			socket->write(cmd.toLocal8Bit());
+			socket->write(cmd.toLocal8Bit().data(), cmd.size());
+
 			#ifdef DEBUG
 			qDebug() << "CMD: " << cmd;
 			#endif
@@ -704,12 +733,12 @@ void Socket::sendBlockingCommand(QString aStr)
 #endif
 		}
 
-		socket->write(aStr.toLocal8Bit());
+		// according to documentation, this write blocks until all data is written ??
+		socket->write(aStr.toLocal8Bit().data(), aStr.size());
 
 		#ifdef DEBUG
 		qDebug() << "CMD: " << aStr;
 		#endif
-		socket->waitForBytesWritten(1000);
 	}
 }
 
@@ -890,7 +919,42 @@ void Socket::getMode(void)
 			if (timeout.elapsed() > TIMEOUT)
 			{
 				queryState = IDLE_STATE;
-				emit systemErrorMessage("Query " + QString::number(queryState) + " reply timeout");
+				emit systemErrorMessage("MODE? reply timeout");
+				break;
+			}
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+void Socket::getState(void)
+{
+	if (unitConnected)
+	{
+		QTime timeout;
+		timeout.restart();
+
+		while (queryState != IDLE_STATE)
+		{
+			if (timeout.elapsed() > TIMEOUT)
+			{
+				emit systemErrorMessage("STATE? send timeout");
+				return;
+			}
+		}
+
+		queryState = STATE;
+		socket->write("STATE?\r\n");
+		socket->waitForReadyRead(1000);
+
+		timeout.restart();
+		while (queryState == STATE)
+		{
+			socket->waitForReadyRead(500);
+			if (timeout.elapsed() > TIMEOUT)
+			{
+				queryState = IDLE_STATE;
+				emit systemErrorMessage("STATE? reply timeout");
 				break;
 			}
 		}

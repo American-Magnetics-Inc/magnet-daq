@@ -115,7 +115,7 @@
           </font>
          </property>
          <property name="frameShape">
-          <enum>QFrame::Box</enum>
+          <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="frameShadow">
           <enum>QFrame::Plain</enum>
@@ -1733,8 +1733,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>654</width>
-             <height>422</height>
+             <width>373</width>
+             <height>404</height>
             </rect>
            </property>
            <attribute name="label">
@@ -2106,8 +2106,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>521</width>
-             <height>304</height>
+             <width>429</width>
+             <height>264</height>
             </rect>
            </property>
            <attribute name="label">
@@ -2304,8 +2304,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>543</width>
-             <height>416</height>
+             <width>442</width>
+             <height>362</height>
             </rect>
            </property>
            <attribute name="label">
@@ -2580,8 +2580,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>644</width>
-             <height>490</height>
+             <width>531</width>
+             <height>449</height>
             </rect>
            </property>
            <attribute name="label">
@@ -4279,7 +4279,7 @@ p, li { white-space: pre-wrap; }
   <widget class="QDockWidget" name="setupDockWidget">
    <property name="minimumSize">
     <size>
-     <width>204</width>
+     <width>238</width>
      <height>512</height>
     </size>
    </property>
@@ -4362,6 +4362,45 @@ p, li { white-space: pre-wrap; }
          </widget>
         </item>
         <item>
+         <widget class="QLabel" name="serialNumLabel">
+          <property name="font">
+           <font>
+            <pointsize>8</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Serial Number (read-only):</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="serialNumEdit">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>8</pointsize>
+           </font>
+          </property>
+          <property name="maxLength">
+           <number>13</number>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+          <property name="placeholderText">
+           <string>Serial number</string>
+          </property>
+          <property name="clearButtonEnabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QCheckBox" name="remoteLockoutCheckBox">
           <property name="text">
            <string>Front Panel Lockout</string>
@@ -4407,7 +4446,7 @@ p, li { white-space: pre-wrap; }
         <enum>Qt::ScrollBarAsNeeded</enum>
        </property>
        <property name="horizontalScrollBarPolicy">
-        <enum>Qt::ScrollBarAlwaysOff</enum>
+        <enum>Qt::ScrollBarAsNeeded</enum>
        </property>
        <property name="selectionMode">
         <enum>QAbstractItemView::SingleSelection</enum>

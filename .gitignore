@@ -247,9 +247,11 @@ ModelManifest.xml
 # Local ignores
 Linux-diffs/
 Magnet-DAQ/Resources/Legacy/Model430.zip
-help/
 Docs/
 Magnet-DAQ/GeneratedFiles/
 Distribution/
-
-
+/Magnet-DAQ/Resources/Thumbs.db
+/Magnet-DAQ/Resources/Legacy/Model430-v2.53.exe
+/Magnet-DAQ/Resources/Legacy/Model430-v2.54.exe
+/Magnet-DAQ/Resources/Model430-v3.03.exe
+/Magnet-DAQ/Resources/Model430-v3.04.exe

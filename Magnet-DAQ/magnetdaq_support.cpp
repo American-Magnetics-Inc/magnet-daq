@@ -10,7 +10,7 @@
 void magnetdaq::restoreSupportSettings(QSettings *settings)
 {
 	// restore values
-	ui.caseEdit->setText(settings->value("Support/Subject", "").toString());
+	ui.caseEdit->setText(settings->value(axisStr + "Support/Subject", "").toString());
 
 	// make connections
 	connect(ui.sendSupportEmailButton, SIGNAL(clicked()), this, SLOT(sendSupportEmailClicked()));
@@ -32,6 +32,11 @@ void magnetdaq::refreshSupportSettings(void)
 void magnetdaq::syncTextSettings(QString str)
 {
 	ui.settingsTextEdit->clear();
+
+	// prepend firmware version and serial number
+	str.prepend("Firmware Rev: " + QString::number(model430.firmwareVersion(), 'f', 2) + model430.getFirmwareSuffix() + "\n" +
+		"Serial Number: " + QString::number(model430.serialNumber()) + "\n\n");
+
 	ui.settingsTextEdit->setPlainText(str);
 }
 
@@ -55,7 +60,6 @@ void magnetdaq::sendSupportEmailClicked(void)
 		QString body;
 
 		body = "Notes:\n\n" + ui.notesTextEdit->toPlainText() + "\n\n";
-		body += "Firmware Rev: " + QString::number(model430.firmwareVersion(), 'f', 2) + model430.getFirmwareSuffix() + "\n\n";
 		body += ui.settingsTextEdit->toPlainText();
 
 		QString url = "mailto:support@americanmagnetics.com?subject=" + ui.caseEdit->text() + "&body=" + body;
@@ -67,8 +71,7 @@ void magnetdaq::sendSupportEmailClicked(void)
 void magnetdaq::copySettingsToClipboard(void)
 {
 	QClipboard *clipboard = QApplication::clipboard();
-	clipboard->setText("Firmware Rev: " + QString::number(model430.firmwareVersion(), 'f', 2) + model430.getFirmwareSuffix() + 
-		"\n\n" + ui.settingsTextEdit->toPlainText());
+	clipboard->setText(ui.settingsTextEdit->toPlainText());
 }
 
 //---------------------------------------------------------------------------

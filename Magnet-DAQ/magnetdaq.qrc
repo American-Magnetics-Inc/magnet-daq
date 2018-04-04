@@ -66,5 +66,8 @@
         <file>Resources/info.png</file>
         <file>Resources/info@2x.png</file>
         <file>Resources/AMIlogo.png</file>
+        <file>Resources/Magnet-DAQ-x.ico</file>
+        <file>Resources/Magnet-DAQ-y.ico</file>
+        <file>Resources/Magnet-DAQ-z.ico</file>
     </qresource>
 </RCC>

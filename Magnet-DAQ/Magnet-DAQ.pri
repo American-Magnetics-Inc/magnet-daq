@@ -11,7 +11,8 @@ HEADERS += ./property.hpp \
     ./qled.h \
     ./model430.h \
     ./replytimeout.h \
-    ./aboutdialog.h
+    ./aboutdialog.h \
+    $$PWD/parser.h
 SOURCES += ./magnetdaq-upgrade.cpp \
     ./magnetdaq.cpp \
     ./magnetdaq_config.cpp \
@@ -27,7 +28,8 @@ SOURCES += ./magnetdaq-upgrade.cpp \
     ./socket.cpp \
     ./stdafx.cpp \
     ./magnetdaq_devices.cpp \
-    ./aboutdialog.cpp
+    ./aboutdialog.cpp \
+    $$PWD/parser.cpp
 FORMS += ./magnetdaq.ui \
     ./aboutdialog.ui
 RESOURCES += magnetdaq.qrc

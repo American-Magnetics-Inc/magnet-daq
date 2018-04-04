@@ -16,34 +16,34 @@ const int SUPPLY_VOLTAGE_GRAPH = 4;
 void magnetdaq::restorePlotSettings(QSettings *settings)
 {
 	// restore saved axes labels (minus units)
-	mainPlotTitle = settings->value("Graph/Title", "Magnet Current/Voltage vs. Time").toString();
-	mainPlotXTitle = settings->value("Graph/TitleX", "Time").toString();
-	mainPlotYTitleCurrent = settings->value("Graph/TitleYCurrent", "Current").toString();
-	mainPlotYTitleField = settings->value("Graph/TitleYField", "Field").toString();
-	mainPlotY2Title = settings->value("Graph/TitleY2", "Voltage").toString();
+	mainPlotTitle = settings->value(axisStr + "Graph/Title", "Magnet Current/Voltage vs. Time").toString();
+	mainPlotXTitle = settings->value(axisStr + "Graph/TitleX", "Time").toString();
+	mainPlotYTitleCurrent = settings->value(axisStr + "Graph/TitleYCurrent", "Current").toString();
+	mainPlotYTitleField = settings->value(axisStr + "Graph/TitleYField", "Field").toString();
+	mainPlotY2Title = settings->value(axisStr + "Graph/TitleY2", "Voltage").toString();
 
 	// restore legend names
-	mainLegend[MAGNET_CURRENT_GRAPH] = settings->value("Graph/Legend0", "Magnet Current").toString();
-	mainLegend[MAGNET_FIELD_GRAPH] = settings->value("Graph/Legend1", "Magnet Field").toString();
-	mainLegend[SUPPLY_CURRENT_GRAPH] = settings->value("Graph/Legend2", "Supply Current").toString();
-	mainLegend[MAGNET_VOLTAGE_GRAPH] = settings->value("Graph/Legend3", "Magnet Voltage").toString();
-	mainLegend[SUPPLY_VOLTAGE_GRAPH] = settings->value("Graph/Legend4", "Supply Voltage").toString();
+	mainLegend[MAGNET_CURRENT_GRAPH] = settings->value(axisStr + "Graph/Legend0", "Magnet Current").toString();
+	mainLegend[MAGNET_FIELD_GRAPH] = settings->value(axisStr + "Graph/Legend1", "Magnet Field").toString();
+	mainLegend[SUPPLY_CURRENT_GRAPH] = settings->value(axisStr + "Graph/Legend2", "Supply Current").toString();
+	mainLegend[MAGNET_VOLTAGE_GRAPH] = settings->value(axisStr + "Graph/Legend3", "Magnet Voltage").toString();
+	mainLegend[SUPPLY_VOLTAGE_GRAPH] = settings->value(axisStr + "Graph/Legend4", "Supply Voltage").toString();
 
 	// restore plot ranges
-	ui.xminEdit->setText(settings->value("Graph/Xmin", "0").toString());
-	ui.xmaxEdit->setText(settings->value("Graph/Xmax", "10").toString());
-	ui.yminEdit->setText(settings->value("Graph/Ymin", "0").toString());
-	ui.ymaxEdit->setText(settings->value("Graph/Ymax", "10").toString());
-	ui.vminEdit->setText(settings->value("Graph/Vmin", "-6").toString());
-	ui.vmaxEdit->setText(settings->value("Graph/Vmax", "6").toString());
+	ui.xminEdit->setText(settings->value(axisStr + "Graph/Xmin", "0").toString());
+	ui.xmaxEdit->setText(settings->value(axisStr + "Graph/Xmax", "10").toString());
+	ui.yminEdit->setText(settings->value(axisStr + "Graph/Ymin", "0").toString());
+	ui.ymaxEdit->setText(settings->value(axisStr + "Graph/Ymax", "10").toString());
+	ui.vminEdit->setText(settings->value(axisStr + "Graph/Vmin", "-6").toString());
+	ui.vmaxEdit->setText(settings->value(axisStr + "Graph/Vmax", "6").toString());
 
 	// restore plot selections
-	ui.secondsRadioButton->setChecked(settings->value("Graph/UseSeconds", false).toBool());
-	ui.autoscrollXCheckBox->setChecked(settings->value("Graph/AutoscrollX", true).toBool());
-	ui.magnetFieldRadioButton->setChecked(settings->value("Graph/PlotField", false).toBool());
-	ui.magnetVoltageCheckBox->setChecked(settings->value("Graph/PlotMagnetVoltage", true).toBool());
-	ui.supplyCurrentCheckBox->setChecked(settings->value("Graph/PlotSupplyCurrent", false).toBool());
-	ui.supplyVoltageCheckBox->setChecked(settings->value("Graph/PlotSupplyVoltage", false).toBool());
+	ui.secondsRadioButton->setChecked(settings->value(axisStr + "Graph/UseSeconds", false).toBool());
+	ui.autoscrollXCheckBox->setChecked(settings->value(axisStr + "Graph/AutoscrollX", true).toBool());
+	ui.magnetFieldRadioButton->setChecked(settings->value(axisStr + "Graph/PlotField", false).toBool());
+	ui.magnetVoltageCheckBox->setChecked(settings->value(axisStr + "Graph/PlotMagnetVoltage", true).toBool());
+	ui.supplyCurrentCheckBox->setChecked(settings->value(axisStr + "Graph/PlotSupplyCurrent", false).toBool());
+	ui.supplyVoltageCheckBox->setChecked(settings->value(axisStr + "Graph/PlotSupplyVoltage", false).toBool());
 }
 
 //---------------------------------------------------------------------------
@@ -280,6 +280,9 @@ void magnetdaq::setVoltageAxisLabel(void)
 void magnetdaq::addDataPoint(qint64 time, double magField, double magCurrent, double magVoltage, double supCurrent, double supVoltage)
 {
 	double timebase = (double)(time - startTime) / 1000.0;
+
+	// save current data to model430 object
+	model430.setCurrentData(time, magField, magCurrent, magVoltage, supCurrent, supVoltage);
 
 	// sample rate calculation
 	double deltaTime = (double)(time - lastTime) / 1000.0;
@@ -533,7 +536,7 @@ void magnetdaq::titleDoubleClick(QMouseEvent* event)
 
 		// save/restore different geometry for different DPI screens
 		QString dpiStr = QString::number(QApplication::desktop()->screen()->logicalDpiX());
-		dlg.restoreGeometry(settings.value("LabelDialog/Geometry/" + dpiStr).toByteArray());
+		dlg.restoreGeometry(settings.value(axisStr + "LabelDialog/Geometry/" + dpiStr).toByteArray());
 		ok = dlg.exec();
 
 		if (ok)
@@ -543,7 +546,7 @@ void magnetdaq::titleDoubleClick(QMouseEvent* event)
 			ui.plotWidget->replot();
 		}
 
-		settings.setValue("LabelDialog/Geometry", dlg.saveGeometry());
+		settings.setValue(axisStr + "LabelDialog/Geometry/" + dpiStr, dlg.saveGeometry());
 	}
 }
 
@@ -571,7 +574,7 @@ void magnetdaq::axisLabelDoubleClick(QCPAxis *axis, QCPAxis::SelectablePart part
 		
 		// save/restore different geometry for different DPI screens
 		QString dpiStr = QString::number(QApplication::desktop()->screen()->logicalDpiX());
-		dlg.restoreGeometry(settings.value("LabelDialog/Geometry/" + dpiStr).toByteArray());
+		dlg.restoreGeometry(settings.value(axisStr + "LabelDialog/Geometry/" + dpiStr).toByteArray());
 		ok = dlg.exec();
 
 		if (ok)
@@ -609,7 +612,7 @@ void magnetdaq::axisLabelDoubleClick(QCPAxis *axis, QCPAxis::SelectablePart part
 			ui.plotWidget->replot();
 		}
 
-		settings.setValue("LabelDialog/Geometry/" + dpiStr, dlg.saveGeometry());
+		settings.setValue(axisStr + "LabelDialog/Geometry/" + dpiStr, dlg.saveGeometry());
 	}
 }
 
@@ -633,7 +636,7 @@ void magnetdaq::legendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item
 
 		// save/restore different geometry for different DPI screens
 		QString dpiStr = QString::number(QApplication::desktop()->screen()->logicalDpiX());
-		dlg.restoreGeometry(settings.value("LabelDialog/Geometry/" + dpiStr).toByteArray());
+		dlg.restoreGeometry(settings.value(axisStr + "LabelDialog/Geometry/" + dpiStr).toByteArray());
 		ok = dlg.exec();
 
 		if (ok)
@@ -642,7 +645,7 @@ void magnetdaq::legendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item
 			ui.plotWidget->replot();
 		}
 
-		settings.setValue("LabelDialog/Geometry/" + dpiStr, dlg.saveGeometry());
+		settings.setValue(axisStr + "LabelDialog/Geometry/" + dpiStr, dlg.saveGeometry());
 	}
 }
 

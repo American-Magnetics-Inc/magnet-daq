@@ -302,3 +302,14 @@ void Model430::setSettings(QString str)
 }
 
 //---------------------------------------------------------------------------
+void Model430::setCurrentData(qint64 time, double magField, double magCurrent, double magVoltage, double supCurrent, double supVoltage)
+{
+	timestamp = time;
+	magnetField = magField;
+	magnetCurrent = magCurrent;
+	magnetVoltage = magVoltage;
+	supplyCurrent = supCurrent;
+	supplyVoltage = supVoltage;
+}
+
+//---------------------------------------------------------------------------

@@ -7,6 +7,7 @@
 #include "qcustomplot.h"
 #include "socket.h"
 #include "model430.h"
+#include "parser.h"
 
 #define N_SAMPLES_MOVING_AVG 60
 
@@ -42,6 +43,7 @@ private slots:
 	void actionPrint(void);
 	void actionHelp(void);
 	void actionAbout(void);
+	void errorString(QString err);
 	void ipAddressEdited(QString text);
 	void setDeviceWindowTitle(void);
 	void chooseLogfile(bool checked);
@@ -168,6 +170,18 @@ private:
 	qint64 startTime;
 	int plotCount;
 	int errorCode;
+
+	// command line support
+	QString targetIP;	// optional command line ip start
+	int port;			// optional command line ip port (for simulations only)
+	int tport;			// optional telnet port for display echo (for simulations only)
+	bool startHidden;	// option to start hidden
+	bool isXAxis;		// axes label options for 3-axis systems
+	bool isYAxis;		// ...
+	bool isZAxis;		// ...
+	QString axisStr;	// label for saving/restoring axes window geometry
+	bool parseInput;	// optional stdin message parsing
+	Parser *parser;		// stdin parsing support
 
 	// log file support
 	QFile *logFile;

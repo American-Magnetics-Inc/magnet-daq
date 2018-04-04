@@ -27,6 +27,7 @@ public:
 	void sendRampQuery(QString queryStr, QueryState aState, int segment);
 	void getFirmwareVersion();
 	void getMode();
+	void getState(void);
 	void getStatusByte(void);
 	void getIpName(void);
 	void remoteLockout(bool state);
@@ -53,6 +54,7 @@ private:
 	QString ipAddress;
 	quint16 ipPort;
 	std::atomic<QueryState> queryState;
+	volatile bool cmdWritten;
 	double magnetField, magnetCurrent, magnetVoltage, supplyCurrent, supplyVoltage;
 	bool unitConnected;
 	QQueue<QString> commandQueue;
