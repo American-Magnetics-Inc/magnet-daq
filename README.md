@@ -53,3 +53,8 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 ## Who do I talk to? ##
 
 <support@americanmagnetics.com>
+
+## Screenshot ##
+
+![screenshot](https://bytebucket.org/americanmagneticsinc/magnet-daq/raw/7f3f0ff05bae12f9b18e4f4a7cc1c38ea78a455e/help/images/screenshot.png)
+
