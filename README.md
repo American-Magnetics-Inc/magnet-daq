@@ -6,7 +6,7 @@
 
 This repository is the source code and binary distribution point for the Magnet-DAQ application for comprehensive remote control of the AMI Model 430 Programmer.
 
-**The current application version is 1.00**.
+**The current application version is 1.00**. An integrated Help file is included that you may preview in PDF format [here](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/Magnet-DAQ-Help.pdf).
 
 The Magnet-DAQ application *requires* firmware version 2.55 or later in the Model 430 programmer. An integrated Firmware Upgrade Wizard is included in the application along with the applicable firmware. Upon connection to a Model 430, the application will present the Firmware Upgrade Wizard as appropriate.
 
