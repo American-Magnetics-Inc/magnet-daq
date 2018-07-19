@@ -43,7 +43,8 @@ private slots:
 	void actionPrint(void);
 	void actionHelp(void);
 	void actionAbout(void);
-	void errorString(QString err);
+	void actionUpgrade(void);
+	void parserErrorString(QString err);
 	void ipAddressEdited(QString text);
 	void setDeviceWindowTitle(void);
 	void chooseLogfile(bool checked);
@@ -51,7 +52,7 @@ private slots:
 	void timeout(void);
 	void updateFrontPanel(QString, bool, bool, bool, bool, bool);
 	void systemErrorNotification();
-	void displaySystemError(QString);
+	void displaySystemError(QString errMsg, QString errorSourceStr);
 	void clearErrorDisplay(void);
 	void clearMiscDisplay(void);
 	void startExternalRampdown(void);
@@ -68,7 +69,8 @@ private slots:
 	// slots for main plot
 	void restorePlotSettings(QSettings *settings);
 	void initPlot(void);
-	void toggleAutoscrollX(bool checked);
+	void toggleAutoscrollXCheckBox(bool checked);
+	void toggleAutoscrollButton(bool checked);
 	void addDataPoint(qint64 time, double magField, double magCurrent, double magVoltage, double supCurrent, double supVoltage);
 	void writeLogHeader(void);
 	void renderPlot(QPrinter *printer);
@@ -159,6 +161,7 @@ private slots:
 	void errorDuringFirmwareUpload(QNetworkReply::NetworkError code);
 	void finishedFirmwareUpload(QNetworkReply * reply);
 	void showFirmwareUpgradeWizard(void);
+	void wizardFinished(int result);
 
 private:
 	Ui::magnetdaqClass ui;
@@ -255,6 +258,7 @@ private:
 	QWizardPage *finishedPage;
 	QLabel *finishedPageLabel;
 	bool checkFirmwareVersion(void);
+	bool checkAvailableFirmware(void);
 	QString formatFirmwareUpgradeStr(void);
 	QString formatFirmwareUpgradeMsg(void);
 	void initializeUpgradeWizard(void);

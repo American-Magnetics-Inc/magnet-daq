@@ -69,5 +69,9 @@
         <file>Resources/Magnet-DAQ-x.ico</file>
         <file>Resources/Magnet-DAQ-y.ico</file>
         <file>Resources/Magnet-DAQ-z.ico</file>
+        <file>Resources/upgrade.png</file>
+        <file>Resources/upgrade@2x.png</file>
+        <file>Resources/move_right_off.png</file>
+        <file>Resources/move_right_off@2x.png</file>
     </qresource>
 </RCC>

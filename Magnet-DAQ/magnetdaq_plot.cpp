@@ -165,11 +165,15 @@ void magnetdaq::initPlot(void)
 	voltageAxis->setLabelFont(axesFont);
 	setVoltageAxisLabel();
 
-
 	// create quick-access autoscroll enable/disable button
 	autoscrollButton = new QToolButton();
 	autoscrollButton->setIconSize(QSize(24, 24));
-	autoscrollButton->setIcon(QIcon(":/magnetdaq/Resources/move_right.png"));
+	autoscrollButton->setCheckable(true);
+	autoscrollButton->setChecked(ui.autoscrollXCheckBox->isChecked());
+	QIcon stateAwareIcon;
+	stateAwareIcon.addPixmap(QIcon(":/magnetdaq/Resources/move_right.png").pixmap(24), QIcon::Normal, QIcon::On);
+	stateAwareIcon.addPixmap(QIcon(":/magnetdaq/Resources/move_right_off.png").pixmap(24), QIcon::Normal, QIcon::Off);
+	autoscrollButton->setIcon(stateAwareIcon);
 	autoscrollButton->setToolTip("Toggle X-axis Autoscrolling");
 
 	// add autoscroll toolbar button to graph space
@@ -183,7 +187,7 @@ void magnetdaq::initPlot(void)
 		ui.plotWidget->setLayout(innerlayout);
 	}
 
-	connect(autoscrollButton, SIGNAL(clicked(bool)), this, SLOT(toggleAutoscrollX(bool)));
+	connect(autoscrollButton, SIGNAL(clicked(bool)), this, SLOT(toggleAutoscrollButton(bool)));
 
 	// set initial interactions
 	ui.plotWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes | QCP::iSelectLegend | QCP::iSelectPlottables);
@@ -209,12 +213,29 @@ void magnetdaq::initPlot(void)
 }
 
 //---------------------------------------------------------------------------
-void magnetdaq::toggleAutoscrollX(bool checked)
+void magnetdaq::toggleAutoscrollXCheckBox(bool checked)
 {
 	if (ui.autoscrollXCheckBox->isChecked())
-		ui.autoscrollXCheckBox->setChecked(false);
+	{
+		autoscrollButton->setChecked(true);
+	}
 	else
+	{
+		autoscrollButton->setChecked(false);
+	}
+}
+
+//---------------------------------------------------------------------------
+void magnetdaq::toggleAutoscrollButton(bool checked)
+{
+	if (autoscrollButton->isChecked())
+	{
 		ui.autoscrollXCheckBox->setChecked(true);
+	}
+	else
+	{
+		ui.autoscrollXCheckBox->setChecked(false);
+	}
 }
 
 //---------------------------------------------------------------------------

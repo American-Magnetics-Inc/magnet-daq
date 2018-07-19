@@ -1733,8 +1733,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>373</width>
-             <height>404</height>
+             <width>660</width>
+             <height>389</height>
             </rect>
            </property>
            <attribute name="label">
@@ -4274,6 +4274,8 @@ p, li { white-space: pre-wrap; }
    <addaction name="separator"/>
    <addaction name="actionHelp"/>
    <addaction name="actionAbout"/>
+   <addaction name="separator"/>
+   <addaction name="actionUpgrade"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QDockWidget" name="setupDockWidget">
@@ -4299,7 +4301,7 @@ p, li { white-space: pre-wrap; }
     <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
    <property name="windowTitle">
-    <string>Setup</string>
+    <string>Select</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>2</number>
@@ -5750,6 +5752,12 @@ p, li { white-space: pre-wrap; }
    <property name="toolTip">
     <string>Connect to Model 430</string>
    </property>
+   <property name="font">
+    <font>
+     <family>Segoe UI</family>
+     <pointsize>9</pointsize>
+    </font>
+   </property>
    <property name="shortcut">
     <string>R</string>
    </property>
@@ -5766,6 +5774,12 @@ p, li { white-space: pre-wrap; }
    <property name="toolTip">
     <string>Stop Plotting</string>
    </property>
+   <property name="font">
+    <font>
+     <family>Segoe UI</family>
+     <pointsize>9</pointsize>
+    </font>
+   </property>
    <property name="shortcut">
     <string>S</string>
    </property>
@@ -5777,7 +5791,10 @@ p, li { white-space: pre-wrap; }
      <normalon>:/magnetdaq/Resources/setup.png</normalon>:/magnetdaq/Resources/settings@2x.png</iconset>
    </property>
    <property name="text">
-    <string>Setup</string>
+    <string>Select</string>
+   </property>
+   <property name="toolTip">
+    <string>Show device selection sidebar...</string>
    </property>
   </action>
   <action name="actionPrint">
@@ -5789,6 +5806,9 @@ p, li { white-space: pre-wrap; }
    <property name="text">
     <string>Print</string>
    </property>
+   <property name="toolTip">
+    <string>Print dialog...</string>
+   </property>
   </action>
   <action name="actionShow_Keypad">
    <property name="icon">
@@ -5799,7 +5819,7 @@ p, li { white-space: pre-wrap; }
     <string>Keypad</string>
    </property>
    <property name="toolTip">
-    <string>Show Model 430 Keypad...</string>
+    <string>Show Model 430 keypad...</string>
    </property>
   </action>
   <action name="actionPlot_Settings">
@@ -5810,6 +5830,9 @@ p, li { white-space: pre-wrap; }
    <property name="text">
     <string>Plot Settings</string>
    </property>
+   <property name="toolTip">
+    <string>Show plot settings sidebar...</string>
+   </property>
   </action>
   <action name="actionHelp">
    <property name="icon">
@@ -5819,6 +5842,9 @@ p, li { white-space: pre-wrap; }
    <property name="text">
     <string>Help</string>
    </property>
+   <property name="toolTip">
+    <string>Show Help window...</string>
+   </property>
   </action>
   <action name="actionAbout">
    <property name="icon">
@@ -5827,6 +5853,30 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>About</string>
+   </property>
+   <property name="toolTip">
+    <string>About this application...</string>
+   </property>
+  </action>
+  <action name="actionUpgrade">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="magnetdaq.qrc">
+     <normaloff>:/magnetdaq/Resources/upgrade.png</normaloff>:/magnetdaq/Resources/upgrade.png</iconset>
+   </property>
+   <property name="text">
+    <string>Upgrade</string>
+   </property>
+   <property name="toolTip">
+    <string>Show the Firmware Upgrade Wizard...</string>
+   </property>
+   <property name="font">
+    <font>
+     <family>Segoe UI</family>
+     <pointsize>9</pointsize>
+    </font>
    </property>
   </action>
   <zorder>setupDockWidget</zorder>

@@ -70,8 +70,8 @@ magnetdaq::magnetdaq(QWidget *parent)
 	ui.persistSwitchControlButton->setFont(QFont(".SF NS Text", 13));
 	ui.targetFieldSetpointButton->setFont(QFont(".SF NS Text", 13));
 	ui.rampPauseButton->setFont(QFont(".SF NS Text", 13));
-    ui.serialNumLabel->setFont(QFont(".SF NS Text", 11));
-    ui.serialNumEdit->setFont(QFont(".SF NS Text", 11));
+	ui.serialNumLabel->setFont(QFont(".SF NS Text", 11));
+	ui.serialNumEdit->setFont(QFont(".SF NS Text", 11));
 
 	// remove unsightly frame outlines
 	ui.keypadFrame->setStyleSheet("border: 0;");
@@ -98,9 +98,9 @@ magnetdaq::magnetdaq(QWidget *parent)
 	--port xxxx		Connect to specified port (for simulation use only)
 	--telnet xxxx	Echo display to specified port (for simulation use only)
 	************************************************************/
-
-	// define and parse optional command line argument(s)
-	parser = NULL;
+	
+	// init states
+	parser = NULL;	// stdin parser
 	isXAxis = false;
 	isYAxis = false;
 	isZAxis = false;
@@ -108,67 +108,69 @@ magnetdaq::magnetdaq(QWidget *parent)
 	parseInput = false;
 	port = 7180;
 	tport = 23;
-	QCommandLineParser parser;
+
+	// define the optional command line argument(s)
+	QCommandLineParser cmdLineParse;
 
 	// An ip address option with a value (-a, --address)
 	QCommandLineOption targetIPOption(QStringList() << "a" << "address",
 		QCoreApplication::translate("main", "Automatically connect to <IP address>."),
 		QCoreApplication::translate("main", "address"));
-	parser.addOption(targetIPOption);
+	cmdLineParse.addOption(targetIPOption);
 
 	// A specific port to connect (--port) (for simulation use only)
 	QCommandLineOption portOption("port", 
 		QCoreApplication::translate("main", "Connect to specified <ip-port>."),
 		QCoreApplication::translate("main", "ip-port"));
-	parser.addOption(portOption);
+	cmdLineParse.addOption(portOption);
 
 	// A specific telnet port to connect (--telnet) (for simulation use only)
 	QCommandLineOption telnetOption("telnet", 
 		QCoreApplication::translate("main", "Echo display to specified <port>."),
 		QCoreApplication::translate("main", "ip-port"));
-	parser.addOption(telnetOption);
+	cmdLineParse.addOption(telnetOption);
 
 	// A boolean option (-x)
 	QCommandLineOption xAxisOption("x", QCoreApplication::translate("main", "Label as X axis."));
-	parser.addOption(xAxisOption);
+	cmdLineParse.addOption(xAxisOption);
 
 	// A boolean option (-y)
 	QCommandLineOption yAxisOption("y", QCoreApplication::translate("main", "Label as Y axis."));
-	parser.addOption(yAxisOption);
+	cmdLineParse.addOption(yAxisOption);
 
 	// A boolean option (-z)
 	QCommandLineOption zAxisOption("z", QCoreApplication::translate("main", "Label as Z axis."));
-	parser.addOption(zAxisOption);
+	cmdLineParse.addOption(zAxisOption);
 
 	// A boolean option with multiple names (-h, --hidden)
 	QCommandLineOption hiddenOption(QStringList() << "h" << "hidden",
 		QCoreApplication::translate("main", "Start in minimized (hidden) mode."));
-	parser.addOption(hiddenOption);
+	cmdLineParse.addOption(hiddenOption);
 
 	// A boolean option with multiple names (-p, --parser)
 	QCommandLineOption parsingOption(QStringList() << "p" << "parser",
 		QCoreApplication::translate("main", "Enable stdin parsing for interprocess communication."));
-	parser.addOption(parsingOption);
+	cmdLineParse.addOption(parsingOption);
 
 	// Process the actual command line arguments given by the user
-	parser.process(*(QCoreApplication::instance()));
+	cmdLineParse.process(*(QCoreApplication::instance()));
 
-	const QStringList args = parser.positionalArguments();
+	const QStringList args = cmdLineParse.positionalArguments();
 	// source is args.at(0), destination is args.at(1)
 
 	// options for labeling as X, Y, or Z axis in three axis systems
 	// use axisStr as prefix for saving/restoring app state
-	if (isXAxis = parser.isSet(xAxisOption))
+	if (isXAxis = cmdLineParse.isSet(xAxisOption))
 	{
 		this->setWindowIcon(QIcon(":magnetdaq/Resources/Magnet-DAQ-x.ico"));
 		axisStr = "XAxis/";
 	}
-	else if (isYAxis = parser.isSet(yAxisOption))
+	else if (isYAxis = cmdLineParse.isSet(yAxisOption))
 	{
 		this->setWindowIcon(QIcon(":magnetdaq/Resources/Magnet-DAQ-y.ico"));
 		axisStr = "YAxis/";
 	}
-	else if (isZAxis = parser.isSet(zAxisOption))
+	else if (isZAxis = cmdLineParse.isSet(zAxisOption))
 	{
 		this->setWindowIcon(QIcon(":magnetdaq/Resources/Magnet-DAQ-z.ico"));
 		axisStr = "ZAxis/";
@@ -179,8 +181,8 @@ magnetdaq::magnetdaq(QWidget *parent)
 	}
 
 	// hidden start and parsing function options
-	startHidden = parser.isSet(hiddenOption);
-	parseInput = parser.isSet(parsingOption);
+	startHidden = cmdLineParse.isSet(hiddenOption);
+	parseInput = cmdLineParse.isSet(parsingOption);
 
 	// restore window position and gui state
 	QSettings settings;
@@ -223,6 +225,7 @@ magnetdaq::magnetdaq(QWidget *parent)
 	connect(ui.actionPrint, SIGNAL(triggered()), this, SLOT(actionPrint()));
 	connect(ui.actionHelp, SIGNAL(triggered()), this, SLOT(actionHelp()));
 	connect(ui.actionAbout, SIGNAL(triggered()), this, SLOT(actionAbout()));
+	connect(ui.actionUpgrade, SIGNAL(triggered()), this, SLOT(actionUpgrade()));
 	connect(ui.actionShow_Keypad, SIGNAL(triggered()), this, SLOT(actionShow_Keypad()));
 	connect(ui.actionPlot_Settings, SIGNAL(triggered()), this, SLOT(actionPlot_Settings()));
 
@@ -380,9 +383,10 @@ magnetdaq::magnetdaq(QWidget *parent)
 	connect(ui.rampdownRefreshButton, SIGNAL(clicked()), this, SLOT(refreshRampdownList()));
 	connect(ui.quenchListWidget, SIGNAL(currentRowChanged(int)), this, SLOT(quenchEventSelectionChanged(int)));
 	connect(ui.quenchRefreshButton, SIGNAL(clicked()), this, SLOT(refreshQuenchList()));
+	connect(ui.autoscrollXCheckBox, SIGNAL(clicked(bool)), this, SLOT(toggleAutoscrollXCheckBox(bool)));
 
 	// More command line options parsing
-	QString portStr = parser.value(portOption);
+	QString portStr = cmdLineParse.value(portOption);
 	if (!portStr.isEmpty())
 	{
 		bool ok;
@@ -392,7 +396,7 @@ magnetdaq::magnetdaq(QWidget *parent)
 			port = 7180;
 	}
 
-	QString telnetStr = parser.value(telnetOption);
+	QString telnetStr = cmdLineParse.value(telnetOption);
 	if (!telnetStr.isEmpty())
 	{
 		bool ok;
@@ -402,7 +406,7 @@ magnetdaq::magnetdaq(QWidget *parent)
 			tport = 23;
 	}
 
-	targetIP = parser.value(targetIPOption);
+	targetIP = cmdLineParse.value(targetIPOption);
 	if (!targetIP.isEmpty())
 	{
 		ui.ipAddressEdit->setText(targetIP);
@@ -531,7 +535,7 @@ void magnetdaq::actionRun(void)
 
 			// connect error signals
 			connect(socket, SIGNAL(model430Disconnected()), this, SLOT(actionStop()));
-			connect(socket, SIGNAL(systemErrorMessage(QString)), this, SLOT(displaySystemError(QString)), Qt::ConnectionType::QueuedConnection);
+			connect(socket, SIGNAL(systemErrorMessage(QString, QString)), this, SLOT(displaySystemError(QString, QString)), Qt::ConnectionType::QueuedConnection);
 
 			// query 430 mode (s2 state)
 			socket->getMode();
@@ -633,6 +637,7 @@ void magnetdaq::actionRun(void)
 				// all good, finish initializing interface
 				ui.actionRun->setEnabled(false);
 				ui.actionStop->setEnabled(true);
+				ui.actionUpgrade->setEnabled(checkAvailableFirmware());
 				ui.ipAddressEdit->setEnabled(false);
 				ui.ipAddressLabel->setEnabled(false);
 				ui.logFileEdit->setEnabled(false);
@@ -688,7 +693,7 @@ void magnetdaq::actionRun(void)
 
 					parser->setDataSource(&model430);
 					parser->moveToThread(parserThread);
-					connect(parser, SIGNAL(error(QString)), this, SLOT(errorString(QString)));
+					connect(parser, SIGNAL(error(QString)), this, SLOT(parserErrorString(QString)));
 					connect(parserThread, SIGNAL(started()), parser, SLOT(process()));
 					connect(parser, SIGNAL(finished()), parserThread, SLOT(quit()));
 					connect(parser, SIGNAL(finished()), parser, SLOT(deleteLater()));
@@ -715,12 +720,12 @@ void magnetdaq::actionRun(void)
 			socket = NULL;
 			telnet = NULL;
 
-			if (parseInput)	// cannot upgrade firmware when under remote control as upgrade process can be interrupted
+			if (parseInput)	// cannot upgrade firmware when under remote control as upgrade process should not be interrupted
 			{
 				QMessageBox msgBox;
 
 				msgBox.setText("A firmware upgrade is required to use this application with the device at network address " + ui.ipAddressEdit->text() + ".");
-				msgBox.setInformativeText("Cannot upgrade the firmware during a multi-axis control session. Manually restart Magnet-DAQ and connect to the device to perform a firmware upgrade.");
+				msgBox.setInformativeText("Cannot upgrade the firmware during a remote control session. Manually restart Magnet-DAQ and connect to the device to perform a firmware upgrade.");
 				msgBox.setStandardButtons(QMessageBox::Ok);
 				msgBox.setDefaultButton(QMessageBox::Ok);
 
@@ -746,8 +751,8 @@ void magnetdaq::actionRun(void)
 				{
 					msgBox.setText(formatFirmwareUpgradeMsg());
 
-					// firmware versions older than v2.00 may use non-compatible WinCE kernel
-					if (model430.firmwareVersion() >= 2.00)
+					// firmware versions older than v1.62 may use non-compatible WinCE kernel
+					if (model430.firmwareVersion() >= 1.62)
 					{
 						msgBox.setInformativeText("Do you wish to upgrade the firmware?");
 						msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
@@ -811,6 +816,7 @@ void magnetdaq::actionStop(void)
 
 	ui.actionRun->setEnabled(true);
 	ui.actionStop->setEnabled(false);
+	ui.actionUpgrade->setEnabled(false);
 	ui.ipAddressEdit->setEnabled(true);
 	ui.ipAddressLabel->setEnabled(true);
 	ui.logFileEdit->setEnabled(true);
@@ -916,7 +922,7 @@ void magnetdaq::actionPrint(void)
 void magnetdaq::actionHelp(void)
 {
 #if defined(Q_OS_MACOS)
-    QString link = "file:///" + QCoreApplication::applicationDirPath() + "//..//Resources//Help//index.html";
+	QString link = "file:///" + QCoreApplication::applicationDirPath() + "//..//Resources//Help//index.html";
 #else
 	QString link = "file:///" + QCoreApplication::applicationDirPath() + "//Help//index.html";
 #endif
@@ -932,8 +938,32 @@ void magnetdaq::actionAbout(void)
 }
 
 //---------------------------------------------------------------------------
+void magnetdaq::actionUpgrade(void)
+{
+	if (checkAvailableFirmware())
+	{
+		if (parseInput)	// cannot upgrade firmware when under remote control as upgrade process should not be interrupted
+		{
+			QMessageBox msgBox;
+
+			msgBox.setText("Firmware Upgrade Wizard is unavailable.");
+			msgBox.setInformativeText("Firmware upgrade is not allowed during a remote control session. Manually restart Magnet-DAQ and connect to the device to perform a firmware upgrade.");
+			msgBox.setStandardButtons(QMessageBox::Ok);
+			msgBox.setDefaultButton(QMessageBox::Ok);
+
+			msgBox.setIcon(QMessageBox::Critical);
+			int ret = msgBox.exec();
+		}
+		else
+		{
+			QMetaObject::invokeMethod(this, "showFirmwareUpgradeWizard", Qt::QueuedConnection);
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
 // Outputs parser function errors
-void magnetdaq::errorString(QString err)
+void magnetdaq::parserErrorString(QString err)
 {
 	qDebug() << err;
 }
@@ -1159,13 +1189,14 @@ void magnetdaq::systemErrorNotification(void)
 }
 
 //---------------------------------------------------------------------------
-void magnetdaq::displaySystemError(QString errMsg)
+void magnetdaq::displaySystemError(QString errMsg, QString errorSourceStr)
 {
 	if (!errMsg.contains("No errors"))
 	{
 		statusError->setStyleSheet("color: red; font: bold");
 		statusError->setText(errMsg.remove("\r\n"));
-		postErrorRefresh();	// refresh currently displayed tab values
+		qDebug() << errMsg.remove("\r\n") << "::" << errorSourceStr.remove("\r\n");	// send to log
+		postErrorRefresh();	// refresh currently displayed values, erasing any erroneous entry
 		QTimer::singleShot(3000, this, SLOT(clearErrorDisplay()));
 	}
 }
@@ -1235,7 +1266,7 @@ void magnetdaq::keypadClicked(bool checked)
 	{
 		QToolButton* button = qobject_cast<QToolButton*>(sender());
 
-		// use button text to determine which key was pressed
+		// use "hidden" button text to determine which key was pressed
 		if (button->text() == "1")
 			telnet->sendCommand("W_KEY_1\r\n");
 		else if (button->text() == "2")

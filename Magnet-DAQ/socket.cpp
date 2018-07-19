@@ -506,7 +506,7 @@ void Socket::readyRead()
 		if (ok)
 			model430->errorCode = -(temp);	// flip sign to positive value
 
-		emit systemErrorMessage(reply);
+		emit systemErrorMessage(reply, "");
 	}
 
 	else if (queryState == MSG_UPDATE)	// port 23 only
@@ -669,7 +669,7 @@ void Socket::getNextDataPoint()
 			queryState = TRG_SAMPLE;
 			socket->write("*TRG\r\n");
 			socket->waitForReadyRead(500);
-
+			
 			emit nextDataPoint(currentTime, magnetField, magnetCurrent, magnetVoltage, supplyCurrent, supplyVoltage);
 			queryState = IDLE_STATE;
 		}
@@ -754,7 +754,7 @@ void Socket::sendQuery(QString queryStr, QueryState aState)
 		{
 			if (timeout.elapsed() > TIMEOUT)
 			{
-				emit systemErrorMessage("Query " + QString::number(aState) + " send timeout");
+				emit systemErrorMessage("Query " + QString::number(aState) + " send timeout", queryStr);
 				return;
 			}
 		}
@@ -770,7 +770,7 @@ void Socket::sendQuery(QString queryStr, QueryState aState)
 			if (timeout.elapsed() > TIMEOUT)
 			{
 				queryState = IDLE_STATE;
-				emit systemErrorMessage("Query " + QString::number(queryState) + " reply timeout");
+				emit systemErrorMessage("Query " + QString::number(queryState) + " reply timeout", queryStr);
 				break;
 			}
 		}
@@ -794,7 +794,7 @@ void Socket::sendExtendedQuery(QString queryStr, QueryState aState, int timelimi
 		{
 			if (timeout.elapsed() > TIMEOUT)
 			{
-				emit systemErrorMessage("Query " + QString::number(aState) + " send timeout");
+				emit systemErrorMessage("Query " + QString::number(aState) + " send timeout", queryStr);
 				return;
 			}
 		}
@@ -812,7 +812,7 @@ void Socket::sendExtendedQuery(QString queryStr, QueryState aState, int timelimi
 			if (timeout.elapsed() > (timelimit * 1000))	// longer timeout because we expect a long reply
 			{
 				queryState = IDLE_STATE;
-				emit systemErrorMessage("Query " + QString::number(queryState) + " reply timeout");
+				emit systemErrorMessage("Query " + QString::number(queryState) + " reply timeout", queryStr);
 				break;
 			}
 		}
@@ -831,7 +831,7 @@ void Socket::sendRampQuery(QString queryStr, QueryState aState, int segment)
 		{
 			if (timeout.elapsed() > TIMEOUT)
 			{
-				emit systemErrorMessage("Query " + QString::number(aState) + " send timeout");
+				emit systemErrorMessage("Query " + QString::number(aState) + " send timeout", queryStr);
 				return;
 			}
 		}
@@ -848,7 +848,7 @@ void Socket::sendRampQuery(QString queryStr, QueryState aState, int segment)
 			if (timeout.elapsed() > TIMEOUT)
 			{
 				queryState = IDLE_STATE;
-				emit systemErrorMessage("Query " + QString::number(queryState) + " reply timeout");
+				emit systemErrorMessage("Query " + QString::number(queryState) + " reply timeout", queryStr);
 				break;
 			}
 		}
@@ -868,7 +868,7 @@ void Socket::getFirmwareVersion(void)
 		{
 			if (timeout.elapsed() > TIMEOUT)
 			{
-				emit systemErrorMessage("*IDN? send timeout");
+				emit systemErrorMessage("*IDN? send timeout", "");
 				return;
 			}
 		}
@@ -876,6 +876,7 @@ void Socket::getFirmwareVersion(void)
 		queryState = FIRMWARE_VERSION;
 		socket->write("*IDN?\r\n");
 		socket->waitForReadyRead(1000);
+		
 
 		timeout.restart();
 		while (queryState == FIRMWARE_VERSION)
@@ -884,7 +885,7 @@ void Socket::getFirmwareVersion(void)
 			if (timeout.elapsed() > TIMEOUT)
 			{
 				queryState = IDLE_STATE;
-				emit systemErrorMessage("*IDN? reply timeout");
+				emit systemErrorMessage("*IDN? reply timeout", "");
 				break;
 			}
 		}
@@ -903,7 +904,7 @@ void Socket::getMode(void)
 		{
 			if (timeout.elapsed() > TIMEOUT)
 			{
-				emit systemErrorMessage("MODE? send timeout");
+				emit systemErrorMessage("MODE? send timeout", "");
 				return;
 			}
 		}
@@ -919,7 +920,7 @@ void Socket::getMode(void)
 			if (timeout.elapsed() > TIMEOUT)
 			{
 				queryState = IDLE_STATE;
-				emit systemErrorMessage("MODE? reply timeout");
+				emit systemErrorMessage("MODE? reply timeout", "");
 				break;
 			}
 		}
@@ -938,7 +939,7 @@ void Socket::getState(void)
 		{
 			if (timeout.elapsed() > TIMEOUT)
 			{
-				emit systemErrorMessage("STATE? send timeout");
+				emit systemErrorMessage("STATE? send timeout", "");
 				return;
 			}
 		}
@@ -954,7 +955,7 @@ void Socket::getState(void)
 			if (timeout.elapsed() > TIMEOUT)
 			{
 				queryState = IDLE_STATE;
-				emit systemErrorMessage("STATE? reply timeout");
+				emit systemErrorMessage("STATE? reply timeout", "");
 				break;
 			}
 		}
@@ -973,7 +974,7 @@ void Socket::getStatusByte(void)
 		{
 			if (timeout.elapsed() > TIMEOUT)
 			{
-				emit systemErrorMessage("*STB? send timeout");
+				emit systemErrorMessage("*STB? send timeout", "");
 				return;
 			}
 		}
@@ -989,7 +990,7 @@ void Socket::getStatusByte(void)
 			if (timeout.elapsed() > TIMEOUT)
 			{
 				queryState = IDLE_STATE;
-				emit systemErrorMessage("*STB? reply timeout");
+				emit systemErrorMessage("*STB? reply timeout", "");
 				break;
 			}
 		}
@@ -1008,7 +1009,7 @@ void Socket::getIpName(void)
 		{
 			if (timeout.elapsed() > TIMEOUT)
 			{
-				emit systemErrorMessage("IPNAME? send timeout");
+				emit systemErrorMessage("IPNAME? send timeout", "");
 				return;
 			}
 		}
@@ -1024,7 +1025,7 @@ void Socket::getIpName(void)
 			if (timeout.elapsed() > TIMEOUT)
 			{
 				queryState = IDLE_STATE;
-				emit systemErrorMessage("IPNAME? reply timeout");
+				emit systemErrorMessage("IPNAME? reply timeout", "");
 				break;
 			}
 		}

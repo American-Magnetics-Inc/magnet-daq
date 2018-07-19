@@ -39,7 +39,7 @@ signals:
 	void fieldUnitsChanged();
 	void startExternalRampdown();
 	void endExternalRampdown();
-	void systemErrorMessage(QString errMsg);
+	void systemErrorMessage(QString errMsg, QString lastStrSent);
 	void model430Disconnected(void);
 
 private slots:

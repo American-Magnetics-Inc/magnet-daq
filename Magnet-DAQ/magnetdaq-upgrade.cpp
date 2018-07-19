@@ -16,61 +16,82 @@ bool ReplyTimeout::timeoutOccurred = false;
 // a specific CE SDK and therefore must be distributed separately.
 //---------------------------------------------------------------------------
 
-// required firmware version
+// required firmware version, never include a suffix!
 const double requiredLegacyFirmwareId = 2.55;
 const double requiredFirmwareId = 3.05;
 
 // firmware versions included in Resource file (update these values when new version is included)
-const double legacyFirmwareId = 2.55;
+const double legacyFirmwareId = 2.57;
 const QString legacyFirmwareSuffix = "";
-const double firmwareId = 3.05;
+const double firmwareId = 3.07;
 const QString firmwareSuffix = "";
 
 //---------------------------------------------------------------------------
-//	Returns "true" if acceptable, "false" if upgrade required.
+//	Returns "true" if acceptable, "false" if upgrade is required.
 //---------------------------------------------------------------------------
 bool magnetdaq::checkFirmwareVersion(void)
+{
+	double version = model430.firmwareVersion();
+	bool isLegacy = model430.firmwareVersion() < 3.00 ? true : false;
+
+	if (isLegacy)
+	{
+		if (version >= requiredLegacyFirmwareId)
+			return true;
+	}
+	else
+	{
+		if (version >= requiredFirmwareId)
+			return true;
+	}
+	
+	return false;
+}
+
+//---------------------------------------------------------------------------
+//	Returns "true" if upgrade is available, "false" if running latest.
+//---------------------------------------------------------------------------
+bool magnetdaq::checkAvailableFirmware(void)
 {
 	double version = model430.firmwareVersion();
 	QString suffix = model430.getFirmwareSuffix();
 	bool isLegacy = model430.firmwareVersion() < 3.00 ? true : false;
 
-	if (!isLegacy)
+	if (isLegacy)
 	{
-		if (version >= requiredFirmwareId)
+		if (model430.firmwareVersion() < 1.62)
+			return false;	// don't offer upgrade for firmware prior to v1.62
+
+		if (version >= legacyFirmwareId)
 		{
-			if (version > requiredFirmwareId)
-				return true;
-
-			if (version == requiredFirmwareId)
+			if (version == legacyFirmwareId)
 			{
-				if (suffix.isEmpty())
-					return true;
-
-				if (suffix >= firmwareSuffix)	// minor upgrades
+				if (legacyFirmwareSuffix.isEmpty())
+					return false;
+				else if (legacyFirmwareSuffix > suffix)	// minor upgrade
 					return true;
 			}
+
+			return false;	// already running a later version
 		}
 	}
 	else
 	{
-		if (version >= requiredLegacyFirmwareId)
+		if (version >= firmwareId)
 		{
-			if (version > requiredLegacyFirmwareId)
-				return true;
-
-			if (version == requiredLegacyFirmwareId)
+			if (version == firmwareId)
 			{
-				if (suffix.isEmpty())
-					return true;
-
-				if (suffix >= legacyFirmwareSuffix)	// minor upgrades
+				if (firmwareSuffix.isEmpty())
+					return false;
+				else if (firmwareSuffix > suffix)	// minor upgrade
 					return true;
 			}
+
+			return false;	// already running a later version
 		}
 	}
-	
-	return false;
+
+	return true;
 }
 
 //---------------------------------------------------------------------------
@@ -119,7 +140,7 @@ QString magnetdaq::formatFirmwareUpgradeMsg(void)
 //---------------------------------------------------------------------------
 void magnetdaq::initializeUpgradeWizard(void)
 {
-	upgradeWizard = new QWizard();
+	
 
 	upgradeWizard->setFont(QFont("Segoe UI", 9));
 	upgradeWizard->setWizardStyle(QWizard::ClassicStyle);
@@ -271,12 +292,23 @@ void magnetdaq::finishedFirmwareUpload(QNetworkReply *reply)
 //---------------------------------------------------------------------------
 void magnetdaq::showFirmwareUpgradeWizard(void)
 {
-	if (!upgradeWizard)
+	if (upgradeWizard == NULL)
+	{
+		upgradeWizard = new QWizard();
+		upgradeWizard->setAttribute(Qt::WA_DeleteOnClose, true);
+		connect(upgradeWizard, SIGNAL(finished(int)), this, SLOT(wizardFinished(int)));
 		initializeUpgradeWizard();
+	}
 	else
 		upgradeWizard->restart();
 
 	upgradeWizard->show();
+}
+
+//---------------------------------------------------------------------------
+void magnetdaq::wizardFinished(int result)
+{
+	upgradeWizard = NULL;
 }
 
 //---------------------------------------------------------------------------

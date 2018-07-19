@@ -34,6 +34,8 @@
 //---------------------------------------------------------------------------
 // Command and query parsing tokens
 //---------------------------------------------------------------------------
+const char _SYST[] = "SYST";
+const char _SYSTEM[] = "SYSTEM";
 const char _CONFIGURE[] = "CONFIGURE";
 const char _CONF[] = "CONF";
 const char _IDN[] = "*IDN";
@@ -86,10 +88,10 @@ const char _TRANSITION[] = "TRANSITION";
 //---------------------------------------------------------------------------
 char *struprt(char *str)
 {
-    char *next = str;
-    while (*str != '\0')
-        *str = toupper((unsigned char)*str);
-    return str;
+	char *next = str;
+	while (*str != '\0')
+		*str = toupper((unsigned char)*str);
+	return str;
 }
 
 //---------------------------------------------------------------------------
@@ -230,13 +232,15 @@ void Parser::process(void)
 
 			std::cin.getline(input, sizeof(input));
 #if defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
-            struprt(input);	// convert to all uppercase
+			struprt(input);	// convert to all uppercase
 #else
 			_strupr(input);	// convert to all uppercase
 #endif
 
+#ifdef DEBUG
 			if (input[0] != '\0')
 				qDebug() << QString(input);
+#endif
 
 			// save original string
 			inputStr = QString(input);
