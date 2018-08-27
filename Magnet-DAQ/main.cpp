@@ -89,9 +89,13 @@ __declspec(noinline) int MyEntryPoint(void)
 //---------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
+#ifdef Q_OS_WIN
+	SetProcessDPIAware(); // call before the main event loop
+#endif // Q_OS_WIN 
+
 	QCoreApplication::setOrganizationName("American Magnetics Inc.");
 	QCoreApplication::setApplicationName("MagnetDAQ");
-	QCoreApplication::setApplicationVersion("1.01");
+	QCoreApplication::setApplicationVersion("1.02");
 	QCoreApplication::setOrganizationDomain("AmericanMagnetics.com");
 	QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 	QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);

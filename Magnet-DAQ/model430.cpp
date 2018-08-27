@@ -11,6 +11,9 @@ Model430::Model430(QObject *parent) : QObject(parent)
 	// setup on_change() connections for properties
 	mode.on_change().connect([this](int val)					{ this->modeValueChanged(); });
 	fieldUnits.on_change().connect([this](int val)				{ this->fieldUnitsChanged(); });
+	targetCurrent.on_change().connect([this](double val)		{ this->valueChanged(TARGET_CURRENT); });
+	targetField.on_change().connect([this](double val)			{ this->valueChanged(TARGET_FIELD); });
+	voltageLimit.on_change().connect([this](double val)			{ this->valueChanged(VOLTAGE_LIMIT); });
 
 	powerSupplySelection.on_change().connect([this](int val)	{ this->valueChanged(SUPPLY_TYPE); });
 	minSupplyVoltage.on_change().connect([this](double val)		{ this->valueChanged(SUPPLY_MIN_VOLTAGE); });
@@ -34,7 +37,7 @@ Model430::Model430(QObject *parent) : QObject(parent)
 	cooledSwitchRampRate.on_change().connect([this](double val) { this->valueChanged(PS_RAMP_RATE); });
 	switchCoolingGain.on_change().connect([this](double val)	{ this->valueChanged(SWITCH_COOLING_GAIN); });
 
-	currentLimit.on_change().connect([this](double val) { this->valueChanged(CURRENT_LIMIT); });
+	currentLimit.on_change().connect([this](double val)			{ this->valueChanged(CURRENT_LIMIT); });
 	quenchDetection.on_change().connect([this](int val)			{ this->valueChanged(QUENCH_ENABLE); });
 	quenchSensitivity.on_change().connect([this](int val)		{ this->valueChanged(QUENCH_SENSITIVITY); });
 	protectionMode.on_change().connect([this](int val)			{ this->valueChanged(PROTECTION_MODE); });
@@ -45,7 +48,7 @@ Model430::Model430(QObject *parent) : QObject(parent)
 	Toffset.on_change().connect([this](double val)				{ this->valueChanged(TOFFSET); });
 	extRampdownEnabled.on_change().connect([this](bool val)		{ this->valueChanged(EXT_RAMPDOWN); });
 
-	rampRateUnits.on_change().connect([this](int val)			{ this->valueChanged(RAMP_UNITS); });
+	rampRateTimeUnits.on_change().connect([this](int val)		{ this->valueChanged(RAMP_TIMEBASE); });
 	rampRateSegments.on_change().connect([this](int val)		{ this->valueChanged(RAMP_SEGMENTS); });
 	rampdownSegments.on_change().connect([this](int val)		{ this->valueChanged(RAMPDOWN_SEGMENTS); });
 	
@@ -191,6 +194,20 @@ void Model430::syncEventCounts(bool isBlocking)
 }
 
 //---------------------------------------------------------------------------
+void Model430::syncTargetCurrent(void)
+{
+	if (socket)
+		socket->sendQuery("CURR:TARG?\r\n", TARGET_CURRENT);
+}
+
+//---------------------------------------------------------------------------
+void Model430::syncTargetField(void)
+{
+	if (socket)
+		socket->sendQuery("FIELD:TARG?\r\n", TARGET_FIELD);
+}
+
+//---------------------------------------------------------------------------
 void Model430::syncStabilityMode(void)
 {
 	if (socket)
@@ -217,16 +234,25 @@ void Model430::syncRampRates(void)
 	// get all the present ramp rate segments
 	if (socket)
 	{
+		// get the present target setpoint in A
+		socket->sendQuery("CURR:TARG?\r\n", TARGET_CURRENT);
+
+		// get the present target setpoint in present field units
+		socket->sendQuery("FIELD:TARG?\r\n", TARGET_FIELD);
+
+		// get the present voltage limit
+		socket->sendQuery("VOLT:LIM?\r\n", VOLTAGE_LIMIT);
+
 		// get the present number of segments
 		socket->sendQuery("RAMP:RATE:SEG?\r\n", RAMP_SEGMENTS);
 
 		// get the present number of rampdown segments
 		socket->sendQuery("RAMPD:RATE:SEG?\r\n", RAMPDOWN_SEGMENTS);
 
-		// get the units (A or kg/T)
-		socket->sendQuery("RAMP:RATE:UNITS?\r\n", RAMP_UNITS);
+		// get the time units (sec or min)
+		socket->sendQuery("RAMP:RATE:UNITS?\r\n", RAMP_TIMEBASE);
 
-		// get the timebase (sec or min)
+		// get the field units (kG or T)
 		socket->sendQuery("FIELD:UNITS?\r\n", FIELD_UNITS);
 
 		syncRampSegmentValues();

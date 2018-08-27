@@ -29,7 +29,7 @@ void magnetdaq::mainTabChanged(int index)
 	else if (ui.mainTabWidget->currentIndex() == RAMP_TAB)
 	{
 		QApplication::setOverrideCursor(Qt::WaitCursor);
-		QMetaObject::invokeMethod(&model430, "syncRampSegmentValues", Qt::QueuedConnection);
+		QMetaObject::invokeMethod(&model430, "syncRampRates", Qt::QueuedConnection);
 		QMetaObject::invokeMethod(this, "syncRampRates", Qt::QueuedConnection);
 	}
 	else if (ui.mainTabWidget->currentIndex() == RAMPDOWN_TAB)
@@ -64,7 +64,7 @@ void magnetdaq::postErrorRefresh(void)
 	else if (ui.mainTabWidget->currentIndex() == RAMP_TAB)
 	{
 		QApplication::setOverrideCursor(Qt::WaitCursor);
-		QMetaObject::invokeMethod(&model430, "syncRampSegmentValues", Qt::QueuedConnection);
+		QMetaObject::invokeMethod(&model430, "syncRampRates", Qt::QueuedConnection);
 		QMetaObject::invokeMethod(this, "syncRampRates", Qt::QueuedConnection);
 	}
 	else if (ui.mainTabWidget->currentIndex() == RAMPDOWN_TAB)
@@ -189,12 +189,12 @@ void magnetdaq::menuValueChanged(int index)
 		}
 		else if (comboBox == ui.rampTimebaseComboBox)
 		{
-			if (temp != model430.rampRateUnits())
+			if (temp != model430.rampRateTimeUnits())
 			{
 				QApplication::setOverrideCursor(Qt::WaitCursor);
 
 				socket->sendBlockingCommand("CONF:RAMP:RATE:UNITS " + QString::number(temp) + "\r\n");
-				model430.rampRateUnits = temp;
+				model430.rampRateTimeUnits = temp;
 			}
 		}
 	}
@@ -216,7 +216,40 @@ void magnetdaq::textValueChanged(void)
 
 		if (ok)	// if true, text converted to a double value without error
 		{
-			if (lineEdit == ui.stabilitySettingEdit)
+			if (lineEdit == ui.voltageLimitEdit)
+			{
+				if (temp != model430.voltageLimit())	// did value change?
+				{
+					socket->sendCommand("CONF:VOLT:LIM " + lineEdit->text() + "\r\n");
+					model430.voltageLimit = temp;
+				}
+			}
+			else if (lineEdit == ui.targetSetpointEdit)
+			{
+				if (ui.rampUnitsComboBox->currentIndex() == 0) // Amps
+				{
+					if (temp != model430.targetCurrent())	// did value change?
+					{
+						socket->sendCommand("CONF:CURR:TARG " + lineEdit->text() + "\r\n");
+						model430.targetCurrent = temp;
+
+						// sync target field
+						QMetaObject::invokeMethod(&model430, "syncTargetField", Qt::QueuedConnection);
+					}
+				}
+				else
+				{
+					if (temp != model430.targetField())	// did value change?
+					{
+						socket->sendCommand("CONF:FIELD:TARG " + lineEdit->text() + "\r\n");
+						model430.targetField = temp;
+
+						// sync target current
+						QMetaObject::invokeMethod(&model430, "syncTargetCurrent", Qt::QueuedConnection);
+					}
+				}
+			}
+			else if (lineEdit == ui.stabilitySettingEdit)
 			{
 				if (temp != model430.stabilitySetting())	// did value change?
 				{
@@ -334,6 +367,13 @@ void magnetdaq::textValueChanged(void)
 					model430.Toffset = temp;
 				}
 			}
+		}
+		else
+		{
+			QApplication::beep();
+
+			// non-numerical entry
+			displaySystemError("Non-numerical entry", lineEdit->text());
 		}
 	}
 }
@@ -638,13 +678,27 @@ void magnetdaq::configurationChanged(QueryState state)
 	else if (state == TOFFSET)
 		ui.toffsetEdit->setText(QString::number(model430.Toffset(), 'f', 3));
 
-	// Ramp Rate
+	// Ramp Tab
+	else if (state == TARGET_CURRENT)
+	{
+		if (ui.rampUnitsComboBox->currentIndex() == 0)
+			ui.targetSetpointEdit->setText(QString::number(model430.targetCurrent(), 'g', 10));
+	}
+	else if (state == TARGET_FIELD)
+	{
+		if (ui.rampUnitsComboBox->currentIndex() == 1)
+			ui.targetSetpointEdit->setText(QString::number(model430.targetField(), 'g', 10));
+	}
+	else if (state == VOLTAGE_LIMIT)
+	{
+		ui.voltageLimitEdit->setText(QString::number(model430.voltageLimit(), 'f', 3));
+	}
 	else if (state == RAMP_SEGMENTS)
 	{
 		QMetaObject::invokeMethod(&model430, "syncRampSegmentValues", Qt::QueuedConnection);
 		QMetaObject::invokeMethod(this, "syncRampRates", Qt::QueuedConnection);
 	}
-	else if (state == RAMP_UNITS)
+	else if (state == RAMP_TIMEBASE)
 	{
 		QMetaObject::invokeMethod(&model430, "syncRampSegmentValues", Qt::QueuedConnection);
 		QMetaObject::invokeMethod(this, "syncRampRates", Qt::QueuedConnection);
@@ -661,14 +715,24 @@ void magnetdaq::configurationChanged(QueryState state)
 	{
 		this->writeLogHeader();
 		this->setCurrentAxisLabel();
-		QMetaObject::invokeMethod(&model430, "syncRampSegmentValues", Qt::QueuedConnection);
-		QMetaObject::invokeMethod(this, "syncRampRates", Qt::QueuedConnection);
 
 		// change coil constant label
 		if (model430.fieldUnits() == 0)
 			ui.coilConstantLabel->setText("Coil Constant (kG/A) :");
 		else
 			ui.coilConstantLabel->setText("Coil Constant (T/A) :");
+
+		// if a ramping tab is visible, update it
+		if (ui.mainTabWidget->currentIndex() == RAMP_TAB)
+		{
+			QMetaObject::invokeMethod(&model430, "syncRampRates", Qt::QueuedConnection);
+			QMetaObject::invokeMethod(this, "syncRampRates", Qt::QueuedConnection);
+		}
+		else if (ui.mainTabWidget->currentIndex() == RAMPDOWN_TAB)
+		{
+			QMetaObject::invokeMethod(&model430, "syncRampdownSegmentValues", Qt::QueuedConnection);
+			QMetaObject::invokeMethod(this, "syncRampdownRates", Qt::QueuedConnection);
+		}
 	}
 
 	// Rampdown
@@ -810,8 +874,14 @@ void magnetdaq::syncRampRates(void)
 		ui.rampSegmentsSpinBox->setValue(model430.rampRateSegments());
 
 	// set ramp units
-	if (model430.rampRateUnits != ui.rampTimebaseComboBox->currentIndex())
-		ui.rampTimebaseComboBox->setCurrentIndex(model430.rampRateUnits());
+	if (model430.rampRateTimeUnits != ui.rampTimebaseComboBox->currentIndex())
+		ui.rampTimebaseComboBox->setCurrentIndex(model430.rampRateTimeUnits());
+
+	// get target
+	if (ui.rampUnitsComboBox->currentIndex() == 0)
+		ui.targetSetpointEdit->setText(QString::number(model430.targetCurrent(), 'g', 10));
+	else
+		ui.targetSetpointEdit->setText(QString::number(model430.targetField(), 'g', 10));
 
 	// enable/disable ramp rate fields per segment count
 	for (int i = 0; i < model430.rampRateSegments(); i++)
@@ -833,7 +903,9 @@ void magnetdaq::syncRampRates(void)
 	// are we locally working in units of A?
 	if (ui.rampUnitsComboBox->currentIndex() == 0)
 	{
-		if (model430.rampRateUnits() == 0)
+		ui.targetSetpointLabel->setText("Target Setpoint (A) :");
+
+		if (model430.rampRateTimeUnits() == 0)
 			ui.rampRateUnitsLabel->setText("Rate (A/sec)");
 		else
 			ui.rampRateUnitsLabel->setText("Rate (A/min)");
@@ -848,7 +920,7 @@ void magnetdaq::syncRampRates(void)
 				rampSegMinLimits[i]->setText("<html>&plusmn;" + QString::number(model430.currentRampLimits[i - 1](), 'f', 1) + " A to &plusmn;</html>");
 
 			rampSegMaxLimits[i]->setText(QString::number(model430.currentRampLimits[i](), 'f', 1));
-			rampSegValues[i]->setText(QString::number(model430.currentRampRates[i](), 'f', 7));
+			rampSegValues[i]->setText(QString::number(model430.currentRampRates[i](), 'g', 10));
 		}
 
 		for (int i = model430.rampRateSegments(); i < 10; i++)
@@ -866,7 +938,9 @@ void magnetdaq::syncRampRates(void)
 
 		if (model430.fieldUnits == 0)
 		{
-			if (model430.rampRateUnits() == 0)
+			ui.targetSetpointLabel->setText("Target Setpoint (kG) :");
+
+			if (model430.rampRateTimeUnits() == 0)
 				ui.rampRateUnitsLabel->setText("Rate (kG/sec)");
 			else
 				ui.rampRateUnitsLabel->setText("Rate (kG/min)");
@@ -876,7 +950,9 @@ void magnetdaq::syncRampRates(void)
 		}
 		else
 		{
-			if (model430.rampRateUnits() == 0)
+			ui.targetSetpointLabel->setText("Target Setpoint (T) :");
+
+			if (model430.rampRateTimeUnits() == 0)
 				ui.rampRateUnitsLabel->setText("Rate (T/sec)");
 			else
 				ui.rampRateUnitsLabel->setText("Rate (T/min)");
@@ -892,7 +968,7 @@ void magnetdaq::syncRampRates(void)
 				rampSegMinLimits[i]->setText("<html>&plusmn;" + QString::number(model430.fieldRampLimits[i - 1](), 'f', 1) + unitsStr + " &plusmn;</html>");
 
 			rampSegMaxLimits[i]->setText(QString::number(model430.fieldRampLimits[i](), 'f', 1));
-			rampSegValues[i]->setText(QString::number(model430.fieldRampRates[i](), 'f', 7));
+			rampSegValues[i]->setText(QString::number(model430.fieldRampRates[i](), 'g', 10));
 		}
 
 		for (int i = model430.rampRateSegments(); i < 10; i++)
@@ -933,7 +1009,7 @@ void magnetdaq::syncRampdownRates(void)
 	// are we locally working in units of A?
 	if (ui.rampUnitsComboBox->currentIndex() == 0)
 	{
-		if (model430.rampRateUnits() == 0)
+		if (model430.rampRateTimeUnits() == 0)
 			ui.rampdownRateUnitsLabel->setText("Rate (A/sec)");
 		else
 			ui.rampdownRateUnitsLabel->setText("Rate (A/min)");
@@ -948,7 +1024,7 @@ void magnetdaq::syncRampdownRates(void)
 				rampdownSegMinLimits[i]->setText("<html>&plusmn;" + QString::number(model430.currentRampdownLimits[i - 1](), 'f', 1) + " A to &plusmn;</html>");
 
 			rampdownSegMaxLimits[i]->setText(QString::number(model430.currentRampdownLimits[i](), 'f', 1));
-			rampdownSegValues[i]->setText(QString::number(model430.currentRampdownRates[i](), 'f', 7));
+			rampdownSegValues[i]->setText(QString::number(model430.currentRampdownRates[i](), 'g', 10));
 		}
 
 		for (int i = model430.rampdownSegments(); i < 10; i++)
@@ -966,7 +1042,7 @@ void magnetdaq::syncRampdownRates(void)
 
 		if (model430.fieldUnits == 0)
 		{
-			if (model430.rampRateUnits() == 0)
+			if (model430.rampRateTimeUnits() == 0)
 				ui.rampdownRateUnitsLabel->setText("Rate (kG/sec)");
 			else
 				ui.rampdownRateUnitsLabel->setText("Rate (kG/min)");
@@ -976,7 +1052,7 @@ void magnetdaq::syncRampdownRates(void)
 		}
 		else
 		{
-			if (model430.rampRateUnits() == 0)
+			if (model430.rampRateTimeUnits() == 0)
 				ui.rampdownRateUnitsLabel->setText("Rate (T/sec)");
 			else
 				ui.rampdownRateUnitsLabel->setText("Rate (T/min)");
@@ -992,7 +1068,7 @@ void magnetdaq::syncRampdownRates(void)
 				rampdownSegMinLimits[i]->setText("<html>&plusmn;" + QString::number(model430.fieldRampdownLimits[i - 1](), 'f', 1) + unitsStr + " &plusmn;</html>");
 
 			rampdownSegMaxLimits[i]->setText(QString::number(model430.fieldRampdownLimits[i](), 'f', 1));
-			rampdownSegValues[i]->setText(QString::number(model430.fieldRampdownRates[i](), 'f', 7));
+			rampdownSegValues[i]->setText(QString::number(model430.fieldRampdownRates[i](), 'g', 10));
 		}
 
 		for (int i = model430.rampdownSegments(); i < 10; i++)

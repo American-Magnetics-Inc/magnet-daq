@@ -218,6 +218,8 @@ void Parser::process(void)
 	}
 	else
 	{
+		// connect send command slot
+		connect(this, SIGNAL(sendBlockingCommand(QString)), model430->getSocket(), SLOT(sendBlockingCommand(QString)));
 		stopProcessing = false;
 
 		// allocate resources and start parsing
@@ -248,6 +250,8 @@ void Parser::process(void)
 			// parse stdin
 			parseInput(input, output);
 		}
+
+		disconnect(this, SIGNAL(sendBlockingCommand(QString)), model430->getSocket(), SLOT(sendBlockingCommand(QString)));
 	}
 
 	emit finished();
@@ -390,7 +394,7 @@ void Parser::parseInput(char *commbuf, char* outputBuffer)
 					// Check for the NULL condition here to make sure there are not additional args
 					if (word == NULL)
 					{
-						model430->getSocket()->sendBlockingCommand(inputStr + "\r\n");
+						emit sendBlockingCommand(inputStr + "\r\n");
 					}
 				}
 				break;
@@ -408,13 +412,13 @@ void Parser::parseInput(char *commbuf, char* outputBuffer)
 
 						if (*value == '1' || *value == '0')
 						{
-							model430->getSocket()->sendBlockingCommand(inputStr + "\r\n");
+							emit sendBlockingCommand(inputStr + "\r\n");
 						}
 					}
 				}
 				else if (strcmp(word, _PAUSE) == 0)
 				{
-					model430->getSocket()->sendBlockingCommand(inputStr + "\r\n");
+					emit sendBlockingCommand(inputStr + "\r\n");
 				}
 				break;
 		}
@@ -614,7 +618,7 @@ void Parser::parse_configure_C(const char* word, char *outputBuffer)
 			else if (isValue(word))
 			{
 				double temp = strtod(word, NULL);
-				model430->getSocket()->sendBlockingCommand(inputStr + "\r\n");
+				emit sendBlockingCommand(inputStr + "\r\n");
 				model430->currentLimit = temp;
 			}
 		}
@@ -626,7 +630,9 @@ void Parser::parse_configure_C(const char* word, char *outputBuffer)
 
 			if (isValue(value))
 			{
-				model430->getSocket()->sendBlockingCommand(inputStr + "\r\n");
+				double temp = strtod(value, NULL);
+				emit sendBlockingCommand(inputStr + "\r\n");
+				model430->targetCurrent = temp;
 			}
 		}
 	}	// end if CURR
@@ -639,7 +645,7 @@ void Parser::parse_configure_C(const char* word, char *outputBuffer)
 		if (isValue(value))
 		{
 			double temp = strtod(value, NULL);
-			model430->getSocket()->sendBlockingCommand(inputStr + "\r\n");
+			emit sendBlockingCommand(inputStr + "\r\n");
 			model430->coilConstant = temp;
 		}
 	}	// end if COIL
@@ -666,7 +672,9 @@ void Parser::parse_configure_F(const char* word, char *outputBuffer)
 
 			if (isValue(value))
 			{
-				model430->getSocket()->sendBlockingCommand(inputStr + "\r\n");
+				double temp = strtod(value, NULL);
+				emit sendBlockingCommand(inputStr + "\r\n");
+				model430->targetField = temp;
 			}
 		}
 		// CONFigure:FIELD:UNITS
@@ -681,7 +689,7 @@ void Parser::parse_configure_F(const char* word, char *outputBuffer)
 
 				if (*value == '1' || *value == '0')
 				{
-					model430->getSocket()->sendBlockingCommand(inputStr + "\r\n");
+					emit sendBlockingCommand(inputStr + "\r\n");
 					model430->fieldUnits = atoi(value);
 				}
 			}
@@ -701,7 +709,7 @@ void Parser::parse_configure_I(const char* word, char *outputBuffer)
 		if (isValue(word))
 		{
 			double temp = strtod(word, NULL);
-			model430->getSocket()->sendBlockingCommand(inputStr + "\r\n");
+			emit sendBlockingCommand(inputStr + "\r\n");
 			model430->inductance = temp;
 		}
 	}
@@ -731,7 +739,7 @@ void Parser::parse_configure_P(const char* word, char *outputBuffer)
 			if (isValue(value))
 			{
 				double temp = strtod(value, NULL);
-				model430->getSocket()->sendBlockingCommand(inputStr + "\r\n");
+				emit sendBlockingCommand(inputStr + "\r\n");
 				model430->switchCurrent = temp;
 			}
 		}
@@ -743,7 +751,7 @@ void Parser::parse_configure_P(const char* word, char *outputBuffer)
 			if (isValue(value))
 			{
 				double temp = strtod(value, NULL);
-				model430->getSocket()->sendBlockingCommand(inputStr + "\r\n");
+				emit sendBlockingCommand(inputStr + "\r\n");
 				model430->cooledSwitchRampRate = temp;
 			}
 		}
@@ -756,7 +764,7 @@ void Parser::parse_configure_P(const char* word, char *outputBuffer)
 			if (isValue(value))
 			{
 				double temp = strtod(value, NULL);
-				model430->getSocket()->sendBlockingCommand(inputStr + "\r\n");
+				emit sendBlockingCommand(inputStr + "\r\n");
 				model430->switchHeatedTime = temp;
 			}
 		}
@@ -769,7 +777,7 @@ void Parser::parse_configure_P(const char* word, char *outputBuffer)
 			if (isValue(value))
 			{
 				double temp = strtod(value, NULL);
-				model430->getSocket()->sendBlockingCommand(inputStr + "\r\n");
+				emit sendBlockingCommand(inputStr + "\r\n");
 				model430->switchCooledTime = temp;
 			}
 		}
@@ -782,7 +790,7 @@ void Parser::parse_configure_P(const char* word, char *outputBuffer)
 			if (isValue(value))
 			{
 				double temp = strtod(value, NULL);
-				model430->getSocket()->sendBlockingCommand(inputStr + "\r\n");
+				emit sendBlockingCommand(inputStr + "\r\n");
 				model430->switchCoolingGain = temp;
 			}
 		}
@@ -799,7 +807,7 @@ void Parser::parse_configure_P(const char* word, char *outputBuffer)
 
 				if (*value == '0' || *value == '1')
 				{
-					model430->getSocket()->sendBlockingCommand(inputStr + "\r\n");
+					emit sendBlockingCommand(inputStr + "\r\n");
 					model430->switchTransition = atoi(value);
 				}
 			}
@@ -815,7 +823,7 @@ void Parser::parse_configure_P(const char* word, char *outputBuffer)
 
 			if (*value == '0' || *value == '1')
 			{
-				model430->getSocket()->sendBlockingCommand(inputStr + "\r\n");
+				emit sendBlockingCommand(inputStr + "\r\n");
 				model430->switchInstalled = atoi(value);
 			}
 		}
@@ -869,7 +877,7 @@ void Parser::parse_configure_R(const char* word, char *outputBuffer)
 							value = strtok(NULL, COMMA);	// look for upper bound value
 							if (isValue(value))
 							{
-								model430->getSocket()->sendBlockingCommand(inputStr + "\r\n");
+								emit sendBlockingCommand(inputStr + "\r\n");
 							}
 						}
 					}
@@ -890,8 +898,8 @@ void Parser::parse_configure_R(const char* word, char *outputBuffer)
 
 					if (*value == '1' || *value == '0')
 					{
-						model430->getSocket()->sendBlockingCommand(inputStr + "\r\n");
-						model430->rampRateUnits = atoi(value);
+						emit sendBlockingCommand(inputStr + "\r\n");
+						model430->rampRateTimeUnits = atoi(value);
 					}
 				}
 			}
@@ -915,7 +923,7 @@ void Parser::parse_configure_R(const char* word, char *outputBuffer)
 							value = strtok(NULL, COMMA);	// look for upper bound value
 							if (isValue(value))
 							{
-								model430->getSocket()->sendBlockingCommand(inputStr + "\r\n");
+								emit sendBlockingCommand(inputStr + "\r\n");
 							}
 						}
 					}
@@ -933,7 +941,7 @@ void Parser::parse_configure_R(const char* word, char *outputBuffer)
 
 					if (checkValue > 0 && checkValue <= 10)
 					{
-						model430->getSocket()->sendBlockingCommand(inputStr + "\r\n");
+						emit sendBlockingCommand(inputStr + "\r\n");
 						model430->rampRateSegments = checkValue;
 					}
 				}
@@ -970,7 +978,7 @@ void Parser::parse_configure_S(const char* word, char *outputBuffer)
 
 				if (*value == '0' || *value == '1' || *value == '2')
 				{
-					model430->getSocket()->sendBlockingCommand(inputStr + "\r\n");
+					emit sendBlockingCommand(inputStr + "\r\n");
 					model430->stabilityMode = atoi(value);
 				}
 			}
@@ -988,7 +996,7 @@ void Parser::parse_configure_S(const char* word, char *outputBuffer)
 
 				if (*value == '0' || *value == '1')
 				{
-					model430->getSocket()->sendBlockingCommand(inputStr + "\r\n");
+					emit sendBlockingCommand(inputStr + "\r\n");
 					model430->stabilityResistor = atoi(value);
 				}
 			}
@@ -1003,7 +1011,7 @@ void Parser::parse_configure_S(const char* word, char *outputBuffer)
 				value++;
 
 			double temp = strtod(value, NULL);
-			model430->getSocket()->sendBlockingCommand(inputStr + "\r\n");
+			emit sendBlockingCommand(inputStr + "\r\n");
 			model430->stabilitySetting = temp;
 		}
 	}
@@ -1029,7 +1037,8 @@ void Parser::parse_configure_V(const char* word, char *outputBuffer)
 			if (isValue(word))
 			{
 				double temp = strtod(word, NULL);
-				model430->getSocket()->sendBlockingCommand(inputStr + "\r\n");
+				emit sendBlockingCommand(inputStr + "\r\n");
+				model430->voltageLimit = temp;
 			}
 		}
 	}

@@ -2,6 +2,8 @@
 #include "socket.h"
 #include "QDateTime"
 
+#undef DEBUG
+
 #if defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
 #include <unistd.h>
 #endif
@@ -231,7 +233,7 @@ void Socket::readyRead()
 			 queryState == SWITCH_HEATED_TIME || queryState == SWITCH_COOLED_TIME ||
 			 queryState == QUENCH_ENABLE	  || queryState == QUENCH_SENSITIVITY ||
 			 queryState == PROTECTION_MODE	  || queryState == MODE				  ||
-			 queryState == RAMP_UNITS		  || queryState == FIELD_UNITS		  ||
+			 queryState == RAMP_TIMEBASE		  || queryState == FIELD_UNITS		  ||
 			 queryState == RAMP_SEGMENTS	  || queryState == RAMPDOWN_SEGMENTS  ||
 			 queryState == RAMPDOWN_COUNT	  || queryState	== QUENCH_COUNT		  ||
 			 queryState == STATE)
@@ -257,7 +259,7 @@ void Socket::readyRead()
 			qDebug() << "OPLIMIT:MODE? Reply: " << reply;
 		else if (queryState == MODE)
 			qDebug() << "MODE? Reply: " << reply;
-		else if (queryState == RAMP_UNITS)
+		else if (queryState == RAMP_TIMEBASE)
 			qDebug() << "RAMP:RATE:UNITS? Reply: " << reply;
 		else if (queryState == FIELD_UNITS)
 			qDebug() << "FIELD:UNITS? Reply: " << reply;
@@ -299,8 +301,8 @@ void Socket::readyRead()
 				model430->protectionMode = temp;
 			else if (queryState == MODE)
 				model430->mode = temp;
-			else if (queryState == RAMP_UNITS)
-				model430->rampRateUnits = temp;
+			else if (queryState == RAMP_TIMEBASE)
+				model430->rampRateTimeUnits = temp;
 			else if (queryState == FIELD_UNITS)
 				model430->fieldUnits = temp;
 			else if (queryState == RAMP_SEGMENTS)
@@ -326,7 +328,8 @@ void Socket::readyRead()
 			 queryState == SWITCH_COOLING_GAIN || queryState == CURRENT_LIMIT		  ||
 			 queryState == IC_SLOPE			   || queryState == IC_OFFSET			  ||
 			 queryState == TSCALE			   || queryState == TOFFSET				  ||
-			 queryState == TMAX)
+			 queryState == TMAX				   || queryState == TARGET_CURRENT		  ||
+			 queryState == TARGET_FIELD		   || queryState == VOLTAGE_LIMIT)
 	{
 		#ifdef DEBUG
 		if (queryState == SUPPLY_MIN_VOLTAGE)
@@ -363,6 +366,12 @@ void Socket::readyRead()
 			qDebug() << "OPL:TMAX? Reply: " << reply;
 		else if (queryState == SENSE_INDUCTANCE)
 			qDebug() << "IND:SENSE? Reply: " << reply;
+		else if (queryState == TARGET_CURRENT)
+			qDebug() << "CURR:TARG? Reply: " << reply;
+		else if (queryState == TARGET_FIELD)
+			qDebug() << "FIELD:TARG? Reply: " << reply;
+		else if (queryState == VOLTAGE_LIMIT)
+			qDebug() << "VOLT:LIM? Reply: " << reply;
 		#endif
 
 		// read return data
@@ -405,6 +414,12 @@ void Socket::readyRead()
 				model430->Tmax = temp;
 			else if (queryState == SENSE_INDUCTANCE)
 				model430->inductance = temp;
+			else if (queryState == TARGET_CURRENT)
+				model430->targetCurrent = temp;
+			else if (queryState == TARGET_FIELD)
+				model430->targetField = temp;
+			else if (queryState == VOLTAGE_LIMIT)
+				model430->voltageLimit = temp;
 		}
 
 		queryState = IDLE_STATE;

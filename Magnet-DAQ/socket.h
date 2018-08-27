@@ -21,7 +21,6 @@ public:
 	void getNextDataPoint();
 	bool isConnected() {return unitConnected;}
 	void sendCommand(QString);
-	void sendBlockingCommand(QString aStr);
 	void sendQuery(QString queryStr, QueryState aState);
 	void sendExtendedQuery(QString queryStr, QueryState aState, int timelimit /*seconds*/);
 	void sendRampQuery(QString queryStr, QueryState aState, int segment);
@@ -31,6 +30,9 @@ public:
 	void getStatusByte(void);
 	void getIpName(void);
 	void remoteLockout(bool state);
+
+public slots:
+	void sendBlockingCommand(QString aStr);
 
 signals:
 	void nextDataPoint(qint64 time, double magField, double magCurrent, double magVoltage, double supCurrent, double supVoltage);

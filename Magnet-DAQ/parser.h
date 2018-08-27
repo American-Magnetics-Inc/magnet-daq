@@ -20,6 +20,7 @@ public slots:
 signals:
 	void finished();
 	void error(QString err);
+	void sendBlockingCommand(QString aStr);
 
 private:
 	// add your variables here

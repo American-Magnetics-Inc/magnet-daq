@@ -121,7 +121,7 @@ void magnetdaq::syncRampPlot(void)
 	QVector<QCPGraphData> segmentData(segmentCount * 4 + 2);
 	double divisor = 1.0;
 
-	if (model430.rampRateUnits == 1)
+	if (model430.rampRateTimeUnits == 1)
 		divisor = 60.0;
 
 	if (ui.rampUnitsComboBox->currentIndex() == 0)

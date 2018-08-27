@@ -16,6 +16,7 @@ magnetdaq::magnetdaq(QWidget *parent)
 #if !defined(Q_OS_MACOS)
 	QFontDatabase::addApplicationFont(":/magnetdaq/Resources/WINGDNG3.TTF");	// family: Wingdings 3
 #endif
+	qRegisterMetaType<QueryState>("QueryState");
 
 	ui.setupUi(this);
 
@@ -25,6 +26,8 @@ magnetdaq::magnetdaq(QWidget *parent)
 	ui.keypadDockWidget->hide();
 
 	this->setWindowTitle(QCoreApplication::applicationName() + " - v" + QCoreApplication::applicationVersion() + "   (AMI Model 430 Remote Control)");
+	ui.voltageLimitLabel->setText("<html>Voltage Limit (&plusmn;V) :</html>");
+	ui.currentLimitLabel->setText("<html>Current Limit (&plusmn;A) :</html>");
 
 #if defined(Q_OS_LINUX)
 	QGuiApplication::setFont(QFont("Ubuntu", 9));
@@ -186,6 +189,7 @@ magnetdaq::magnetdaq(QWidget *parent)
 
 	// restore window position and gui state
 	QSettings settings;
+	ui.rampUnitsComboBox->setCurrentIndex(settings.value("RampUnits").toInt());
 
 	// restore different geometry for different DPI screens
 	QString dpiStr = QString::number(QApplication::desktop()->screen()->logicalDpiX());
@@ -343,6 +347,8 @@ magnetdaq::magnetdaq(QWidget *parent)
 	connect(ui.key_left, SIGNAL(clicked(bool)), this, SLOT(keypadClicked(bool)));
 	connect(ui.mainTabWidget, SIGNAL(currentChanged(int)), this, SLOT(mainTabChanged(int)));
 	connect(ui.setupToolBox, SIGNAL(currentChanged(int)), this, SLOT(setupToolBoxChanged(int)));
+	connect(ui.targetSetpointEdit, SIGNAL(editingFinished()), this, SLOT(textValueChanged()));
+	connect(ui.voltageLimitEdit, SIGNAL(editingFinished()), this, SLOT(textValueChanged()));
 	connect(ui.minOutputVoltageEdit, SIGNAL(editingFinished()), this, SLOT(textValueChanged()));
 	connect(ui.maxOutputVoltageEdit, SIGNAL(editingFinished()), this, SLOT(textValueChanged()));
 	connect(ui.minOutputCurrentEdit, SIGNAL(editingFinished()), this, SLOT(textValueChanged()));
@@ -439,6 +445,9 @@ magnetdaq::~magnetdaq()
 
 	// save window position and state
 	QSettings settings;
+
+	// save ramp value (not time) units
+	settings.setValue("RampUnits", ui.rampUnitsComboBox->currentIndex());
 
 	// save different geometry for different DPI screens
 	QString dpiStr = QString::number(QApplication::desktop()->screen()->logicalDpiX());
@@ -906,7 +915,7 @@ void magnetdaq::actionShow_Keypad(void)
 void magnetdaq::actionPrint(void)
 {
 	// print main plot
-	QPrinter printer;
+	QPrinter printer(QPrinterInfo::defaultPrinter(), QPrinter::ScreenResolution);
 	QPrintPreviewDialog previewDialog(&printer, this);
 
 	if (ui.mainTabWidget->currentIndex() == PLOT_TAB)

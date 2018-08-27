@@ -65,6 +65,9 @@ enum QueryState
 	FIRMWARE_VERSION,
 	MODE,
 	IPNAME,
+	TARGET_CURRENT,
+	TARGET_FIELD,
+	VOLTAGE_LIMIT,
 
 	// setup
 	SUPPLY_TYPE,
@@ -102,7 +105,7 @@ enum QueryState
 	AUTODETECT_SWITCH_CURRENT,
 
 	// ramping configuration
-	RAMP_UNITS,		// sec or min?
+	RAMP_TIMEBASE,	// sec or min?
 	FIELD_UNITS,	// kG or T?
 	RAMP_SEGMENTS,
 	RAMP_RATE_CURRENT,
@@ -187,6 +190,9 @@ public:
 	Property<int> serialNumber;
 	Property<int> mode;
 	Property<State> state;
+	Property<double> targetCurrent;
+	Property<double> targetField;
+	Property<double> voltageLimit;
 
 #if defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
 	Property<unsigned char> statusByte;
@@ -234,7 +240,7 @@ public:
 	Property<bool> extRampdownEnabled;
 
 	// RAMP RATE
-	Property<int> rampRateUnits;
+	Property<int> rampRateTimeUnits;
 	Property<int> fieldUnits;
 	Property<int> rampRateSegments;
 	Property<double> currentRampRates[10];		// 10 rates
@@ -270,6 +276,8 @@ public slots:
 	void syncSwitchSetup(void);
 	void syncProtectionSetup(void);
 	void syncEventCounts(bool isBlocking = false);
+	void syncTargetCurrent(void);
+	void syncTargetField(void);
 	void syncStabilityMode(void);
 	void syncStabilitySetting(void);
 	void syncInductance(void);

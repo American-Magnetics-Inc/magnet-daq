@@ -114,6 +114,9 @@
            <pointsize>14</pointsize>
           </font>
          </property>
+         <property name="focusPolicy">
+          <enum>Qt::ClickFocus</enum>
+         </property>
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
          </property>
@@ -452,7 +455,7 @@ p, li { white-space: pre-wrap; }
       </widget>
       <widget class="QWidget" name="rampRateTab">
        <attribute name="title">
-        <string>Ramp Rate</string>
+        <string>Ramping</string>
        </attribute>
        <layout class="QVBoxLayout" name="rampRateTabLayout">
         <item>
@@ -486,23 +489,7 @@ p, li { white-space: pre-wrap; }
             <bool>true</bool>
            </property>
            <layout class="QGridLayout" name="rampRateFrameLayout">
-            <item row="2" column="3">
-             <spacer name="verticalSpacer_19">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Preferred</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>13</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="3" column="2">
+            <item row="6" column="2">
              <widget class="QSpinBox" name="rampSegmentsSpinBox">
               <property name="sizePolicy">
                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -527,23 +514,123 @@ p, li { white-space: pre-wrap; }
               </property>
              </widget>
             </item>
-            <item row="4" column="3">
-             <spacer name="verticalSpacer_20">
+            <item row="9" column="1">
+             <spacer name="verticalSpacer_21">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
               </property>
               <property name="sizeType">
-               <enum>QSizePolicy::Preferred</enum>
+               <enum>QSizePolicy::MinimumExpanding</enum>
               </property>
               <property name="sizeHint" stdset="0">
                <size>
                 <width>20</width>
-                <height>6</height>
+                <height>10</height>
                </size>
               </property>
              </spacer>
             </item>
-            <item row="5" column="0" colspan="4">
+            <item row="4" column="0" colspan="2">
+             <widget class="QLabel" name="rampTimebaseLabel">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Timebase :</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0" colspan="2">
+             <widget class="QLabel" name="rampUnitsLabel">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Ramp Rate Units :</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="2">
+             <widget class="QComboBox" name="rampTimebaseComboBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>250</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <item>
+               <property name="text">
+                <string>Seconds</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Minutes</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="3" column="2">
+             <widget class="QComboBox" name="rampUnitsComboBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>250</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <item>
+               <property name="text">
+                <string>Current (A)</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Field (kG or T)</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="6" column="0" colspan="2">
+             <widget class="QLabel" name="rampSegmentsLabel">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Ramp Segments :</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="0" colspan="4">
              <widget class="QFrame" name="rampParamsFrame">
               <property name="minimumSize">
                <size>
@@ -1551,64 +1638,23 @@ p, li { white-space: pre-wrap; }
               </layout>
              </widget>
             </item>
-            <item row="6" column="1">
-             <spacer name="verticalSpacer_21">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::MinimumExpanding</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>10</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="3" column="0" colspan="2">
-             <widget class="QLabel" name="rampSegmentsLabel">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>Ramp Segments :</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
             <item row="1" column="0" colspan="2">
-             <widget class="QLabel" name="rampTimebaseLabel">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
+             <widget class="QLabel" name="voltageLimitLabel">
               <property name="text">
-               <string>Timebase :</string>
+               <string>Voltage Limit (V) :</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
+            </item>
+            <item row="1" column="2">
+             <widget class="QLineEdit" name="voltageLimitEdit"/>
             </item>
             <item row="0" column="0" colspan="2">
-             <widget class="QLabel" name="rampUnitsLabel">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
+             <widget class="QLabel" name="targetSetpointLabel">
               <property name="text">
-               <string>Ramp Units :</string>
+               <string>Target Setpoint (A) :</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1616,56 +1662,46 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
             <item row="0" column="2">
-             <widget class="QComboBox" name="rampUnitsComboBox">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
+             <widget class="QLineEdit" name="targetSetpointEdit">
+              <property name="inputMask">
+               <string/>
               </property>
-              <property name="maximumSize">
-               <size>
-                <width>250</width>
-                <height>16777215</height>
-               </size>
+              <property name="text">
+               <string/>
               </property>
-              <item>
-               <property name="text">
-                <string>Current (A)</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Field (kG or T)</string>
-               </property>
-              </item>
              </widget>
             </item>
-            <item row="1" column="2">
-             <widget class="QComboBox" name="rampTimebaseComboBox">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
+            <item row="5" column="2">
+             <spacer name="verticalSpacer_19">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
               </property>
-              <property name="maximumSize">
+              <property name="sizeType">
+               <enum>QSizePolicy::Preferred</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
                <size>
-                <width>250</width>
-                <height>16777215</height>
+                <width>20</width>
+                <height>13</height>
                </size>
               </property>
-              <item>
-               <property name="text">
-                <string>Seconds</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Minutes</string>
-               </property>
-              </item>
-             </widget>
+             </spacer>
+            </item>
+            <item row="7" column="2">
+             <spacer name="verticalSpacer_20">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Preferred</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>6</height>
+               </size>
+              </property>
+             </spacer>
             </item>
            </layout>
           </widget>
@@ -1726,7 +1762,7 @@ p, li { white-space: pre-wrap; }
         <item>
          <widget class="QToolBox" name="setupToolBox">
           <property name="currentIndex">
-           <number>0</number>
+           <number>3</number>
           </property>
           <widget class="QWidget" name="supplyPage">
            <property name="geometry">
@@ -2106,8 +2142,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>429</width>
-             <height>264</height>
+             <width>677</width>
+             <height>377</height>
             </rect>
            </property>
            <attribute name="label">
@@ -2239,6 +2275,9 @@ p, li { white-space: pre-wrap; }
                </item>
                <item row="3" column="1" colspan="3">
                 <widget class="QPushButton" name="inductanceButton">
+                 <property name="focusPolicy">
+                  <enum>Qt::ClickFocus</enum>
+                 </property>
                  <property name="text">
                   <string>Sense Magnet Inductance (Press to Start)</string>
                  </property>
@@ -2304,8 +2343,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>442</width>
-             <height>362</height>
+             <width>677</width>
+             <height>377</height>
             </rect>
            </property>
            <attribute name="label">
@@ -2580,7 +2619,7 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>531</width>
+             <width>660</width>
              <height>449</height>
             </rect>
            </property>
@@ -4388,6 +4427,9 @@ p, li { white-space: pre-wrap; }
             <pointsize>8</pointsize>
            </font>
           </property>
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
+          </property>
           <property name="maxLength">
            <number>13</number>
           </property>
@@ -4681,6 +4723,9 @@ p, li { white-space: pre-wrap; }
           <height>57</height>
          </rect>
         </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="text">
          <string>zero</string>
         </property>
@@ -4715,6 +4760,9 @@ p, li { white-space: pre-wrap; }
           <width>57</width>
           <height>57</height>
          </rect>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
         </property>
         <property name="toolTip">
          <string>0 : Vs or Vm</string>
@@ -4754,6 +4802,9 @@ p, li { white-space: pre-wrap; }
           <height>57</height>
          </rect>
         </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="toolTip">
          <string>7 : Field Units</string>
         </property>
@@ -4791,6 +4842,9 @@ p, li { white-space: pre-wrap; }
           <width>57</width>
           <height>57</height>
          </rect>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
         </property>
         <property name="toolTip">
          <string>4 : Increment Field</string>
@@ -4830,6 +4884,9 @@ p, li { white-space: pre-wrap; }
           <height>57</height>
          </rect>
         </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="toolTip">
          <string>5 : Field or Current</string>
         </property>
@@ -4867,6 +4924,9 @@ p, li { white-space: pre-wrap; }
           <width>57</width>
           <height>57</height>
          </rect>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
         </property>
         <property name="toolTip">
          <string>9 : Stability</string>
@@ -4906,6 +4966,9 @@ p, li { white-space: pre-wrap; }
           <height>57</height>
          </rect>
         </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="text">
          <string>enter</string>
         </property>
@@ -4940,6 +5003,9 @@ p, li { white-space: pre-wrap; }
           <width>57</width>
           <height>57</height>
          </rect>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
         </property>
         <property name="text">
          <string>+</string>
@@ -4976,6 +5042,9 @@ p, li { white-space: pre-wrap; }
           <height>57</height>
          </rect>
         </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="text">
          <string>shift</string>
         </property>
@@ -5010,6 +5079,9 @@ p, li { white-space: pre-wrap; }
           <width>80</width>
           <height>57</height>
          </rect>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
         </property>
         <property name="text">
          <string>esc</string>
@@ -5046,6 +5118,9 @@ p, li { white-space: pre-wrap; }
           <height>57</height>
          </rect>
         </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="text">
          <string>.</string>
         </property>
@@ -5080,6 +5155,9 @@ p, li { white-space: pre-wrap; }
           <width>57</width>
           <height>57</height>
          </rect>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
         </property>
         <property name="toolTip">
          <string>6 : Decrement Field</string>
@@ -5119,6 +5197,9 @@ p, li { white-space: pre-wrap; }
           <height>57</height>
          </rect>
         </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="text">
          <string>right</string>
         </property>
@@ -5153,6 +5234,9 @@ p, li { white-space: pre-wrap; }
           <width>57</width>
           <height>57</height>
          </rect>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
         </property>
         <property name="toolTip">
          <string>2 : Voltage Limit</string>
@@ -5192,6 +5276,9 @@ p, li { white-space: pre-wrap; }
           <height>57</height>
          </rect>
         </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="text">
          <string>left</string>
         </property>
@@ -5226,6 +5313,9 @@ p, li { white-space: pre-wrap; }
           <width>57</width>
           <height>57</height>
          </rect>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
         </property>
         <property name="toolTip">
          <string>8 : Switch Current</string>
@@ -5265,6 +5355,9 @@ p, li { white-space: pre-wrap; }
           <height>57</height>
          </rect>
         </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="text">
          <string>menu</string>
         </property>
@@ -5299,6 +5392,9 @@ p, li { white-space: pre-wrap; }
           <width>57</width>
           <height>57</height>
          </rect>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
         </property>
         <property name="toolTip">
          <string>3 : Reset Quench</string>
@@ -5337,6 +5433,9 @@ p, li { white-space: pre-wrap; }
           <width>57</width>
           <height>57</height>
          </rect>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
         </property>
         <property name="toolTip">
          <string>1 : Ramp Rate</string>
@@ -5898,6 +5997,119 @@ p, li { white-space: pre-wrap; }
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>persistSwitchControlButton</tabstop>
+  <tabstop>targetFieldSetpointButton</tabstop>
+  <tabstop>rampPauseButton</tabstop>
+  <tabstop>mainTabWidget</tabstop>
+  <tabstop>targetSetpointEdit</tabstop>
+  <tabstop>voltageLimitEdit</tabstop>
+  <tabstop>rampUnitsComboBox</tabstop>
+  <tabstop>rampTimebaseComboBox</tabstop>
+  <tabstop>rampSegmentsSpinBox</tabstop>
+  <tabstop>rampSegMaxEdit_1</tabstop>
+  <tabstop>rampSegRate_1</tabstop>
+  <tabstop>rampSegMaxEdit_2</tabstop>
+  <tabstop>rampSegRate_2</tabstop>
+  <tabstop>rampSegMaxEdit_3</tabstop>
+  <tabstop>rampSegRate_3</tabstop>
+  <tabstop>rampSegMaxEdit_4</tabstop>
+  <tabstop>rampSegRate_4</tabstop>
+  <tabstop>rampSegMaxEdit_5</tabstop>
+  <tabstop>rampSegRate_5</tabstop>
+  <tabstop>rampSegMaxEdit_6</tabstop>
+  <tabstop>rampSegRate_6</tabstop>
+  <tabstop>rampSegMaxEdit_7</tabstop>
+  <tabstop>rampSegRate_7</tabstop>
+  <tabstop>rampSegMaxEdit_8</tabstop>
+  <tabstop>rampSegRate_8</tabstop>
+  <tabstop>rampSegMaxEdit_9</tabstop>
+  <tabstop>rampSegRate_9</tabstop>
+  <tabstop>rampSegMaxEdit_10</tabstop>
+  <tabstop>rampSegRate_10</tabstop>
+  <tabstop>minOutputVoltageEdit</tabstop>
+  <tabstop>maxOutputVoltageEdit</tabstop>
+  <tabstop>minOutputCurrentEdit</tabstop>
+  <tabstop>maxOutputCurrentEdit</tabstop>
+  <tabstop>stabilityModeComboBox</tabstop>
+  <tabstop>stabilitySettingEdit</tabstop>
+  <tabstop>coilConstantEdit</tabstop>
+  <tabstop>magInductanceEdit</tabstop>
+  <tabstop>absorberComboBox</tabstop>
+  <tabstop>switchInstalledComboBox</tabstop>
+  <tabstop>stabilityResistorCheckBox</tabstop>
+  <tabstop>autoDetectCurrentButton</tabstop>
+  <tabstop>switchCurrentEdit</tabstop>
+  <tabstop>switchTransitionComboBox</tabstop>
+  <tabstop>switchHeatedTimeEdit</tabstop>
+  <tabstop>switchCooledTimeEdit</tabstop>
+  <tabstop>switchCooledRampRateEdit</tabstop>
+  <tabstop>switchCoolingGainEdit</tabstop>
+  <tabstop>currentLimitEdit</tabstop>
+  <tabstop>quenchEnableComboBox</tabstop>
+  <tabstop>quenchSensitivityComboBox</tabstop>
+  <tabstop>externRampdownComboBox</tabstop>
+  <tabstop>protectionModeComboBox</tabstop>
+  <tabstop>icSlopeEdit</tabstop>
+  <tabstop>icOffsetEdit</tabstop>
+  <tabstop>tmaxEdit</tabstop>
+  <tabstop>tscaleEdit</tabstop>
+  <tabstop>toffsetEdit</tabstop>
+  <tabstop>rampdownSegmentsSpinBox</tabstop>
+  <tabstop>rampdownSegMaxEdit_1</tabstop>
+  <tabstop>rampdownSegRate_1</tabstop>
+  <tabstop>rampdownSegMaxEdit_2</tabstop>
+  <tabstop>rampdownSegRate_2</tabstop>
+  <tabstop>rampdownSegMaxEdit_3</tabstop>
+  <tabstop>rampdownSegRate_3</tabstop>
+  <tabstop>rampdownSegMaxEdit_4</tabstop>
+  <tabstop>rampdownSegRate_4</tabstop>
+  <tabstop>rampdownSegMaxEdit_5</tabstop>
+  <tabstop>rampdownSegRate_5</tabstop>
+  <tabstop>rampdownSegMaxEdit_6</tabstop>
+  <tabstop>rampdownSegRate_6</tabstop>
+  <tabstop>rampdownSegMaxEdit_7</tabstop>
+  <tabstop>rampdownSegRate_7</tabstop>
+  <tabstop>rampdownSegMaxEdit_8</tabstop>
+  <tabstop>rampdownSegRate_8</tabstop>
+  <tabstop>rampdownSegMaxEdit_9</tabstop>
+  <tabstop>rampdownSegRate_9</tabstop>
+  <tabstop>rampdownSegMaxEdit_10</tabstop>
+  <tabstop>rampdownSegRate_10</tabstop>
+  <tabstop>rampdownListWidget</tabstop>
+  <tabstop>rampdownRefreshButton</tabstop>
+  <tabstop>rampdownEventTextEdit</tabstop>
+  <tabstop>quenchListWidget</tabstop>
+  <tabstop>quenchRefreshButton</tabstop>
+  <tabstop>quenchEventTextEdit</tabstop>
+  <tabstop>caseEdit</tabstop>
+  <tabstop>notesTextEdit</tabstop>
+  <tabstop>settingsTextEdit</tabstop>
+  <tabstop>copySettingsToClipboardButton</tabstop>
+  <tabstop>sendSupportEmailButton</tabstop>
+  <tabstop>ipAddressEdit</tabstop>
+  <tabstop>ipNameEdit</tabstop>
+  <tabstop>remoteLockoutCheckBox</tabstop>
+  <tabstop>devicesTableWidget</tabstop>
+  <tabstop>deleteDeviceButton</tabstop>
+  <tabstop>logFileEdit</tabstop>
+  <tabstop>logfileButton</tabstop>
+  <tabstop>xminEdit</tabstop>
+  <tabstop>xmaxEdit</tabstop>
+  <tabstop>yminEdit</tabstop>
+  <tabstop>ymaxEdit</tabstop>
+  <tabstop>vminEdit</tabstop>
+  <tabstop>vmaxEdit</tabstop>
+  <tabstop>resetGraphButton</tabstop>
+  <tabstop>secondsRadioButton</tabstop>
+  <tabstop>minutesRadioButton</tabstop>
+  <tabstop>autoscrollXCheckBox</tabstop>
+  <tabstop>magnetFieldRadioButton</tabstop>
+  <tabstop>magnetCurrentRadioButton</tabstop>
+  <tabstop>magnetVoltageCheckBox</tabstop>
+  <tabstop>supplyCurrentCheckBox</tabstop>
+  <tabstop>supplyVoltageCheckBox</tabstop>
+ </tabstops>
  <resources>
   <include location="magnetdaq.qrc"/>
  </resources>
