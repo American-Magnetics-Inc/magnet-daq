@@ -180,6 +180,9 @@ magnetdaq::magnetdaq(QWidget *parent)
 	}
 	else
 	{
+#if defined(Q_OS_LINUX)
+		this->setWindowIcon(QIcon(":magnetdaq/Resources/Magnet-DAQ.ico"));
+#endif
 		axisStr = "";
 	}
 
@@ -700,6 +703,7 @@ void magnetdaq::actionRun(void)
 					QThread* parserThread = new QThread;
 					parser = new Parser(NULL);
 
+					parser->_setParent(this);	// have to do this because parserThread wants to move member parent reference
 					parser->setDataSource(&model430);
 					parser->moveToThread(parserThread);
 					connect(parser, SIGNAL(error(QString)), this, SLOT(parserErrorString(QString)));
@@ -797,6 +801,13 @@ void magnetdaq::actionRun(void)
 //---------------------------------------------------------------------------
 void magnetdaq::actionStop(void)
 {
+	// stop and destroy parser and associated thread if it exists
+	if (parser)
+	{
+		parser->stop();
+		parser = NULL;
+	}
+
 	// stop plotting
 	plotTimer->stop();
 
@@ -842,13 +853,6 @@ void magnetdaq::actionStop(void)
 	statusConnectState->setStyleSheet("color: red; font: bold");
 	statusConnectState->setText("Disconnected");
 	statusSampleRate->clear();
-
-	// stop and destroy parser and associated thread if it exists
-	if (parser)
-	{
-		parser->stop();
-		parser = NULL;
-	}
 }
 
 //---------------------------------------------------------------------------

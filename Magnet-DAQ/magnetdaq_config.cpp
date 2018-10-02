@@ -490,14 +490,6 @@ void magnetdaq::rampSegmentValueChanged(void)
 				break;
 			}
 		}
-
-		if (valueChanged)
-		{
-			QApplication::setOverrideCursor(Qt::WaitCursor);
-
-			QMetaObject::invokeMethod(&model430, "syncRampSegmentValues", Qt::QueuedConnection);
-			QMetaObject::invokeMethod(this, "syncRampPlot", Qt::QueuedConnection);
-		}
 	}
 }
 
@@ -683,33 +675,32 @@ void magnetdaq::configurationChanged(QueryState state)
 	{
 		if (ui.rampUnitsComboBox->currentIndex() == 0)
 			ui.targetSetpointEdit->setText(QString::number(model430.targetCurrent(), 'g', 10));
+
+		// if a ramping tab is visible, update the plot
+		if (ui.mainTabWidget->currentIndex() == RAMP_TAB)
+			QMetaObject::invokeMethod(this, "syncRampPlot", Qt::QueuedConnection);
 	}
 	else if (state == TARGET_FIELD)
 	{
 		if (ui.rampUnitsComboBox->currentIndex() == 1)
 			ui.targetSetpointEdit->setText(QString::number(model430.targetField(), 'g', 10));
+
+		// if a ramping tab is visible, update the plot
+		if (ui.mainTabWidget->currentIndex() == RAMP_TAB)
+			QMetaObject::invokeMethod(this, "syncRampPlot", Qt::QueuedConnection);
 	}
 	else if (state == VOLTAGE_LIMIT)
 	{
 		ui.voltageLimitEdit->setText(QString::number(model430.voltageLimit(), 'f', 3));
 	}
-	else if (state == RAMP_SEGMENTS)
+	else if (state == RAMP_SEGMENTS || state == RAMP_TIMEBASE || state == RAMP_RATE_CURRENT || state == RAMP_RATE_FIELD)
 	{
-		QMetaObject::invokeMethod(&model430, "syncRampSegmentValues", Qt::QueuedConnection);
-		QMetaObject::invokeMethod(this, "syncRampRates", Qt::QueuedConnection);
-	}
-	else if (state == RAMP_TIMEBASE)
-	{
-		QMetaObject::invokeMethod(&model430, "syncRampSegmentValues", Qt::QueuedConnection);
-		QMetaObject::invokeMethod(this, "syncRampRates", Qt::QueuedConnection);
-	}
-	else if (state == RAMP_RATE_CURRENT)
-	{
-		QMetaObject::invokeMethod(this, "syncRampRates", Qt::QueuedConnection);
-	}
-	else if (state == RAMP_RATE_FIELD)
-	{
-		QMetaObject::invokeMethod(this, "syncRampRates", Qt::QueuedConnection);
+		// if a ramping tab is visible, update the contents
+		if (ui.mainTabWidget->currentIndex() == RAMP_TAB)
+		{
+			QMetaObject::invokeMethod(&model430, "syncRampSegmentValues", Qt::QueuedConnection);
+			QMetaObject::invokeMethod(this, "syncRampRates", Qt::QueuedConnection);
+		}
 	}
 	else if (state == FIELD_UNITS)
 	{

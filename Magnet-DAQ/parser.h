@@ -4,6 +4,7 @@
 #include <QObject>
 #include "model430.h"
 
+
 class Parser : public QObject
 {
 	Q_OBJECT
@@ -11,8 +12,9 @@ class Parser : public QObject
 public:
 	Parser(QObject *parent);
 	~Parser();
+	void _setParent(QObject *p) { _parent = p; }
 	void setDataSource(Model430 *src) { model430 = src; }
-	void stop(void) { stopProcessing = true; }
+	void stop(void);
 
 public slots:
 	void process(void);
@@ -21,11 +23,13 @@ signals:
 	void finished();
 	void error(QString err);
 	void sendBlockingCommand(QString aStr);
+	void configurationChanged(QueryState aState);
 
 private:
 	// add your variables here
-	bool stopProcessing;
+	std::atomic<bool> stopParsing;
 	Model430 *model430;
+	QObject *_parent;
 	QString inputStr;
 
 	void parseInput(char *commbuf, char* outputBuffer);

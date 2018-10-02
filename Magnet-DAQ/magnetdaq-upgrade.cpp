@@ -21,9 +21,9 @@ const double requiredLegacyFirmwareId = 2.55;
 const double requiredFirmwareId = 3.05;
 
 // firmware versions included in Resource file (update these values when new version is included)
-const double legacyFirmwareId = 2.57;
+const double legacyFirmwareId = 2.58;
 const QString legacyFirmwareSuffix = "";
-const double firmwareId = 3.07;
+const double firmwareId = 3.08;
 const QString firmwareSuffix = "";
 
 //---------------------------------------------------------------------------
@@ -140,9 +140,6 @@ QString magnetdaq::formatFirmwareUpgradeMsg(void)
 //---------------------------------------------------------------------------
 void magnetdaq::initializeUpgradeWizard(void)
 {
-	
-
-	upgradeWizard->setFont(QFont("Segoe UI", 9));
 	upgradeWizard->setWizardStyle(QWizard::ClassicStyle);
 	upgradeWizard->setPixmap(QWizard::WatermarkPixmap, QPixmap(":/magnetdaq/Resources/appicon.png"));
 	upgradeWizard->setPage(INTRO_PAGE, createIntroPage());
@@ -295,6 +292,13 @@ void magnetdaq::showFirmwareUpgradeWizard(void)
 	if (upgradeWizard == NULL)
 	{
 		upgradeWizard = new QWizard();
+#if defined(Q_OS_LINUX)
+		upgradeWizard->setFont(QFont("Ubuntu", 9));
+#elif defined(Q_OS_MACOS)
+		upgradeWizard->setFont(QFont(".SF NS Text", 13));
+#else
+		upgradeWizard->setFont(QFont("Segoe UI", 9));
+#endif
 		upgradeWizard->setAttribute(Qt::WA_DeleteOnClose, true);
 		connect(upgradeWizard, SIGNAL(finished(int)), this, SLOT(wizardFinished(int)));
 		initializeUpgradeWizard();

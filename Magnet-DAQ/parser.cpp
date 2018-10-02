@@ -3,6 +3,16 @@
 #include "socket.h"
 #include <iostream>
 
+#if defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
+#include <sys/time.h>
+#include <sys/types.h>
+#include <sys/select.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#endif
+
 #define DELIMITER	":"		// colon
 #define SEPARATOR ": \t"	// colon, space, or tab
 #define SPACE " \t"			// space or tab
@@ -88,9 +98,40 @@ const char _TRANSITION[] = "TRANSITION";
 //---------------------------------------------------------------------------
 char *struprt(char *str)
 {
+	if (str == NULL)
+		return NULL;
+
+#if defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
 	char *next = str;
-	while (*str != '\0')
-		*str = toupper((unsigned char)*str);
+	while (*next != '\0')
+	{
+		*next = toupper((unsigned char)*next);
+		next++;
+	}
+#else
+	str = _strupr(str);	// convert to all uppercase
+#endif
+	return str;
+}
+
+//---------------------------------------------------------------------------
+char *trimwhitespace(char *str)
+{
+	char *end;
+
+	// Trim leading space
+	while (isspace((unsigned char)*str)) str++;
+
+	if (*str == 0)  // All spaces?
+		return str;
+
+	// Trim trailing space
+	end = str + strlen(str) - 1;
+	while (end > str && isspace((unsigned char)*end)) end--;
+
+	// Write new null terminator character
+	end[1] = '\0';
+
 	return str;
 }
 
@@ -195,17 +236,30 @@ bool isValue(const char* buf)
 Parser::Parser(QObject *parent)
 	: QObject(parent)
 {
-	stopProcessing = false;
+	stopParsing = false;
 	model430 = NULL;
+	_parent = NULL;
 }
 
 //---------------------------------------------------------------------------
 Parser::~Parser()
 {
-	stopProcessing = true;
+	stopParsing = true;
 	qDebug("Magnet-DAQ stdin Parser End");
 }
 
+//---------------------------------------------------------------------------
+void Parser::stop(void)
+{ 
+	// NOTE: Due to the getline() call in process(), this flag won't immediately
+	// stop the thread because getline() blocks until receipt of input on stdin.
+	// This is generally not a problem if the entire app exits when an instrument
+	// connection is closed. If the app does not exit, the first command after
+	// reconnect is ignored because it is consumed by the blocking getline()
+	// still running in the previous thread -- after this consumption, the 
+	// old thread immediately exits and everything proceeds normally.
+	stopParsing = true;
+}
 
 //---------------------------------------------------------------------------
 // --- PROCESS THREAD ---
@@ -220,29 +274,61 @@ void Parser::process(void)
 	{
 		// connect send command slot
 		connect(this, SIGNAL(sendBlockingCommand(QString)), model430->getSocket(), SLOT(sendBlockingCommand(QString)));
-		stopProcessing = false;
+		connect(this, SIGNAL(configurationChanged(QueryState)), _parent, SLOT(configurationChanged(QueryState)));
+		stopParsing = false;
 
 		// allocate resources and start parsing
 		qDebug("Magnet-DAQ stdin Parser Start");
 		char input[1024];
 		char output[1024];
 
-		while (!stopProcessing)
+#if defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
+		fd_set read_fds;
+        int sfd=STDIN_FILENO, result;
+#endif
+		while (!stopParsing)
 		{
 			input[0] = '\0';
 			output[0] = '\0';
 
-			std::cin.getline(input, sizeof(input));
 #if defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
-			struprt(input);	// convert to all uppercase
+			//we want to receive data from stdin so add these file
+			//descriptors to the file descriptor set. These also have to be reset
+			//within the loop since select modifies the sets.
+			// MM@AMI: I have no idea why this is required to get stdin to work
+			FD_ZERO(&read_fds);
+            FD_SET(sfd, &read_fds);
+
+			result = select(sfd + 1, &read_fds, NULL, NULL, NULL);
+
+			if (result == -1 && errno != EINTR)
+			{
+                qDebug("Magnet-DAQ parser aborted; error in select()");
+				std::cerr << "Error in select: " << strerror(errno) << "\n";
+				break;
+			}
+			else if (result == -1 && errno == EINTR)
+			{
+				//we've received an interrupt - handle this
+                qDebug("Magnet-DAQ parser aborted; received unknown interrupt");
+				break;
+			}
+			else
+			{
+				if (FD_ISSET(STDIN_FILENO, &read_fds))
+				{
+					std::cin.getline(input, sizeof(input));	// this blocks until input
+				}
+			}
 #else
-			_strupr(input);	// convert to all uppercase
+			std::cin.getline(input, sizeof(input));	// this blocks until input
 #endif
 
 #ifdef DEBUG
 			if (input[0] != '\0')
 				qDebug() << QString(input);
 #endif
+			struprt(input);	// convert to all uppercase
 
 			// save original string
 			inputStr = QString(input);
@@ -252,6 +338,7 @@ void Parser::process(void)
 		}
 
 		disconnect(this, SIGNAL(sendBlockingCommand(QString)), model430->getSocket(), SLOT(sendBlockingCommand(QString)));
+		disconnect(this, SIGNAL(configurationChanged(QueryState)), _parent, SLOT(configurationChanged(QueryState)));
 	}
 
 	emit finished();
@@ -352,6 +439,10 @@ void Parser::parseInput(char *commbuf, char* outputBuffer)
 			default:
 				break;
 		}	// end switch on first word
+
+#if defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
+		std::cout.flush();	// needed on Linux
+#endif
 	}
 			
 	/************************************************************
@@ -878,6 +969,7 @@ void Parser::parse_configure_R(const char* word, char *outputBuffer)
 							if (isValue(value))
 							{
 								emit sendBlockingCommand(inputStr + "\r\n");
+								emit configurationChanged(RAMP_RATE_FIELD);
 							}
 						}
 					}
@@ -924,6 +1016,7 @@ void Parser::parse_configure_R(const char* word, char *outputBuffer)
 							if (isValue(value))
 							{
 								emit sendBlockingCommand(inputStr + "\r\n");
+								emit configurationChanged(RAMP_RATE_CURRENT);
 							}
 						}
 					}

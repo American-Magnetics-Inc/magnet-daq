@@ -50,6 +50,19 @@ void magnetdaq::initRampPlot(void)
 		//ui.rampPlotWidget->graph()->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, 4));
 	}
 
+	// add graph for target point display
+	ui.rampPlotWidget->addGraph(rampCurrentAxis, rampVoltageAxis);
+	ui.rampPlotWidget->graph(1)->setScatterStyle(QCPScatterStyle::ssStar);
+	ui.rampPlotWidget->graph(1)->setLineStyle(QCPGraph::lsNone);
+	{
+		QPen pen = QPen(Qt::red);
+		pen.setWidthF(1.0);
+		QColor color = Qt::red;
+		color.setAlpha(64);
+		ui.rampPlotWidget->graph(1)->setBrush(color);
+		ui.rampPlotWidget->graph(1)->setPen(pen);
+	}
+
 	// set default scale
 	int rampSegments = ui.rampSegmentsSpinBox->value();
 	ui.rampPlotWidget->xAxis->setRange(-(rampSegMaxLimits[rampSegments]->text().toDouble()), rampSegMaxLimits[rampSegments]->text().toDouble());
@@ -112,7 +125,8 @@ void magnetdaq::setRampPlotCurrentAxisLabel(void)
 void magnetdaq::syncRampPlot(void)
 {
 	// clear existing data
-	ui.rampPlotWidget->graph()->data()->clear();
+	ui.rampPlotWidget->graph(0)->data()->clear();
+	ui.rampPlotWidget->graph(1)->data()->clear();
 
 	setRampPlotCurrentAxisLabel();
 
@@ -203,12 +217,23 @@ void magnetdaq::syncRampPlot(void)
 		segmentData[j].value = 0;
 	}
 
-	ui.rampPlotWidget->graph()->data()->set(segmentData);
+	ui.rampPlotWidget->graph(0)->data()->set(segmentData);
 	ui.rampPlotWidget->rescaleAxes(true);
 
 	//add a little whitespace around plot
 	ui.rampPlotWidget->xAxis->scaleRange(1 / 0.85, ui.rampPlotWidget->xAxis->range().center());
 	ui.rampPlotWidget->yAxis->scaleRange(1 / 0.85, ui.rampPlotWidget->yAxis->range().center());
+
+	// add star symbol for target
+	QVector<QCPGraphData> targetPoint(1);
+	targetPoint[0].value = 0.0;
+
+	if (ui.rampUnitsComboBox->currentIndex() == 0)
+		targetPoint[0].key = model430.targetCurrent();
+	else
+		targetPoint[0].key = model430.targetField();
+
+	ui.rampPlotWidget->graph(1)->data()->set(targetPoint);
 
 	ui.rampPlotWidget->replot();
 }
@@ -258,6 +283,7 @@ void magnetdaq::rampPlotTimebaseChanged(bool checked)
 {
 	// clear past data
 	ui.rampPlotWidget->graph(0)->data()->clear();
+	ui.rampPlotWidget->graph(1)->data()->clear();
 	ui.rampPlotWidget->replot();
 }
 

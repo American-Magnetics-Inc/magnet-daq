@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
 
 	QCoreApplication::setOrganizationName("American Magnetics Inc.");
 	QCoreApplication::setApplicationName("MagnetDAQ");
-	QCoreApplication::setApplicationVersion("1.02");
+	QCoreApplication::setApplicationVersion("1.03");
 	QCoreApplication::setOrganizationDomain("AmericanMagnetics.com");
 	QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 	QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);

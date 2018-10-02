@@ -4,17 +4,12 @@
 
 TEMPLATE = app
 TARGET = Magnet-DAQ
-# DESTDIR = ../Win32/Release
 QT += core network opengl widgets gui printsupport concurrent
-CONFIG += release
 DEFINES += QT_NETWORK_LIB QT_CONCURRENT_LIB QT_WIDGETS_LIB QT_PRINTSUPPORT_LIB QT_OPENGL_LIB
 INCLUDEPATH += ./GeneratedFiles \
     . \
-    ./GeneratedFiles/Release
 PRECOMPILED_HEADER = stdafx.h
 DEPENDPATH += .
-MOC_DIR += ./GeneratedFiles/release
-OBJECTS_DIR += release
 UI_DIR += ./GeneratedFiles
 RCC_DIR += ./GeneratedFiles
 include(Magnet-DAQ.pri)
@@ -22,6 +17,7 @@ win32:RC_FILE = Magnet-DAQ.rc
 macx-clang {
 ICON = Magnet-DAQ.icns
 # suppress CLANG warnings on Mac
+#QMAKE_CXXFLAGS += "-debug -DDEBUG"
 QMAKE_CXXFLAGS += "-Wno-inconsistent-missing-override"
 QMAKE_CXXFLAGS += "-Wno-unused-parameter" # this doesn't seem to work due to -Wall option later in cmd line
 }
