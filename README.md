@@ -6,13 +6,13 @@
 
 This repository is the source code and binary distribution point for the Magnet-DAQ application for comprehensive remote control of the AMI Model 430 Programmer.
 
-**The current application version is 1.02.** An integrated Help file is included that you may preview in PDF format [here](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/Magnet-DAQ-Help.pdf). The Magnet-DAQ application *requires* firmware version 2.55 or later in the Model 430 programmer. 
+**The current application version is 1.03.** An integrated Help file is included that you may preview in PDF format [here](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/Magnet-DAQ-Help.pdf). The Magnet-DAQ application *requires* firmware version 2.55 or later in the Model 430 programmer. 
 
 Magnet-DAQ is also a required prerequisite for the [Multi-Axis Operation](https://bitbucket.org/americanmagneticsinc/multi-axis-operation) open source application developed by AMI for control of AMI Maxes(tm) magnet systems.
 
 ### Firmware Upgrade ###
 
-An integrated Firmware Upgrade Wizard is included in the application along with the latest Model 430 firmware versions 2.57 (legacy) and 3.07. Upon connection to a Model 430, the application will present the Firmware Upgrade Wizard as appropriate, or on demand via the new toolbar icon.
+An integrated Firmware Upgrade Wizard is included in the application along with the latest Model 430 firmware versions 2.58 (legacy) and 3.08. Upon connection to a Model 430, the application will present the Firmware Upgrade Wizard as appropriate, or on demand via the new toolbar icon.
 
 **NOTE:** The latest firmware includes optional communication on Ethernet port 7185 without the "welcome message." This is of importance to customers using VISA and LabVIEW to develop "stateless" communication drivers.
 
@@ -49,7 +49,7 @@ Pre-compiled, ready-to-use binaries are available in the Downloads section of th
 * __Deployment hints for your own compilations__
 	* *For Windows*: The MagnetDAQ-Setup folder contains a setup project for producing a Windows installer. This requires the [Visual Studio Installer](https://marketplace.visualstudio.com/items?itemName=VisualStudioProductTeam.MicrosoftVisualStudio2017InstallerProjects) extension. A bin folder is referenced by the installer where you should place the binaries for packaging by the installer.
 	* *For Linux:* See the README file in the binary download (see above) for the instructions for deploying on Ubuntu. Other versions of Linux may require a difference procedure.
-	*  *For Mac*: Simply unzip the binary distribution and copy the .app folder to the desired location. In order to include the Qt runtime libraries in any app bundle you compile yourself, you should use the [Mac Deployment Tool](http://doc.qt.io/qt-5/osx-deployment.html#macdeploy).
+	* *For Mac*: Simply unzip the binary distribution and copy the .app folder to the desired location. In order to include the Qt runtime libraries in any app bundle you compile yourself, you should use the [Mac Deployment Tool](http://doc.qt.io/qt-5/osx-deployment.html#macdeploy).
 
 ## License ##
 
