@@ -91,11 +91,11 @@ int main(int argc, char *argv[])
 {
 #ifdef Q_OS_WIN
 	SetProcessDPIAware(); // call before the main event loop
-#endif // Q_OS_WIN 
+#endif // Q_OS_WIN
 
 	QCoreApplication::setOrganizationName("American Magnetics Inc.");
 	QCoreApplication::setApplicationName("MagnetDAQ");
-	QCoreApplication::setApplicationVersion("1.03");
+	QCoreApplication::setApplicationVersion("1.04");
 	QCoreApplication::setOrganizationDomain("AmericanMagnetics.com");
 	QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 	QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);

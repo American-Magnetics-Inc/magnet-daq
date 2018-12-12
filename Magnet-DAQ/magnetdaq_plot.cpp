@@ -206,7 +206,7 @@ void magnetdaq::initPlot(void)
 	connect(ssPlotTitle, SIGNAL(doubleClicked(QMouseEvent*)), this, SLOT(titleDoubleClick(QMouseEvent*)));
 	connect(ui.plotWidget, SIGNAL(axisDoubleClick(QCPAxis*, QCPAxis::SelectablePart, QMouseEvent*)), this, SLOT(axisLabelDoubleClick(QCPAxis*, QCPAxis::SelectablePart)));
 	connect(ui.plotWidget, SIGNAL(legendDoubleClick(QCPLegend*, QCPAbstractLegendItem*, QMouseEvent*)), this, SLOT(legendDoubleClick(QCPLegend*, QCPAbstractLegendItem*)));
-	
+
 	// setup policy and connect slot for context menu popup:
 	ui.plotWidget->setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(ui.plotWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextMenuRequest(QPoint)));
@@ -273,7 +273,7 @@ void magnetdaq::setCurrentAxisLabel(void)
 
 	// add units
 	tempStrCurrent = mainPlotYTitleCurrent + " (A)";
-	
+
 	if (model430.fieldUnits() == 0)
 		tempStrField = mainPlotYTitleField + " (kG)";
 	else
@@ -492,7 +492,7 @@ void magnetdaq::currentAxisSelectionChanged(bool checked)
 		if (!ui.plotWidget->graph(MAGNET_CURRENT_GRAPH)->data()->isEmpty())
 			ui.plotWidget->graph(MAGNET_CURRENT_GRAPH)->data()->clear();	// clear it
 	}
-	
+
 	setCurrentAxisLabel();
 	ui.plotWidget->replot();
 }
@@ -592,7 +592,6 @@ void magnetdaq::axisLabelDoubleClick(QCPAxis *axis, QCPAxis::SelectablePart part
 		else if (axis == voltageAxis)
 			dlg.setTextValue(mainPlotY2Title);
 
-		
 		// save/restore different geometry for different DPI screens
 		QString dpiStr = QString::number(QApplication::desktop()->screen()->logicalDpiX());
 		dlg.restoreGeometry(settings.value(axisStr + "LabelDialog/Geometry/" + dpiStr).toByteArray());

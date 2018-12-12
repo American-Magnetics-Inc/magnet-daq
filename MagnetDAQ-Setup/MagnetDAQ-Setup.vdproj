@@ -105,6 +105,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_15674FC293094AF882C25FD2577C1E54"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_16BDC8A60BDA46779C655061BD499369"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -706,12 +712,6 @@
         "Entry"
         {
         "MsmKey" = "8:_9DE6BB50DFB94969B1F8B64BC5C9404A"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_9DF608F11C2F459396C19D5CD3A1EEAC"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -5912,15 +5912,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Magnet-DAQ"
-        "ProductCode" = "8:{30686D10-1257-409D-8293-CC1A23CB64AE}"
-        "PackageCode" = "8:{E392230A-4784-4636-900A-B8FD9ED1324E}"
+        "ProductCode" = "8:{C78232D4-5083-4E94-882B-9DDC3D575E44}"
+        "PackageCode" = "8:{D234465A-876A-4D8C-A09C-954F27AEB214}"
         "UpgradeCode" = "8:{03C8B04A-93FE-4574-BA50-A6C3599A5CE1}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.03"
+        "ProductVersion" = "8:1.04"
         "Manufacturer" = "8:American Magnetics, Inc."
         "ARPHELPTELEPHONE" = "8:865 482-1056"
         "ARPHELPLINK" = "8:http://www.americanmagnetics.com/support-center/"
@@ -5928,7 +5928,7 @@
         "Subject" = "8:AMI Model 430 Remote Control app"
         "ARPCONTACT" = "8:American Magnetics, Inc."
         "Keywords" = "8:"
-        "ARPCOMMENTS" = "8:Magnet-DAQ v1.03"
+        "ARPCOMMENTS" = "8:Magnet-DAQ v1.04"
         "ARPURLINFOABOUT" = "8:http://www.americanmagnetics.com"
         "ARPPRODUCTICON" = "8:_F7B8AF449B154A99A93194495A39C513"
         "ARPIconIndex" = "3:0"
@@ -6467,11 +6467,11 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_9DF608F11C2F459396C19D5CD3A1EEAC"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_15674FC293094AF882C25FD2577C1E54"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:FALSE"
-            "SourcePath" = "8:C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Redist\\MSVC\\14.15.26706\\MergeModules\\Microsoft_VC141_CRT_x64.msm"
+            "SourcePath" = "8:C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Redist\\MSVC\\14.16.27012\\MergeModules\\Microsoft_VC141_CRT_x64.msm"
                 "Properties"
                 {
                 }
@@ -6486,7 +6486,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_9A956FDA982B411698EBB62E87A7352C"
             {
-            "SourcePath" = "8:..\\x64\\Release\\Magnet-DAQ.exe"
+            "SourcePath" = "8:..\\x64\\Debug\\Magnet-DAQ.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_74DED266078E4E36B2711E7814A38DD7"

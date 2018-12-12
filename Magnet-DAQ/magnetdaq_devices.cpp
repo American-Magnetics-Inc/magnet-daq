@@ -2,7 +2,7 @@
 #include "magnetdaq.h"
 
 //---------------------------------------------------------------------------
-// Contains methods related to managing the Setup device list. 
+// Contains methods related to managing the Setup device list.
 // Broken out from magnetdaq.cpp for ease of editing.
 //---------------------------------------------------------------------------
 
@@ -51,7 +51,7 @@ void magnetdaq::saveDeviceList(void)
 		rowText << ui.devicesTableWidget->item(i, 1)->text();	// ip address
 		data << rowText;
 	}
-	
+
 	settings.setValue("DeviceList", QVariant::fromValue(data));
 }
 

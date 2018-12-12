@@ -2,7 +2,7 @@
 #include "magnetdaq.h"
 
 //---------------------------------------------------------------------------
-// Contains methods related to the event tabs. 
+// Contains methods related to the event tabs.
 // Broken out from magnetdaq.cpp for ease of editing.
 //---------------------------------------------------------------------------
 
@@ -56,7 +56,7 @@ void magnetdaq::syncRampdownEvents(QString str)
 			}
 
 			index = str.indexOf("****************************************************************************", index);
-			
+
 			if (index != -1)
 				eventEnd = index;
 			else

@@ -4,7 +4,7 @@
 #include "magnetdaq.h"
 
 //---------------------------------------------------------------------------
-Model430::Model430(QObject *parent) : QObject(parent) 
+Model430::Model430(QObject *parent) : QObject(parent)
 {
 	socket = NULL;
 
@@ -51,7 +51,7 @@ Model430::Model430(QObject *parent) : QObject(parent)
 	rampRateTimeUnits.on_change().connect([this](int val)		{ this->valueChanged(RAMP_TIMEBASE); });
 	rampRateSegments.on_change().connect([this](int val)		{ this->valueChanged(RAMP_SEGMENTS); });
 	rampdownSegments.on_change().connect([this](int val)		{ this->valueChanged(RAMPDOWN_SEGMENTS); });
-	
+
 	for (int i = 0; i < 10; i++)	// up to 10 segments
 	{
 		currentRampRates[i].on_change().connect([this](double val)	{ this->valueChanged(RAMP_RATE_CURRENT); });
@@ -70,9 +70,9 @@ Model430::Model430(QObject *parent) : QObject(parent)
 }
 
 //---------------------------------------------------------------------------
-Model430::~Model430() 
+Model430::~Model430()
 {
-	
+
 }
 
 //---------------------------------------------------------------------------
@@ -189,7 +189,7 @@ void Model430::syncEventCounts(bool isBlocking)
 		{
 			socket->sendQuery("RAMPD:COUNT?\r\n", RAMPDOWN_COUNT);
 			socket->sendQuery("QU:COUNT?\r\n", QUENCH_COUNT);
-		}		
+		}
 	}
 }
 

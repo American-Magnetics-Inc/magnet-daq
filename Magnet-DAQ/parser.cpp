@@ -19,15 +19,15 @@
 #define COMMA ","			// comma
 
 /************************************************************
-	This file is designed to support using Magnet-DAQ as a 
-	slave QProcess to another application. It exposes a 
+	This file is designed to support using Magnet-DAQ as a
+	slave QProcess to another application. It exposes a
 	subset of the Model 430 remote interface commands and
 	queries. This allows a master application to use Magnet-DAQ
 	as the interface to the Model 430 without programming the
 	TCP/IP communication directly.
 
-	The primary purpose for this functionality to date is the 
-	support of 2- and 3-axis AMI magnet systems. A Magnet-DAQ 
+	The primary purpose for this functionality to date is the
+	support of 2- and 3-axis AMI magnet systems. A Magnet-DAQ
 	process is opened for each axis.
 
 	The Parser::process() method executes in a separate thread
@@ -37,7 +37,7 @@
 	argument "-p" on Magnet-DAQ launch.
 
 	Please note that the QProcess functionality is not available
-	for UWP (Universal Windows) apps as the sandboxing does not 
+	for UWP (Universal Windows) apps as the sandboxing does not
 	allow this type of interprocess communication.
 ************************************************************/
 
@@ -190,7 +190,7 @@ bool isValue(const char* buf)
 			buf++;
 		}
 		else
-		{		
+		{
 			// unacceptable character or symbol
 			return false;
 		}
@@ -218,7 +218,7 @@ bool isValue(const char* buf)
 			buf++;			// next character
 		}
 		else
-		{		
+		{
 			// unacceptable character or symbol
 			return false;
 		}
@@ -250,13 +250,13 @@ Parser::~Parser()
 
 //---------------------------------------------------------------------------
 void Parser::stop(void)
-{ 
+{
 	// NOTE: Due to the getline() call in process(), this flag won't immediately
 	// stop the thread because getline() blocks until receipt of input on stdin.
 	// This is generally not a problem if the entire app exits when an instrument
 	// connection is closed. If the app does not exit, the first command after
 	// reconnect is ignored because it is consumed by the blocking getline()
-	// still running in the previous thread -- after this consumption, the 
+	// still running in the previous thread -- after this consumption, the
 	// old thread immediately exits and everything proceeds normally.
 	stopParsing = true;
 }
@@ -388,7 +388,7 @@ void Parser::parseInput(char *commbuf, char* outputBuffer)
 
 			// S* queries
 			case  'S':
-				if (!strcmp(word, _STATE))				
+				if (!strcmp(word, _STATE))
 				{
 					QString tmpStr(QString::number((int)(model430->state())) + "\n");
 					std::cout.write(tmpStr.toLocal8Bit(), tmpStr.size());
@@ -444,7 +444,7 @@ void Parser::parseInput(char *commbuf, char* outputBuffer)
 		std::cout.flush();	// needed on Linux
 #endif
 	}
-			
+
 	/************************************************************
 	The command is not a query (no return data).
 	************************************************************/
@@ -557,7 +557,7 @@ void Parser::parse_query_C(char* word, char* outputBuffer)
 		// CURRent:TARGet?
 		else if (strcmp(word, _TARG) == 0 || strcmp(word, _TARGET) == 0)
 		{
-			
+
 		}
 	}
 	else if (strcmp(word, _COIL) == 0 || strcmp(word, _COILCONST) == 0)
@@ -587,7 +587,7 @@ void Parser::parse_query_F(char* word, char* outputBuffer)
 		}
 		else if (strcmp(word, _TARG) == 0 || strcmp(word, _TARGET) == 0)
 		{
-			
+
 		}
 		else if (strcmp(word, _UNITS) == 0)
 		{
@@ -918,7 +918,6 @@ void Parser::parse_configure_P(const char* word, char *outputBuffer)
 				model430->switchInstalled = atoi(value);
 			}
 		}
-			
 	}
 }
 
@@ -1044,7 +1043,7 @@ void Parser::parse_configure_R(const char* word, char *outputBuffer)
 }
 
 //---------------------------------------------------------------------------
-// tests CONFigure:STABility, CONFigure:STABility:MODE, 
+// tests CONFigure:STABility, CONFigure:STABility:MODE,
 //		 CONFigure:STABility:RESistor
 //---------------------------------------------------------------------------
 void Parser::parse_configure_S(const char* word, char *outputBuffer)

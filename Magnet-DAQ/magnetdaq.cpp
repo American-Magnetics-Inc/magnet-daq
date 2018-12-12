@@ -101,7 +101,7 @@ magnetdaq::magnetdaq(QWidget *parent)
 	--port xxxx		Connect to specified port (for simulation use only)
 	--telnet xxxx	Echo display to specified port (for simulation use only)
 	************************************************************/
-	
+
 	// init states
 	parser = NULL;	// stdin parser
 	isXAxis = false;
@@ -122,13 +122,13 @@ magnetdaq::magnetdaq(QWidget *parent)
 	cmdLineParse.addOption(targetIPOption);
 
 	// A specific port to connect (--port) (for simulation use only)
-	QCommandLineOption portOption("port", 
+	QCommandLineOption portOption("port",
 		QCoreApplication::translate("main", "Connect to specified <ip-port>."),
 		QCoreApplication::translate("main", "ip-port"));
 	cmdLineParse.addOption(portOption);
 
 	// A specific telnet port to connect (--telnet) (for simulation use only)
-	QCommandLineOption telnetOption("telnet", 
+	QCommandLineOption telnetOption("telnet",
 		QCoreApplication::translate("main", "Echo display to specified <port>."),
 		QCoreApplication::translate("main", "ip-port"));
 	cmdLineParse.addOption(telnetOption);
@@ -210,7 +210,7 @@ magnetdaq::magnetdaq(QWidget *parent)
 	// no context menu for toolbar or dock widgets
 	ui.mainToolBar->setContextMenuPolicy(Qt::PreventContextMenu);
 	ui.setupDockWidget->setContextMenuPolicy(Qt::PreventContextMenu);
-	
+
 	// init members and ui state
 	socket = NULL;
 	telnet = NULL;
@@ -249,18 +249,18 @@ magnetdaq::magnetdaq(QWidget *parent)
 	else
 	{
 #if defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
-		// For Linux and macOS, setting the plotTimer data collection rate too high results 
+		// For Linux and macOS, setting the plotTimer data collection rate too high results
 		// in a lagging user interface. On the Mac, the display can go long periods
 		// without a refresh. Limit the max update rate here to keep the interface responsive.
 		plotTimer->setInterval(200);	// 5 updates per second max rate on Linux/macOS
 #else
 		// Windows seems to give preference to the user interface updates at the
-		// expense of slowing the plotTimer data collection rate, so we set the update 
+		// expense of slowing the plotTimer data collection rate, so we set the update
 		// rate to a higher value and let the interface dictate the actual achieved rate.
 		plotTimer->setInterval(125);	// 8 updates per second max rate on Windows
 #endif
 	}
-	
+
 	connect(plotTimer, SIGNAL(timeout()), this, SLOT(timeout()));
 
 	// restore plot saved settings
@@ -1051,7 +1051,7 @@ void magnetdaq::updateFrontPanel(QString displayString, bool shiftLED, bool fiel
 {
 	// first format the displayString for HTML display
 	QString htmlDisplay = "<!DOCTYPE HTML PUBLIC \" -//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n";
-	
+
 	htmlDisplay += "<html><head><meta name =\"qrichtext\" content=\"1\"/><style type=\"text/css\">p, li{white-space:pre-wrap;}\n";
 
 	// font scaling, 14pt is the base font size at 120 dpi
@@ -1154,7 +1154,7 @@ void magnetdaq::updateFrontPanel(QString displayString, bool shiftLED, bool fiel
 	// ENCODER IN USE address: 0x87
 	displayString.replace(0x87, "<span style=\"font-family:'Wingdings 3'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">o</span>");
 #endif
-	
+
 	// complete the displayString
 	htmlDisplay += displayString;
 	htmlDisplay += "</p></body></html>";

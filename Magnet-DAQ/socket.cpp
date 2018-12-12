@@ -162,7 +162,7 @@ void Socket::readyRead()
 		// read return data
 		// split at the , delimiters
 		QStringList strList = reply.split(",");
-		
+
 		for (int i = 0; i < strList.size(); i++)
 		{
 			bool ok;
@@ -320,7 +320,7 @@ void Socket::readyRead()
 	}
 
 	// simple floating point queries
-	else if (queryState == SUPPLY_MIN_VOLTAGE  || queryState == SUPPLY_MAX_VOLTAGE	  || 
+	else if (queryState == SUPPLY_MIN_VOLTAGE  || queryState == SUPPLY_MAX_VOLTAGE	  ||
 			 queryState == SUPPLY_MIN_CURRENT  || queryState == SUPPLY_MAX_CURRENT	  ||
 			 queryState == STABILITY_SETTING   || queryState == COIL_CONSTANT		  ||
 			 queryState == INDUCTANCE		   || queryState == SENSE_INDUCTANCE      ||
@@ -556,7 +556,7 @@ void Socket::readyRead()
 				start += 15;
 				quenchStr = displayStr.mid(start, 12);
 				quenchStr.replace("A", " ");
-				
+
 				bool ok;
 				double temp = quenchStr.toDouble(&ok);
 				if (ok)
@@ -684,7 +684,7 @@ void Socket::getNextDataPoint()
 			queryState = TRG_SAMPLE;
 			socket->write("*TRG\r\n");
 			socket->waitForReadyRead(500);
-			
+
 			emit nextDataPoint(currentTime, magnetField, magnetCurrent, magnetVoltage, supplyCurrent, supplyVoltage);
 			queryState = IDLE_STATE;
 		}
@@ -891,7 +891,6 @@ void Socket::getFirmwareVersion(void)
 		queryState = FIRMWARE_VERSION;
 		socket->write("*IDN?\r\n");
 		socket->waitForReadyRead(1000);
-		
 
 		timeout.restart();
 		while (queryState == FIRMWARE_VERSION)

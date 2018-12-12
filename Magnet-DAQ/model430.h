@@ -2,7 +2,7 @@
 #define MODEL430_H
 
 // forward declaration to prevent circular reference
-class Socket;	
+class Socket;
 
 #include <QObject>
 #include "property.hpp"

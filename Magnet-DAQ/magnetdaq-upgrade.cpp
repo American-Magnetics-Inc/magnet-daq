@@ -3,7 +3,7 @@
 #include "replytimeout.h"
 
 //---------------------------------------------------------------------------
-// Contains methods related to the firmware upgrade wizard. 
+// Contains methods related to the firmware upgrade wizard.
 // Broken out from magnetdaq.cpp for ease of editing.
 //---------------------------------------------------------------------------
 
@@ -21,9 +21,9 @@ const double requiredLegacyFirmwareId = 2.55;
 const double requiredFirmwareId = 3.05;
 
 // firmware versions included in Resource file (update these values when new version is included)
-const double legacyFirmwareId = 2.58;
+const double legacyFirmwareId = 2.59;
 const QString legacyFirmwareSuffix = "";
-const double firmwareId = 3.08;
+const double firmwareId = 3.09;
 const QString firmwareSuffix = "";
 
 //---------------------------------------------------------------------------
@@ -44,7 +44,7 @@ bool magnetdaq::checkFirmwareVersion(void)
 		if (version >= requiredFirmwareId)
 			return true;
 	}
-	
+
 	return false;
 }
 
@@ -157,7 +157,7 @@ QWizardPage* magnetdaq::createIntroPage(void)
 	QWizardPage *page = new QWizardPage;
 	page->setTitle("Introduction");
 
-	QLabel *label = new QLabel("This wizard will upload new firmware version " + formatFirmwareUpgradeStr() + " to the Model 430 at IP address " + 
+	QLabel *label = new QLabel("This wizard will upload new firmware version " + formatFirmwareUpgradeStr() + " to the Model 430 at IP address " +
 		ui.ipAddressEdit->text() + ". Please ensure the power supply is OFF and that any connected magnet is in a safe state before continuing.<br><br>" +
 		"This upgrade process will require you to cycle the power on the Model 430 when finished.");
 	label->setWordWrap(true);

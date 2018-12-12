@@ -11,8 +11,8 @@ enum SETUP_TOOLBOX
 };
 
 // NOTE:
-// Used the QMetaObject::invokeMethod() function to get queued behavior 
-// (i.e. function call runs after current event loop finishes) instead 
+// Used the QMetaObject::invokeMethod() function to get queued behavior
+// (i.e. function call runs after current event loop finishes) instead
 // of connecting a lot of signals. This is critical to ensure that the
 // 430 value has been updated before trying to update the interface.
 
@@ -713,8 +713,14 @@ void magnetdaq::configurationChanged(QueryState state)
 		else
 			ui.coilConstantLabel->setText("Coil Constant (T/A) :");
 
-		// if a ramping tab is visible, update it
-		if (ui.mainTabWidget->currentIndex() == RAMP_TAB)
+		// if in LOAD settings tab, update coil constant value
+		if (ui.mainTabWidget->currentIndex() == CONFIG_TAB && ui.setupToolBox->currentIndex() == LOAD_PAGE)
+		{
+			QMetaObject::invokeMethod(&model430, "syncLoadSetup", Qt::QueuedConnection);
+			QMetaObject::invokeMethod(this, "syncLoadTab", Qt::QueuedConnection);
+		}
+		// else if a ramping tab is visible, update it
+		else if (ui.mainTabWidget->currentIndex() == RAMP_TAB)
 		{
 			QMetaObject::invokeMethod(&model430, "syncRampRates", Qt::QueuedConnection);
 			QMetaObject::invokeMethod(this, "syncRampRates", Qt::QueuedConnection);
