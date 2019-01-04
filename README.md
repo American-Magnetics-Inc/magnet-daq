@@ -14,7 +14,7 @@ Magnet-DAQ is also a required prerequisite for the [Multi-Axis Operation](https:
 
 An integrated Firmware Upgrade Wizard is included in the application along with the latest Model 430 firmware versions 2.59 (legacy) and 3.09. Upon connection to a Model 430, the application will present the Firmware Upgrade Wizard as appropriate, or on demand via the new toolbar icon.
 
-**NOTE:** The latest firmware includes optional communication on Ethernet port 7185 without the "welcome message." This is of importance to customers using VISA and LabVIEW to develop "stateless" communication drivers.
+**NOTE:** The latest firmware includes optional communication on Ethernet port 7185 without the "welcome message." This is of importance to customers using VISA and LabVIEW to develop "stateless" communication drivers, and in fact the latest [AMI Drivers for LabVIEW](https://bitbucket.org/americanmagneticsinc/ami-drivers) require port 7185.
 
 ## Manual Updates? ##
 
