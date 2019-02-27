@@ -179,6 +179,8 @@ public:
 
 	// public data and properties
 	qint64 timestamp;
+	bool switchHeaterState; // is pswitch heater on?
+	bool persistentState;	// is magnet in persistent mode?
 	double magnetField;
 	double magnetCurrent;
 	double magnetVoltage;

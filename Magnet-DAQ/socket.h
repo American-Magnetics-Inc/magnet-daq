@@ -17,7 +17,7 @@ public:
 	Socket(Model430 *settings = 0, QObject *parent = Q_NULLPTR);
 	~Socket();
 
-	void connectToModel430(QString ipaddress, quint16 port);
+	void connectToModel430(QString ipaddress, quint16 port, QNetworkProxy::ProxyType aProxyType);
 	void getNextDataPoint();
 	bool isConnected() {return unitConnected;}
 	void sendCommand(QString);

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "magnetdaq.h"
+#include "version.h"
 #include <QtWidgets/QApplication>
 #include <QtDebug>
 #include <QFile>
@@ -95,11 +96,14 @@ int main(int argc, char *argv[])
 
 	QCoreApplication::setOrganizationName("American Magnetics Inc.");
 	QCoreApplication::setApplicationName("MagnetDAQ");
-	QCoreApplication::setApplicationVersion("1.04");
+	QCoreApplication::setApplicationVersion(VER_PRODUCTVERSION_STR);
 	QCoreApplication::setOrganizationDomain("AmericanMagnetics.com");
 	QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 	QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 	//qputenv("QT_SCALE_FACTOR", "1.0");	// for testing
+
+	// provide option to use system proxy configuration
+	QNetworkProxyFactory::setUseSystemConfiguration(true);
 
 #ifndef DEBUG
 	MyApplication a(argc, argv);

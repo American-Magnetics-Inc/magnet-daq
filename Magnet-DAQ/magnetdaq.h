@@ -4,10 +4,12 @@
 #include <QtWidgets/QMainWindow>
 #include <QLabel>
 #include "ui_magnetdaq.h"
+#include "errorhistorydlg.h"
 #include "qcustomplot.h"
 #include "socket.h"
 #include "model430.h"
 #include "parser.h"
+#include "clickablelabel.h"
 
 #define N_SAMPLES_MOVING_AVG 60
 
@@ -30,6 +32,7 @@ class magnetdaq : public QMainWindow
 public:
 	magnetdaq(QWidget *parent = 0);
 	~magnetdaq();
+	QString getAxisStr(void) { return axisStr; }
 
 public slots:
 	void configurationChanged(QueryState state);
@@ -37,14 +40,18 @@ public slots:
 private slots:
 	void actionRun(void);
 	void actionStop(void);
+	void exit_app(void);
 	void actionSetup(void);
 	void actionPlot_Settings(void);
 	void actionShow_Keypad(void);
 	void actionPrint(void);
+	void actionShowErrorDialog(void);
 	void actionHelp(void);
 	void actionAbout(void);
 	void actionUpgrade(void);
+	void actionToggle_Collapse(bool);
 	void parserErrorString(QString err);
+	void errorStatusTimeout(void);
 	void ipAddressEdited(QString text);
 	void setDeviceWindowTitle(void);
 	void chooseLogfile(bool checked);
@@ -54,12 +61,13 @@ private slots:
 	void systemErrorNotification();
 	void displaySystemError(QString errMsg, QString errorSourceStr);
 	void clearErrorDisplay(void);
+	void clearErrorHistory(void);
 	void clearMiscDisplay(void);
 	void startExternalRampdown(void);
 	void endExternalRampdown(void);
 
 	// device list management
-	void restoreDeviceList(QSettings * settings);
+	void restoreDeviceList(QSettings *settings);
 	void saveDeviceList(void);
 	void addOrUpdateDevice(QString ipAddress, QString ipName);
 	void ipNameChanged(void);
@@ -166,13 +174,15 @@ private slots:
 private:
 	Ui::magnetdaqClass ui;
 	Model430 model430;	// contains the presently-connected 430 settings
-	
+
 	Socket *socket;	// communicates via port 7180 to 430
 	Socket *telnet; // communicates via port 23 to 430
 	QTimer *plotTimer;
 	qint64 startTime;
 	int plotCount;
 	int errorCode;
+	QStack<QString> errorStack;	// the error stack (LIFO)
+	errorhistorydlg *errorstackDlg;		// the error history dialog
 
 	// command line support
 	QString targetIP;	// optional command line ip start
@@ -203,7 +213,7 @@ private:
 	int samplePos;
 	double meanSampleTime;
 	qint64 lastTime;
-	
+
 	// main plot label text
 	QString mainPlotTitle;
 	QString mainPlotXTitle;
@@ -225,9 +235,12 @@ private:
 
 	// status bar items
 	QLabel *statusConnectState;
-	QLabel *statusError;
+	ClickableLabel *statusError;
 	QLabel *statusSampleRate;
 	QLabel *statusMisc;
+	bool parserErrorStatusIsActive;
+	QString lastStatusMiscStyle;
+	QString lastStatusMiscString;
 
 	// ramp segments convenience arrays
 	QLabel	  *rampSegLabels[10];

@@ -360,9 +360,7 @@ void magnetdaq::addDataPoint(qint64 time, double magField, double magCurrent, do
 }
 
 //---------------------------------------------------------------------------
-// this function implements a moving average and variance of the high
-// resolution magnet voltage measurements and detects the switch state
-// based on mean and variance
+// this function implements a moving average of the data sampling rate
 void magnetdaq::avgSampleTimes(double newValue)
 {
 	if (firstStatsPass)

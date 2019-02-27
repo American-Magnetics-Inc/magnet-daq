@@ -46,6 +46,12 @@
 //---------------------------------------------------------------------------
 const char _SYST[] = "SYST";
 const char _SYSTEM[] = "SYSTEM";
+const char _ERR[] = "ERR";
+const char _ERROR[] = "ERROR";
+const char _EXIT[] = "EXIT";
+const char _COUN[] = "COUN";
+const char _COUNT[] = "COUNT";
+const char _CLS[] = "*CLS";
 const char _CONFIGURE[] = "CONFIGURE";
 const char _CONF[] = "CONF";
 const char _IDN[] = "*IDN";
@@ -55,6 +61,7 @@ const char _PAUSE[] = "PAUSE";
 const char _PSWITCH[] = "PSWITCH";
 const char _PS[] = "PS";
 const char _RAMP[] = "RAMP";
+const char _ZERO[] = "ZERO";
 const char _CURR[] = "CURR";
 const char _CURRENT[] = "CURRENT";
 const char _VOLT[] = "VOLT";
@@ -92,6 +99,10 @@ const char _CGAIN[] = "CGAIN";
 const char _COOLINGGAIN[] = "COOLINGGAIN";
 const char _TRAN[] = "TRAN";
 const char _TRANSITION[] = "TRANSITION";
+const char _INST[] = "INST";
+const char _INSTALLED[] = "INSTALLED";
+const char _PERS[] = "PERS";
+const char _PERSISTENT[] = "PERSISTENT";
 
 //---------------------------------------------------------------------------
 // Incoming data type tests and conversions
@@ -345,6 +356,70 @@ void Parser::process(void)
 }
 
 //---------------------------------------------------------------------------
+void Parser::addToErrorQueue(SystemError error)
+{
+	QString errMsg;
+
+	switch (error)
+	{
+	case ERR_UNRECOGNIZED_COMMAND:
+		errMsg = QString::number((int)ERR_UNRECOGNIZED_COMMAND) + ",\"Unrecognized command\"";
+		break;
+
+	case ERR_INVALID_ARGUMENT:
+		errMsg = QString::number((int)ERR_INVALID_ARGUMENT) + ",\"Invalid argument\"";
+		break;
+
+	case ERR_NON_BOOLEAN_ARGUMENT:
+		errMsg = QString::number((int)ERR_NON_BOOLEAN_ARGUMENT) + ",\"Non-boolean argument\"";
+		break;
+
+	case ERR_MISSING_PARAMETER:
+		errMsg = QString::number((int)ERR_MISSING_PARAMETER) + ",\"Missing parameter\"";
+		break;
+
+	case ERR_OUT_OF_RANGE:
+		errMsg = QString::number((int)ERR_OUT_OF_RANGE) + ",\"Value out of range\"";
+		break;
+
+	case ERR_NO_COIL_CONSTANT:
+		errMsg = QString::number((int)ERR_NO_COIL_CONSTANT) + ",\"Undefined coil const\"";
+		break;
+
+	case ERR_NON_NUMERICAL_ENTRY:
+		errMsg = QString::number((int)ERR_NON_NUMERICAL_ENTRY) + ",\"Non-numerical entry\"";
+		break;
+
+	case ERR_UNRECOGNIZED_QUERY:
+		errMsg = QString::number((int)ERR_UNRECOGNIZED_QUERY) + ",\"Unrecognized query\"";
+		break;
+
+	default:
+		errMsg = QString::number((int)error) + ",\"Error\"";
+		break;
+	}
+
+	if (!errMsg.isEmpty())
+	{
+		errorStack.push(errMsg);
+		emit error_msg(errMsg);
+
+#if defined(Q_OS_WIN)
+		Beep(1000, 600);
+#else
+		QApplication::beep();
+#endif
+	}
+}
+
+//---------------------------------------------------------------------------
+void Parser::addSystemError(QString errMsg)
+{
+	if (!errMsg.isEmpty())
+		errorStack.push(errMsg);
+}
+
+//---------------------------------------------------------------------------
 void Parser::parseInput(char *commbuf, char* outputBuffer)
 {
 	char* word;    // string tokens
@@ -366,6 +441,7 @@ void Parser::parseInput(char *commbuf, char* outputBuffer)
 
 		if (word == NULL)
 		{
+			addToErrorQueue(ERR_UNRECOGNIZED_QUERY);
 			return; // no match
 		}
 
@@ -379,25 +455,25 @@ void Parser::parseInput(char *commbuf, char* outputBuffer)
 					QString version(qApp->applicationName() + "," + qApp->applicationVersion() + "\n");
 					std::cout.write(version.toLocal8Bit(), version.size());
 				}
+				else
+				{
+					addToErrorQueue(ERR_UNRECOGNIZED_QUERY);	// no match, error
+				}
 				break;
 
 			// I* queries
 			case  'I':
-				//parse_query_I(word, outputBuffer);
+				parse_query_I(word, outputBuffer);
 				break;
 
 			// S* queries
 			case  'S':
-				if (!strcmp(word, _STATE))
-				{
-					QString tmpStr(QString::number((int)(model430->state())) + "\n");
-					std::cout.write(tmpStr.toLocal8Bit(), tmpStr.size());
-				}
+				parse_query_S(word, outputBuffer);
 				break;
 
 			// V* queries
 			case  'V':
-				//parse_query_V(word, outputBuffer);
+				parse_query_V(word, outputBuffer);
 				break;
 
 			// C* queries
@@ -407,12 +483,7 @@ void Parser::parseInput(char *commbuf, char* outputBuffer)
 
 			// P* queries
 			case  'P':
-				//parse_query_P(word, outputBuffer);
-				break;
-
-			// L* queries
-			case  'L':
-				//parse_query_L(word, outputBuffer);
+				parse_query_P(word, outputBuffer);
 				break;
 
 			// Q* queries
@@ -422,7 +493,7 @@ void Parser::parseInput(char *commbuf, char* outputBuffer)
 
 			// R* queries
 			case  'R':
-				//parse_query_R(word, outputBuffer);
+				parse_query_R(word, outputBuffer);
 				break;
 
 			// F* queries
@@ -432,11 +503,13 @@ void Parser::parseInput(char *commbuf, char* outputBuffer)
 
 			// O* queries
 			case 'O':
+				addToErrorQueue(ERR_UNRECOGNIZED_QUERY);	// no match, error
 				//parse_query_O(word, outputBuffer);
 				break;
 
 			// no match
 			default:
+				addToErrorQueue(ERR_UNRECOGNIZED_QUERY);
 				break;
 		}	// end switch on first word
 
@@ -454,12 +527,37 @@ void Parser::parseInput(char *commbuf, char* outputBuffer)
 		word = strtok(commbuf, SEPARATOR);
 		if (word == NULL)
 		{
+			addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
 			return; // no match
 		}
 
 		// switch on first character
 		switch (*word)
 		{
+			// tests *CLS
+			case '*':
+				if (!strcmp(word, _CLS))
+				{
+					errorStack.clear();
+				}
+				else
+				{
+					addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
+				}
+				break;
+
+				// tests EXIT
+			case 'E':
+				if (strcmp(word, _EXIT) == 0)
+				{
+					emit exit_app();
+				}
+				else
+				{
+					addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
+				}
+				break;
+
 			// tests all CONFigure commands
 			case  'C':
 				if (strcmp(word, _CONF) == 0 || strcmp(word, _CONFIGURE) == 0)
@@ -468,10 +566,16 @@ void Parser::parseInput(char *commbuf, char* outputBuffer)
 					word = strtok(NULL, SEPARATOR);
 					if (word == NULL)
 					{
-						return; // no match
+						addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
 					}
-
-					parse_configure(word, outputBuffer);
+					else
+					{
+						parse_configure(word, outputBuffer);
+					}
+				}
+				else
+				{
+					addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
 				}
 				break;
 
@@ -487,6 +591,14 @@ void Parser::parseInput(char *commbuf, char* outputBuffer)
 					{
 						emit sendBlockingCommand(inputStr + "\r\n");
 					}
+					else
+					{
+						addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
+					}
+				}
+				else
+				{
+					addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
 				}
 				break;
 
@@ -505,12 +617,55 @@ void Parser::parseInput(char *commbuf, char* outputBuffer)
 						{
 							emit sendBlockingCommand(inputStr + "\r\n");
 						}
+						else
+						{
+							addToErrorQueue(ERR_NON_BOOLEAN_ARGUMENT);
+						}
 					}
+					else
+					{
+						if (value == NULL)
+							addToErrorQueue(ERR_MISSING_PARAMETER);
+						else
+							addToErrorQueue(ERR_INVALID_ARGUMENT);
+					}
+
 				}
 				else if (strcmp(word, _PAUSE) == 0)
 				{
 					emit sendBlockingCommand(inputStr + "\r\n");
 				}
+				else
+				{
+					addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
+				}
+				break;
+
+				// tests ZERO
+			case  'Z':
+				if (strcmp(word, _ZERO) == 0)
+				{
+					// get next token
+					word = strtok(NULL, DELIMITER);
+
+					// Check for the NULL condition here to make sure there are not additional args
+					if (word == NULL)
+					{
+						emit sendBlockingCommand(inputStr + "\r\n");
+					}
+					else
+					{
+						addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
+					}
+				}
+				else
+				{
+					addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
+				}
+				break;
+
+			default:
+				addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
 				break;
 		}
 	}
@@ -530,40 +685,50 @@ void Parser::parse_query_C(char* word, char* outputBuffer)
 
 		if (word == NULL)
 		{
-			return; // no match
+			addToErrorQueue(ERR_UNRECOGNIZED_QUERY);	// no match, error
 		}
 
 		// CURRent:LIMit?
 		else if (strcmp(word, _LIM) == 0 || strcmp(word, _LIMIT) == 0)
 		{
-			sprintf(outputBuffer, "%0.10e\n", model430->currentLimit());
+			sprintf(outputBuffer, "%0.10g\n", model430->currentLimit());
 			std::cout.write(outputBuffer, strlen(outputBuffer));
 		}
 
 		// CURRent:SUPPly?
 		else if (strcmp(word, _SUPP) == 0 || strcmp(word, _SUPPLY) == 0)
 		{
-			sprintf(outputBuffer, "%0.10e\n", model430->supplyCurrent);
+			sprintf(outputBuffer, "%0.10g\n", model430->supplyCurrent);
 			std::cout.write(outputBuffer, strlen(outputBuffer));
 		}
 
 		// CURRent:MAGnet?
 		else if (strcmp(word, _MAG) == 0 || strcmp(word, _MAGNET) == 0)
 		{
-			sprintf(outputBuffer, "%0.10e\n", model430->magnetCurrent);
+			sprintf(outputBuffer, "%0.10g\n", model430->magnetCurrent);
 			std::cout.write(outputBuffer, strlen(outputBuffer));
 		}
 
 		// CURRent:TARGet?
 		else if (strcmp(word, _TARG) == 0 || strcmp(word, _TARGET) == 0)
 		{
+			sprintf(outputBuffer, "%0.10g\n", model430->targetCurrent());
+			std::cout.write(outputBuffer, strlen(outputBuffer));
+		}
 
+		else
+		{
+			addToErrorQueue(ERR_UNRECOGNIZED_QUERY);	// no match, error
 		}
 	}
 	else if (strcmp(word, _COIL) == 0 || strcmp(word, _COILCONST) == 0)
 	{
-		sprintf(outputBuffer, "%0.10e\n", model430->coilConstant());
+		sprintf(outputBuffer, "%0.10g\n", model430->coilConstant());
 		std::cout.write(outputBuffer, strlen(outputBuffer));
+	}
+	else
+	{
+		addToErrorQueue(ERR_UNRECOGNIZED_QUERY);	// no match, error
 	}
 }
 
@@ -578,22 +743,137 @@ void Parser::parse_query_F(char* word, char* outputBuffer)
 
 		if (word == NULL)
 		{
-			return; // no match
+			addToErrorQueue(ERR_UNRECOGNIZED_QUERY);	// no match, error
 		}
 		else if (strcmp(word, _MAG) == 0 || strcmp(word, _MAGNET) == 0)
 		{
-			sprintf(outputBuffer, "%0.10e\n", model430->magnetField);
-			std::cout.write(outputBuffer, strlen(outputBuffer));
+			if (model430->coilConstant() > 0.0)
+			{
+				sprintf(outputBuffer, "%0.10g\n", model430->magnetField);
+				std::cout.write(outputBuffer, strlen(outputBuffer));
+			}
+			else
+			{
+				addToErrorQueue(ERR_NO_COIL_CONSTANT);	// error -- no coil constant defined
+			}
 		}
 		else if (strcmp(word, _TARG) == 0 || strcmp(word, _TARGET) == 0)
 		{
-
+			if (model430->coilConstant() > 0.0)
+			{
+				sprintf(outputBuffer, "%0.10g\n", model430->targetField());
+				std::cout.write(outputBuffer, strlen(outputBuffer));
+			}
+			else
+			{
+				addToErrorQueue(ERR_NO_COIL_CONSTANT);	// error -- no coil constant defined
+			}
 		}
 		else if (strcmp(word, _UNITS) == 0)
 		{
 			sprintf(outputBuffer, "%d\n", model430->fieldUnits());
 			std::cout.write(outputBuffer, strlen(outputBuffer));
 		}
+		else
+		{
+			addToErrorQueue(ERR_UNRECOGNIZED_QUERY);	// no match, error
+		}
+	}
+	else
+	{
+		addToErrorQueue(ERR_UNRECOGNIZED_QUERY);	// no match, error
+	}
+}
+
+//---------------------------------------------------------------------------
+// tests INDuctance?
+//---------------------------------------------------------------------------
+void Parser::parse_query_I(char* word, char* outputBuffer)
+{
+	if (strcmp(word, _IND) == 0 || strcmp(word, _INDUCTANCE) == 0)
+	{
+		word = strtok(NULL, DELIMITER);		// get next token
+
+		if (word == NULL)	// return present inductance
+		{
+			sprintf(outputBuffer, "%0.2f\n", model430->inductance());
+			std::cout.write(outputBuffer, strlen(outputBuffer));
+		}
+		else
+		{
+			addToErrorQueue(ERR_UNRECOGNIZED_QUERY);	// no match, error
+		}
+	}
+	else
+	{
+		addToErrorQueue(ERR_UNRECOGNIZED_QUERY);	// no match, error
+	}
+}
+
+//---------------------------------------------------------------------------
+// tests PSwitch:INSTalled?, PSwitch:CURRent?, PSwitch:TRANsition?,
+// PSwitch:HeatTIME?, PSwitch:CoolTime?, PSwitch:PowerSupplyRampeRate?
+// PSwitch:CoolingGAIN?
+//---------------------------------------------------------------------------
+void Parser::parse_query_P(char* word, char* outputBuffer)
+{
+	if (strcmp(word, _PS) == 0 || strcmp(word, _PSWITCH) == 0)
+	{
+		word = strtok(NULL, DELIMITER);		// get next token
+
+		if (word == NULL)
+		{
+			sprintf(outputBuffer, "%d\n", (int)model430->switchHeaterState);
+			std::cout.write(outputBuffer, strlen(outputBuffer));
+		}
+		else if (strcmp(word, _CURR) == 0 || strcmp(word, _CURRENT) == 0)
+		{
+			sprintf(outputBuffer, "%0.1f\n", model430->switchCurrent());
+			std::cout.write(outputBuffer, strlen(outputBuffer));
+		}
+		else if (strcmp(word, _HTIME) == 0 || strcmp(word, _HEATTIME) == 0)
+		{
+			sprintf(outputBuffer, "%d\n", model430->switchHeatedTime());
+			std::cout.write(outputBuffer, strlen(outputBuffer));
+		}
+		else if (strcmp(word, _CTIME) == 0 || strcmp(word, _COOLTIME) == 0)
+		{
+			sprintf(outputBuffer, "%d\n", model430->switchCooledTime());
+			std::cout.write(outputBuffer, strlen(outputBuffer));
+		}
+		else if (strcmp(word, _CGAIN) == 0 || strcmp(word, _COOLINGGAIN) == 0)
+		{
+			sprintf(outputBuffer, "%0.1f\n", model430->switchCoolingGain());
+			std::cout.write(outputBuffer, strlen(outputBuffer));
+		}
+		else if (strcmp(word, _INST) == 0 || strcmp(word, _INSTALLED) == 0)
+		{
+			sprintf(outputBuffer, "%d\n", (int)model430->switchInstalled());
+			std::cout.write(outputBuffer, strlen(outputBuffer));
+		}
+		else if (strcmp(word, _PSRR) == 0 || strcmp(word, _POWERSUPPLYRAMPRATE) == 0)
+		{
+			sprintf(outputBuffer, "%0.1f\n", model430->cooledSwitchRampRate());
+			std::cout.write(outputBuffer, strlen(outputBuffer));
+		}
+		else if (strcmp(word, _TRAN) == 0 || strcmp(word, _TRANSITION) == 0)
+		{
+			sprintf(outputBuffer, "%d\n", model430->switchTransition());
+			std::cout.write(outputBuffer, strlen(outputBuffer));
+		}
+		else
+		{
+			addToErrorQueue(ERR_UNRECOGNIZED_QUERY);	// no match, error
+		}
+	}
+	else if (strcmp(word, _PERS) == 0 || strcmp(word, _PERSISTENT) == 0)
+	{
+		sprintf(outputBuffer, "%d\n", (int)model430->persistentState);
+		std::cout.write(outputBuffer, strlen(outputBuffer));
+	}
+	else
+	{
+		addToErrorQueue(ERR_UNRECOGNIZED_QUERY);	// no match, error
 	}
 }
 
@@ -608,13 +888,280 @@ void Parser::parse_query_Q(char* word, char* outputBuffer)
 
 		if (word == NULL)
 		{
-			return; // no match
+			addToErrorQueue(ERR_UNRECOGNIZED_QUERY);	// no match, error
 		}
 		else if (strcmp(word, _CURR) == 0 || strcmp(word, _CURRENT) == 0)
 		{
-			sprintf(outputBuffer, "%0.10e\n", model430->quenchCurrent);
+			sprintf(outputBuffer, "%0.10g\n", model430->quenchCurrent);
 			std::cout.write(outputBuffer, strlen(outputBuffer));
 		}
+		else
+		{
+			addToErrorQueue(ERR_UNRECOGNIZED_QUERY);	// no match, error
+		}
+	}
+	else
+	{
+		addToErrorQueue(ERR_UNRECOGNIZED_QUERY);	// no match, error
+	}
+}
+
+//---------------------------------------------------------------------------
+// tests RAMP:RATE:SEGments?, RAMP:RATE:UNITS?, RATE:RATE:CURRent:<segment>?,
+// RAMP:RATE:FIELD:<segment>?
+//---------------------------------------------------------------------------
+void Parser::parse_query_R(char* word, char* outputBuffer)
+{
+	char* value;   // start of argument
+
+	if (strcmp(word, _RAMP) == 0)
+	{
+		word = strtok(NULL, DELIMITER);	// get next token
+
+		if (word == NULL)
+		{
+			addToErrorQueue(ERR_UNRECOGNIZED_QUERY);	// no match, error
+		}
+
+		// RAMP:RATE query group or RAMPDown:RATE query group
+		if (strcmp(word, _RATE) == 0)
+		{
+			word = strtok(NULL, DELIMITER);	// get next token
+
+			// we should check the NULL condition here since ramp:rate? isn't valid
+			if (word == NULL)
+			{
+				addToErrorQueue(ERR_UNRECOGNIZED_QUERY);	// no match, error
+			}
+
+			// RAMP:RATE:CURRent query group
+			else if (strcmp(word, _CURR) == 0 || strcmp(word, _CURRENT) == 0)
+			{
+				value = strtok(NULL, DELIMITER);		// look for value
+
+				// we should check the NULL condition here since ramp:rate:curr? is not valid
+				if (value == NULL)
+				{
+					addToErrorQueue(ERR_UNRECOGNIZED_QUERY);	// no match, error
+					return;
+				}
+
+				if (isValue(value))
+				{
+					int checkValue = (int)strtod(value, NULL) - 1;
+
+					if (checkValue >= 0 && checkValue < model430->rampRateSegments())
+					{
+						double current = model430->currentRampLimits[checkValue]();
+						double rate = model430->currentRampRates[checkValue]();
+
+						sprintf(outputBuffer, "%0.10g,%0.10g\n", rate, current);
+						std::cout.write(outputBuffer, strlen(outputBuffer));
+					}
+					else
+					{
+						addToErrorQueue(ERR_OUT_OF_RANGE);
+					}
+				}
+				else
+				{
+					addToErrorQueue(ERR_INVALID_ARGUMENT);
+				}
+			}
+
+			// RAMP:RATE:FIELD query group
+			else if (strcmp(word, _FIELD) == 0)
+			{
+				if (model430->coilConstant() > 0.0)
+				{
+					value = strtok(NULL, DELIMITER);		// look for value
+
+					// we should check the NULL condition here since ramp:rate:field? isn't valid
+					if (value == NULL)
+					{
+						addToErrorQueue(ERR_UNRECOGNIZED_QUERY);	// no match, error
+						return;
+					}
+
+					if (isValue(value))
+					{
+						int checkValue = (int)strtod(value, NULL) - 1;
+
+						if (checkValue >= 0 && checkValue < model430->rampRateSegments())
+						{
+							double current = model430->fieldRampLimits[checkValue]();
+							double rate = model430->fieldRampRates[checkValue]();
+
+							sprintf(outputBuffer, "%0.10g,%0.10g\n", rate, current);
+							std::cout.write(outputBuffer, strlen(outputBuffer));
+						}
+						else
+						{
+							addToErrorQueue(ERR_OUT_OF_RANGE);	// ramp index out of range
+						}
+					}
+					else
+					{
+						addToErrorQueue(ERR_INVALID_ARGUMENT);
+					}
+				}
+				else
+				{
+					addToErrorQueue(ERR_NO_COIL_CONSTANT);	// error -- no coil constant defined
+				}
+			}
+
+			// RAMP:RATE:UNITS?
+			else if (strcmp(word, _UNITS) == 0)
+			{
+				sprintf(outputBuffer, "%d\n", model430->rampRateTimeUnits());
+				std::cout.write(outputBuffer, strlen(outputBuffer));
+			}
+
+			// RAMP:RATE:SEGments query group
+			else if (strcmp(word, _SEG) == 0 || strcmp(word, _SEGMENTS) == 0)
+			{
+				sprintf(outputBuffer, "%d\n", model430->rampRateSegments());
+				std::cout.write(outputBuffer, strlen(outputBuffer));
+			}
+
+			else
+			{
+				addToErrorQueue(ERR_UNRECOGNIZED_QUERY); //no match, error
+			}
+		}
+		else
+		{
+			addToErrorQueue(ERR_UNRECOGNIZED_QUERY); //no match, error
+		}
+	}
+	else
+	{
+		addToErrorQueue(ERR_UNRECOGNIZED_QUERY); //no match, error
+	}
+}
+
+//---------------------------------------------------------------------------
+// tests STATE?, SYSTem:ERRor?, SYSTem:COUNt?, STABility?, STABility:MODE?,
+// STABility:RESistor?
+//---------------------------------------------------------------------------
+void Parser::parse_query_S(char* word, char* outputBuffer)
+{
+	if (!strcmp(word, _STATE))
+	{
+		QString tmpStr(QString::number((int)(model430->state())) + "\n");
+		std::cout.write(tmpStr.toLocal8Bit(), tmpStr.size());
+	}
+	else if (strcmp(word, _SYST) == 0 || strcmp(word, _SYSTEM) == 0)
+	{
+		// get next token
+		word = strtok(NULL, SEPARATOR);
+
+		if (word == NULL)
+		{
+			addToErrorQueue(ERR_UNRECOGNIZED_QUERY); // no match, error
+		}
+		else if (strcmp(word, _ERR) == 0 || strcmp(word, _ERROR) == 0)
+		{
+			// get next token
+			word = strtok(NULL, SEPARATOR);
+
+			if (word == NULL)
+			{
+				if (errorStack.count())
+					sprintf(outputBuffer, "%s\n", errorStack.pop().toLocal8Bit().constData());
+				else
+					sprintf(outputBuffer, "0,\"No error\"\n");
+
+				std::cout.write(outputBuffer, strlen(outputBuffer));
+			}
+			else if (strcmp(word, _COUN) == 0 || strcmp(word, _COUNT) == 0)
+			{
+				// get next token
+				word = strtok(NULL, SEPARATOR);
+
+				if (word == NULL)
+				{
+					sprintf(outputBuffer, "%d\n", errorStack.count());
+					std::cout.write(outputBuffer, strlen(outputBuffer));
+				}
+			}
+			else
+			{
+				addToErrorQueue(ERR_UNRECOGNIZED_QUERY); // no match, error
+			}
+		}
+		else
+		{
+			addToErrorQueue(ERR_UNRECOGNIZED_QUERY); //no match, error
+		}
+	}
+	else if (strcmp(word, _STAB) == 0 || strcmp(word, _STABILITY) == 0)
+	{
+		// get next token
+		word = strtok(NULL, DELIMITER);
+
+		if (word == NULL)	// return stability setting
+		{
+			sprintf(outputBuffer, "%0.10g\n", model430->stabilitySetting());
+			std::cout.write(outputBuffer, strlen(outputBuffer));
+		}
+		else if (strcmp(word, _MODE) == 0)	// return stability mode
+		{
+			sprintf(outputBuffer, "%d\n", model430->stabilityMode());
+			std::cout.write(outputBuffer, strlen(outputBuffer));
+		}
+		else if (strcmp(word, _RES) == 0 || strcmp(word, _RESISTOR) == 0)	// return stabilizing resistor installed?
+		{
+			sprintf(outputBuffer, "%d\n", (int)model430->stabilityResistor());
+			std::cout.write(outputBuffer, strlen(outputBuffer));
+		}
+		else
+		{
+			addToErrorQueue(ERR_UNRECOGNIZED_QUERY);	// no match
+		}
+	}
+	else
+	{
+		addToErrorQueue(ERR_UNRECOGNIZED_QUERY);	// no match, error
+	}
+}
+
+//---------------------------------------------------------------------------
+// tests VOLTage:LIMit?, VOLTage:MAGnet?, VOLTage:SUPPly?
+//---------------------------------------------------------------------------
+void Parser::parse_query_V(char* word, char* outputBuffer)
+{
+	if (strcmp(word, _VOLT) == 0 || strcmp(word, _VOLTAGE) == 0)
+	{
+		word = strtok(NULL, DELIMITER);		// get next token
+		if (word == NULL)
+		{
+			addToErrorQueue(ERR_UNRECOGNIZED_QUERY);	// no match, error
+		}
+		else if (strcmp(word, _SUPP) == 0 || strcmp(word, _SUPPLY) == 0)
+		{
+			sprintf(outputBuffer, "%0.10g\n", model430->supplyVoltage);
+			std::cout.write(outputBuffer, strlen(outputBuffer));
+		}
+		else if (strcmp(word, _LIM) == 0 || strcmp(word, _LIMIT) == 0)
+		{
+			sprintf(outputBuffer, "%0.3f\n", model430->voltageLimit());
+			std::cout.write(outputBuffer, strlen(outputBuffer));
+		}
+		else if (strcmp(word, _MAG) == 0 || strcmp(word, _MAGNET) == 0)
+		{
+			sprintf(outputBuffer, "%0.10g\n", model430->magnetVoltage);
+			std::cout.write(outputBuffer, strlen(outputBuffer));
+		}
+		else
+		{
+			addToErrorQueue(ERR_UNRECOGNIZED_QUERY);	// no match, error
+		}
+	}
+	else
+	{
+		addToErrorQueue(ERR_UNRECOGNIZED_QUERY);	// no match, error
 	}
 }
 
@@ -626,7 +1173,7 @@ void Parser::parse_configure(const char* word, char *outputBuffer)
 {
 	if (word == NULL)
 	{
-		return;
+		addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
 	}
 	else
 	{
@@ -664,6 +1211,7 @@ void Parser::parse_configure(const char* word, char *outputBuffer)
 
 			// CONFigure:Q* commands
 			case  'Q':
+				addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
 				//parse_configure_Q(word);
 				break;
 
@@ -673,6 +1221,7 @@ void Parser::parse_configure(const char* word, char *outputBuffer)
 				break;
 
 			default:
+				addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
 				break;
 		}	// end switch(*word) for CONF
 	}
@@ -692,7 +1241,7 @@ void Parser::parse_configure_C(const char* word, char *outputBuffer)
 
 		if (word == NULL)
 		{
-			return;
+			addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
 		}
 
 		// CONFigure:CURRent:LIMit...
@@ -700,17 +1249,19 @@ void Parser::parse_configure_C(const char* word, char *outputBuffer)
 		{
 			word = strtok(NULL, SEPARATOR);	// get next token
 
-			if (word == NULL)
-			{
-				return;
-			}
-
 			// CONFigure:CURRent:LIMit
-			else if (isValue(word))
+			if (isValue(word))
 			{
 				double temp = strtod(word, NULL);
 				emit sendBlockingCommand(inputStr + "\r\n");
 				model430->currentLimit = temp;
+			}
+			else
+			{
+				if (word == NULL)
+					addToErrorQueue(ERR_MISSING_PARAMETER);
+				else
+					addToErrorQueue(ERR_INVALID_ARGUMENT);
 			}
 		}
 
@@ -725,6 +1276,18 @@ void Parser::parse_configure_C(const char* word, char *outputBuffer)
 				emit sendBlockingCommand(inputStr + "\r\n");
 				model430->targetCurrent = temp;
 			}
+			else
+			{
+				if (value == NULL)
+					addToErrorQueue(ERR_MISSING_PARAMETER);
+				else
+					addToErrorQueue(ERR_INVALID_ARGUMENT);
+			}
+		}
+
+		else
+		{
+			addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
 		}
 	}	// end if CURR
 
@@ -739,7 +1302,18 @@ void Parser::parse_configure_C(const char* word, char *outputBuffer)
 			emit sendBlockingCommand(inputStr + "\r\n");
 			model430->coilConstant = temp;
 		}
+		else
+		{
+			if (value == NULL)
+				addToErrorQueue(ERR_MISSING_PARAMETER);
+			else
+				addToErrorQueue(ERR_INVALID_ARGUMENT);
+		}
 	}	// end if COIL
+	else
+	{
+		addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -753,7 +1327,7 @@ void Parser::parse_configure_F(const char* word, char *outputBuffer)
 
 		if (word == NULL)
 		{
-			return;
+			addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
 		}
 
 		// CONFigure:FIELD:TARGet
@@ -766,6 +1340,13 @@ void Parser::parse_configure_F(const char* word, char *outputBuffer)
 				double temp = strtod(value, NULL);
 				emit sendBlockingCommand(inputStr + "\r\n");
 				model430->targetField = temp;
+			}
+			else
+			{
+				if (value == NULL)
+					addToErrorQueue(ERR_MISSING_PARAMETER);
+				else
+					addToErrorQueue(ERR_INVALID_ARGUMENT);
 			}
 		}
 		// CONFigure:FIELD:UNITS
@@ -783,8 +1364,27 @@ void Parser::parse_configure_F(const char* word, char *outputBuffer)
 					emit sendBlockingCommand(inputStr + "\r\n");
 					model430->fieldUnits = atoi(value);
 				}
+				else
+				{
+					addToErrorQueue(ERR_INVALID_ARGUMENT);
+				}
+			}
+			else
+			{
+				if (value == NULL)
+					addToErrorQueue(ERR_MISSING_PARAMETER);
+				else
+					addToErrorQueue(ERR_INVALID_ARGUMENT);
 			}
 		}
+		else
+		{
+			addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
+		}
+	}
+	else
+	{
+		addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
 	}
 }
 
@@ -803,6 +1403,17 @@ void Parser::parse_configure_I(const char* word, char *outputBuffer)
 			emit sendBlockingCommand(inputStr + "\r\n");
 			model430->inductance = temp;
 		}
+		else
+		{
+			if (word == NULL)
+				addToErrorQueue(ERR_MISSING_PARAMETER);
+			else
+				addToErrorQueue(ERR_INVALID_ARGUMENT);
+		}
+	}
+	else
+	{
+		addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
 	}
 }
 
@@ -819,7 +1430,7 @@ void Parser::parse_configure_P(const char* word, char *outputBuffer)
 
 		if (word == NULL)
 		{
-			return;	// no argument
+			addToErrorQueue(ERR_MISSING_PARAMETER);	// no argument
 		}
 
 		// CONFigure:PSwitch:CURRent
@@ -833,6 +1444,13 @@ void Parser::parse_configure_P(const char* word, char *outputBuffer)
 				emit sendBlockingCommand(inputStr + "\r\n");
 				model430->switchCurrent = temp;
 			}
+			else
+			{
+				if (value == NULL)
+					addToErrorQueue(ERR_MISSING_PARAMETER);
+				else
+					addToErrorQueue(ERR_INVALID_ARGUMENT);
+			}
 		}
 
 		// CONFigure:PSwitch:PowerSupplyRampRate
@@ -844,6 +1462,13 @@ void Parser::parse_configure_P(const char* word, char *outputBuffer)
 				double temp = strtod(value, NULL);
 				emit sendBlockingCommand(inputStr + "\r\n");
 				model430->cooledSwitchRampRate = temp;
+			}
+			else
+			{
+				if (value == NULL)
+					addToErrorQueue(ERR_MISSING_PARAMETER);
+				else
+					addToErrorQueue(ERR_INVALID_ARGUMENT);
 			}
 		}
 
@@ -858,6 +1483,13 @@ void Parser::parse_configure_P(const char* word, char *outputBuffer)
 				emit sendBlockingCommand(inputStr + "\r\n");
 				model430->switchHeatedTime = temp;
 			}
+			else
+			{
+				if (value == NULL)
+					addToErrorQueue(ERR_MISSING_PARAMETER);
+				else
+					addToErrorQueue(ERR_INVALID_ARGUMENT);
+			}
 		}
 
 		// CONFigure:PSwitch:CoolTIME
@@ -871,6 +1503,13 @@ void Parser::parse_configure_P(const char* word, char *outputBuffer)
 				emit sendBlockingCommand(inputStr + "\r\n");
 				model430->switchCooledTime = temp;
 			}
+			else
+			{
+				if (value == NULL)
+					addToErrorQueue(ERR_MISSING_PARAMETER);
+				else
+					addToErrorQueue(ERR_INVALID_ARGUMENT);
+			}
 		}
 
 		// CONFigure:PSwitch:CoolingGAIN
@@ -883,6 +1522,13 @@ void Parser::parse_configure_P(const char* word, char *outputBuffer)
 				double temp = strtod(value, NULL);
 				emit sendBlockingCommand(inputStr + "\r\n");
 				model430->switchCoolingGain = temp;
+			}
+			else
+			{
+				if (value == NULL)
+					addToErrorQueue(ERR_MISSING_PARAMETER);
+				else
+					addToErrorQueue(ERR_INVALID_ARGUMENT);
 			}
 		}
 
@@ -901,6 +1547,17 @@ void Parser::parse_configure_P(const char* word, char *outputBuffer)
 					emit sendBlockingCommand(inputStr + "\r\n");
 					model430->switchTransition = atoi(value);
 				}
+				else
+				{
+					addToErrorQueue(ERR_INVALID_ARGUMENT);
+				}
+			}
+			else
+			{
+				if (value == NULL)
+					addToErrorQueue(ERR_MISSING_PARAMETER);
+				else
+					addToErrorQueue(ERR_INVALID_ARGUMENT);
 			}
 		}
 
@@ -917,7 +1574,20 @@ void Parser::parse_configure_P(const char* word, char *outputBuffer)
 				emit sendBlockingCommand(inputStr + "\r\n");
 				model430->switchInstalled = atoi(value);
 			}
+			else
+			{
+				addToErrorQueue(ERR_NON_BOOLEAN_ARGUMENT);
+			}
 		}
+
+		else
+		{
+			addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
+		}
+	}
+	else
+	{
+		addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
 	}
 }
 
@@ -934,7 +1604,7 @@ void Parser::parse_configure_R(const char* word, char *outputBuffer)
 
 		if (word == NULL)
 		{
-			return;
+			addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
 		}
 
 		// CONFigure:RAMP:RATE group
@@ -944,7 +1614,7 @@ void Parser::parse_configure_R(const char* word, char *outputBuffer)
 
 			if (word == NULL)
 			{
-				return;
+				addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
 			}
 
 			// CONFigure:RAMP:RATE:FIELD
@@ -970,8 +1640,33 @@ void Parser::parse_configure_R(const char* word, char *outputBuffer)
 								emit sendBlockingCommand(inputStr + "\r\n");
 								emit configurationChanged(RAMP_RATE_FIELD);
 							}
+							else
+							{
+								if (value == NULL)
+									addToErrorQueue(ERR_MISSING_PARAMETER);
+								else
+									addToErrorQueue(ERR_INVALID_ARGUMENT);
+							}
+						}
+						else
+						{
+							if (value == NULL)
+								addToErrorQueue(ERR_MISSING_PARAMETER);
+							else
+								addToErrorQueue(ERR_INVALID_ARGUMENT);
 						}
 					}
+					else
+					{
+						addToErrorQueue(ERR_OUT_OF_RANGE);
+					}
+				}
+				else
+				{
+					if (value == NULL)
+						addToErrorQueue(ERR_MISSING_PARAMETER);
+					else
+						addToErrorQueue(ERR_INVALID_ARGUMENT);
 				}
 			}
 
@@ -992,6 +1687,17 @@ void Parser::parse_configure_R(const char* word, char *outputBuffer)
 						emit sendBlockingCommand(inputStr + "\r\n");
 						model430->rampRateTimeUnits = atoi(value);
 					}
+					else
+					{
+						addToErrorQueue(ERR_INVALID_ARGUMENT);
+					}
+				}
+				else
+				{
+					if (value == NULL)
+						addToErrorQueue(ERR_MISSING_PARAMETER);
+					else
+						addToErrorQueue(ERR_INVALID_ARGUMENT);
 				}
 			}
 
@@ -1017,8 +1723,33 @@ void Parser::parse_configure_R(const char* word, char *outputBuffer)
 								emit sendBlockingCommand(inputStr + "\r\n");
 								emit configurationChanged(RAMP_RATE_CURRENT);
 							}
+							else
+							{
+								if (value == NULL)
+									addToErrorQueue(ERR_MISSING_PARAMETER);
+								else
+									addToErrorQueue(ERR_INVALID_ARGUMENT);
+							}
+						}
+						else
+						{
+							if (value == NULL)
+								addToErrorQueue(ERR_MISSING_PARAMETER);
+							else
+								addToErrorQueue(ERR_INVALID_ARGUMENT);
 						}
 					}
+					else
+					{
+						addToErrorQueue(ERR_OUT_OF_RANGE);
+					}
+				}
+				else
+				{
+					if (value == NULL)
+						addToErrorQueue(ERR_MISSING_PARAMETER);
+					else
+						addToErrorQueue(ERR_INVALID_ARGUMENT);
 				}
 			}
 
@@ -1036,9 +1767,33 @@ void Parser::parse_configure_R(const char* word, char *outputBuffer)
 						emit sendBlockingCommand(inputStr + "\r\n");
 						model430->rampRateSegments = checkValue;
 					}
+					else
+					{
+						addToErrorQueue(ERR_OUT_OF_RANGE);
+					}
+				}
+				else
+				{
+					if (value == NULL)
+						addToErrorQueue(ERR_MISSING_PARAMETER);
+					else
+						addToErrorQueue(ERR_INVALID_ARGUMENT);
 				}
 			}
+
+			else
+			{
+				addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
+			}
 		}
+		else
+		{
+			addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
+		}
+	}
+	else
+	{
+		addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
 	}
 }
 
@@ -1055,7 +1810,7 @@ void Parser::parse_configure_S(const char* word, char *outputBuffer)
 		if (word == NULL)
 		{
 			// no argument for CONFigure:STABility
-			return;
+			addToErrorQueue(ERR_MISSING_PARAMETER);	// no match, error
 		}
 
 		// CONFigure:STABility:MODE
@@ -1073,6 +1828,17 @@ void Parser::parse_configure_S(const char* word, char *outputBuffer)
 					emit sendBlockingCommand(inputStr + "\r\n");
 					model430->stabilityMode = atoi(value);
 				}
+				else
+				{
+					addToErrorQueue(ERR_INVALID_ARGUMENT);
+				}
+			}
+			else
+			{
+				if (value == NULL)
+					addToErrorQueue(ERR_MISSING_PARAMETER);
+				else
+					addToErrorQueue(ERR_INVALID_ARGUMENT);
 			}
 		}
 
@@ -1091,6 +1857,17 @@ void Parser::parse_configure_S(const char* word, char *outputBuffer)
 					emit sendBlockingCommand(inputStr + "\r\n");
 					model430->stabilityResistor = atoi(value);
 				}
+				else
+				{
+					addToErrorQueue(ERR_NON_BOOLEAN_ARGUMENT);
+				}
+			}
+			else
+			{
+				if (value == NULL)
+					addToErrorQueue(ERR_MISSING_PARAMETER);
+				else
+					addToErrorQueue(ERR_INVALID_ARGUMENT);
 			}
 		}
 
@@ -1106,6 +1883,15 @@ void Parser::parse_configure_S(const char* word, char *outputBuffer)
 			emit sendBlockingCommand(inputStr + "\r\n");
 			model430->stabilitySetting = temp;
 		}
+
+		else
+		{
+			addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
+		}
+	}
+	else
+	{
+		addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
 	}
 }
 
@@ -1120,7 +1906,7 @@ void Parser::parse_configure_V(const char* word, char *outputBuffer)
 
 		if (word == NULL)
 		{
-			return;
+			addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
 		}
 		else if (strcmp(word, _LIM) == 0 || strcmp(word, _LIMIT) == 0)
 		{
@@ -1132,7 +1918,22 @@ void Parser::parse_configure_V(const char* word, char *outputBuffer)
 				emit sendBlockingCommand(inputStr + "\r\n");
 				model430->voltageLimit = temp;
 			}
+			else
+			{
+				if (word == NULL)
+					addToErrorQueue(ERR_MISSING_PARAMETER);
+				else
+					addToErrorQueue(ERR_INVALID_ARGUMENT);
+			}
 		}
+		else
+		{
+			addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
+		}
+	}
+	else
+	{
+		addToErrorQueue(ERR_UNRECOGNIZED_COMMAND);	// no match, error
 	}
 }
 

@@ -7,6 +7,14 @@
 Model430::Model430(QObject *parent) : QObject(parent)
 {
 	socket = NULL;
+	persistentState = false;
+	switchHeaterState = false;
+	magnetField = 0.0;
+	magnetCurrent = 0.0;
+	magnetVoltage = 0.0;
+	supplyCurrent = 0.0;
+	supplyVoltage = 0.0;
+	quenchCurrent = 0.0;
 
 	// setup on_change() connections for properties
 	mode.on_change().connect([this](int val)					{ this->modeValueChanged(); });

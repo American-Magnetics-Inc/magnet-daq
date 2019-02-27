@@ -12,7 +12,9 @@ HEADERS += $$PWD/property.hpp \
     $$PWD/model430.h \
     $$PWD/replytimeout.h \
     $$PWD/aboutdialog.h \
-    $$PWD/parser.h
+    $$PWD/parser.h \
+    $$PWD/clickablelabel.h \
+    $$PWD/errorhistorydlg.h
 SOURCES += $$PWD/magnetdaq-upgrade.cpp \
     $$PWD/magnetdaq.cpp \
     $$PWD/magnetdaq_config.cpp \
@@ -29,7 +31,10 @@ SOURCES += $$PWD/magnetdaq-upgrade.cpp \
     $$PWD/stdafx.cpp \
     $$PWD/magnetdaq_devices.cpp \
     $$PWD/aboutdialog.cpp \
-    $$PWD/parser.cpp
+    $$PWD/parser.cpp \
+    $$PWD/clickablelabel.cpp \
+    $$PWD/errorhistorydlg.cpp
 FORMS += $$PWD/magnetdaq.ui \
-    $$PWD/aboutdialog.ui
+    $$PWD/aboutdialog.ui \
+    $$PWD/errorhistorydlg.ui
 RESOURCES += magnetdaq.qrc

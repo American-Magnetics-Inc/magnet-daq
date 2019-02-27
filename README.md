@@ -6,7 +6,7 @@
 
 This repository is the source code and binary distribution point for the Magnet-DAQ application for comprehensive remote control of the AMI Model 430 Programmer.
 
-**The current application version is 1.04.** An integrated Help file is included that you may preview in PDF format [here](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/Magnet-DAQ-Help.pdf). The Magnet-DAQ application *requires* firmware version 2.55 or later in the Model 430 programmer. 
+**The current application version is 1.05.** An integrated Help file is included that you may preview in PDF format [here](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/Magnet-DAQ-Help.pdf). The Magnet-DAQ application *requires* firmware version 2.55 or later in the Model 430 programmer. 
 
 Magnet-DAQ is also a required prerequisite for the [Multi-Axis Operation](https://bitbucket.org/americanmagneticsinc/multi-axis-operation) open source application developed by AMI for control of AMI Maxes(tm) magnet systems.
 
@@ -49,14 +49,14 @@ Pre-compiled, ready-to-use binaries are available in the Downloads section of th
 
 
 * __Dependencies__
-	* Requires [Qt 5.11.0 or later open-source distribution](https://www.qt.io/download-open-source/)
+	* Requires [Qt 5.12.1 or later open-source distribution](https://www.qt.io/download-open-source/)
 	* The help file was written using [Help & Manual 7.3.5](https://www.helpandmanual.com/). Reproduction of the Help output included in the binaries requires a license for Help & Manual.
 
 
 * __Deployment hints for your own compilations__
 	* *For Windows*: The MagnetDAQ-Setup folder contains a setup project for producing a Windows installer. This requires the [Visual Studio Installer](https://marketplace.visualstudio.com/items?itemName=VisualStudioProductTeam.MicrosoftVisualStudio2017InstallerProjects) extension. A bin folder is referenced by the installer where you should place the binaries for packaging by the installer.
 	
-	* *For Linux:* See the README file in the binary download (see above) for the instructions for deploying on Ubuntu. Other versions of Linux may require a different procedure. High-DPI display support functions flawlessly in KDE Plasma (not suprising since KDE is Qt-based). The application exhibits various unaddressed issues with high-DPI display in other desktop managers such as Unity and Gnome, as does the general desktop environment for those desktop managers at present.
+	* *For Linux:* See the README file in the binary download (see above) for the instructions for deploying on Ubuntu. Other versions of Linux may require a different procedure. High-DPI display support functions flawlessly in KDE Plasma (not surprising since KDE is Qt-based). The application exhibits various unaddressed issues with high-DPI display in other desktop managers such as Unity and Gnome, as does the general desktop environment for those desktop managers at present.
 	
 	* *For Mac*: Simply unzip the binary distribution and copy the .app folder to the desired location. In order to include the Qt runtime libraries in any app bundle you compile yourself, you should use the [Mac Deployment Tool](http://doc.qt.io/qt-5/osx-deployment.html#macdeploy).
 

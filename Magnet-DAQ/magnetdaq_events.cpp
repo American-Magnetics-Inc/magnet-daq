@@ -21,7 +21,7 @@ void magnetdaq::refreshRampdownList(void)
 		}
 		else
 		{
-
+			rampdownSummaries.clear();
 		}
 	}
 }
@@ -97,7 +97,7 @@ void magnetdaq::refreshQuenchList(void)
 		}
 		else
 		{
-
+			quenchSummaries.clear();
 		}
 	}
 }

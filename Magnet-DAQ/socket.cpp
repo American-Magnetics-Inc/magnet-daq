@@ -47,9 +47,10 @@ Socket::~Socket()
 }
 
 //---------------------------------------------------------------------------
-void Socket::connectToModel430(QString ipaddress, quint16 port)
+void Socket::connectToModel430(QString ipaddress, quint16 port, QNetworkProxy::ProxyType aProxyType)
 {
 	socket = new QTcpSocket(this);
+	socket->setProxy(aProxyType);
 
 	connect(socket, SIGNAL(connected()), this, SLOT(connected()));
 	connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
@@ -521,7 +522,7 @@ void Socket::readyRead()
 		if (ok)
 			model430->errorCode = -(temp);	// flip sign to positive value
 
-		emit systemErrorMessage(reply, "");
+		emit systemErrorMessage(reply, nullptr);
 	}
 
 	else if (queryState == MSG_UPDATE)	// port 23 only
@@ -561,6 +562,30 @@ void Socket::readyRead()
 				double temp = quenchStr.toDouble(&ok);
 				if (ok)
 					model430->quenchCurrent = temp;
+			}
+
+			emit updateFrontPanel(displayStr, leds[0], leds[1], leds[2], leds[3], leds[4]);
+		}
+
+		if (reply.contains("MSG_VOLTMETER_UPDATE::"))
+		{
+			// split at the :: delimiters
+			QStringList strList = reply.split("::");
+#ifdef DEBUG
+			qDebug() << "MSG_VOLTMETER_UPDATE::" + strList[1] + "::" + strList[2];
+#endif
+
+			// expect 11 substrings -- if incomplete, ignore
+			if (strList.count() < 11)
+				return;
+
+			QString displayStr = strList[1] + "  (Showing " + strList[9] + " Bar Graph)  " + "\n" + strList[2] + "      " + strList[9] + " = " + strList[10] + "       ";
+			bool leds[6] = { false, false, false, false, false, false };
+
+			for (int i = 0; i < 6; i++)
+			{
+				if (strList[i + 3] == "1")
+					leds[i] = true;
 			}
 
 			emit updateFrontPanel(displayStr, leds[0], leds[1], leds[2], leds[3], leds[4]);

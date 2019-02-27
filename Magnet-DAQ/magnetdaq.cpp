@@ -5,6 +5,13 @@
 #include "aboutdialog.h"
 
 //---------------------------------------------------------------------------
+// Constants
+//---------------------------------------------------------------------------
+const int MIN_WINDOW_HEIGHT_EXPANDED = 600;
+const int MIN_WINDOW_HEIGHT_COLLAPSED = 210;
+
+
+//---------------------------------------------------------------------------
 // Constructor
 //---------------------------------------------------------------------------
 magnetdaq::magnetdaq(QWidget *parent)
@@ -43,6 +50,7 @@ magnetdaq::magnetdaq(QWidget *parent)
 
 	// remove unsightly frame outlines
 	ui.keypadFrame->setStyleSheet("border: 0;");
+	ui.displayFrame->setStyleSheet("border: 0;");
 
 #elif defined(Q_OS_MACOS)
 	// Mac base font scaling is different than Linux and Windows
@@ -78,6 +86,7 @@ magnetdaq::magnetdaq(QWidget *parent)
 
 	// remove unsightly frame outlines
 	ui.keypadFrame->setStyleSheet("border: 0;");
+	ui.displayFrame->setStyleSheet("border: 0;");
 
 #else	// Windows assumed
 	QGuiApplication::setFont(QFont("Segoe UI", 9));
@@ -103,6 +112,7 @@ magnetdaq::magnetdaq(QWidget *parent)
 	************************************************************/
 
 	// init states
+	parserErrorStatusIsActive = false;
 	parser = NULL;	// stdin parser
 	isXAxis = false;
 	isYAxis = false;
@@ -196,12 +206,39 @@ magnetdaq::magnetdaq(QWidget *parent)
 
 	// restore different geometry for different DPI screens
 	QString dpiStr = QString::number(QApplication::desktop()->screen()->logicalDpiX());
-	restoreGeometry(settings.value(axisStr + "MainWindow/Geometry/" + dpiStr).toByteArray());
-	restoreState(settings.value(axisStr + "MainWindow/WindowState/" + dpiStr).toByteArray());
+
+	// restore main window according to collapsed preference
+	if (settings.value(axisStr + "MainWindow/Collapsed/Selected" + dpiStr, false).toBool())
+	{
+		ui.collapseButton->setChecked(true);
+
+		// collapse window to hide mainTabWidget and disable toolbar items
+		ui.mainTabWidget->setHidden(true);
+		ui.actionPrint->setEnabled(false);
+		ui.actionSetup->setEnabled(false);
+		ui.actionPlot_Settings->setEnabled(false);
+		ui.actionShow_Keypad->setEnabled(false);
+		this->setFixedHeight(MIN_WINDOW_HEIGHT_COLLAPSED);
+
+		restoreGeometry(settings.value(axisStr + "MainWindow/Collapsed/Geometry/" + dpiStr).toByteArray());
+		restoreState(settings.value(axisStr + "MainWindow/Collapsed/WindowState/" + dpiStr).toByteArray());
+
+		ui.collapseButton->setToolTip("Expand Window");
+		ui.collapseButton->setArrowType(Qt::ArrowType::DownArrow);
+	}
+	else
+	{
+		this->setMinimumHeight(MIN_WINDOW_HEIGHT_EXPANDED);
+
+		restoreGeometry(settings.value(axisStr + "MainWindow/Geometry/" + dpiStr).toByteArray());
+		restoreState(settings.value(axisStr + "MainWindow/WindowState/" + dpiStr).toByteArray());
+	}
+
 	ui.rampRateTabSplitter->restoreGeometry(settings.value(axisStr + "RampSplitter/Geometry/" + dpiStr).toByteArray());
 	ui.rampRateTabSplitter->restoreState(settings.value(axisStr + "RampSplitter/WindowState/" + dpiStr).toByteArray());
 	ui.rampdownTabSplitter->restoreGeometry(settings.value(axisStr + "RampdownSplitter/Geometry/" + dpiStr).toByteArray());
 	ui.rampdownTabSplitter->restoreState(settings.value(axisStr + "RampdownSplitter/WindowState/" + dpiStr).toByteArray());
+	ui.systemProxyRadioButton->setChecked(settings.value(axisStr + "SystemProxy").toBool());
 	ui.ipAddressEdit->setText(settings.value(axisStr + "IPAddr", "").toString());
 	ui.ipNameEdit->setText(settings.value(axisStr + "IPName", "").toString());
 	ui.logFileEdit->setText(settings.value(axisStr + "Logfile", "").toString());
@@ -218,6 +255,7 @@ magnetdaq::magnetdaq(QWidget *parent)
 	logFile = NULL;
 	upgradeWizard = NULL;
 	errorCode = NO_ERROR;
+	errorstackDlg = nullptr;
 	ui.actionRun->setEnabled(true);
 	ui.actionStop->setEnabled(false);
 
@@ -235,6 +273,7 @@ magnetdaq::magnetdaq(QWidget *parent)
 	connect(ui.actionUpgrade, SIGNAL(triggered()), this, SLOT(actionUpgrade()));
 	connect(ui.actionShow_Keypad, SIGNAL(triggered()), this, SLOT(actionShow_Keypad()));
 	connect(ui.actionPlot_Settings, SIGNAL(triggered()), this, SLOT(actionPlot_Settings()));
+	connect(ui.collapseButton, SIGNAL(toggled(bool)), this, SLOT(actionToggle_Collapse(bool)));
 
 	// restore device list in Setup
 	restoreDeviceList(&settings);
@@ -301,9 +340,9 @@ magnetdaq::magnetdaq(QWidget *parent)
 	statusConnectState->setToolTip("TCP connection status");
 	statusMisc = new QLabel("", this);
 	statusMisc->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-	statusError = new QLabel("", this);
+	statusError = new ClickableLabel(this);
 	statusError->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-	statusError->setToolTip("Error messages");
+	statusError->setToolTip("Error messages, click for history");
 	statusSampleRate = new QLabel("", this);
 	statusSampleRate->setFrameStyle(QFrame::Panel | QFrame::Sunken);
 	statusSampleRate->setToolTip("Magnet data sample rate");
@@ -317,6 +356,7 @@ magnetdaq::magnetdaq(QWidget *parent)
 	statusConnectState->setText("Disconnected");
 
 	// other UI signal/slot connections
+	connect(statusError, SIGNAL(clicked()), this, SLOT(actionShowErrorDialog()));
 	connect(ui.remoteLockoutCheckBox, SIGNAL(toggled(bool)), this, SLOT(remoteLockoutChanged(bool)));
 	connect(ui.ipAddressEdit, SIGNAL(textEdited(QString)), this, SLOT(ipAddressEdited(QString)));
 	connect(ui.resetGraphButton, SIGNAL(clicked(bool)), this, SLOT(resetAxes(bool)));
@@ -449,14 +489,24 @@ magnetdaq::~magnetdaq()
 	// save window position and state
 	QSettings settings;
 
-	// save ramp value (not time) units
-	settings.setValue("RampUnits", ui.rampUnitsComboBox->currentIndex());
-
 	// save different geometry for different DPI screens
 	QString dpiStr = QString::number(QApplication::desktop()->screen()->logicalDpiX());
 
-	settings.setValue(axisStr + "MainWindow/Geometry/" + dpiStr, saveGeometry());
-	settings.setValue(axisStr + "MainWindow/WindowState/" + dpiStr, saveState());
+	// save ramp value (not time) units
+	settings.setValue("RampUnits", ui.rampUnitsComboBox->currentIndex());
+
+	// save other settings and positions
+	if (ui.collapseButton->isChecked())
+	{
+		settings.setValue(axisStr + "MainWindow/Collapsed/Geometry/" + dpiStr, saveGeometry());
+		settings.setValue(axisStr + "MainWindow/Collapsed/WindowState/" + dpiStr, saveState());
+	}
+	else
+	{
+		settings.setValue(axisStr + "MainWindow/Geometry/" + dpiStr, saveGeometry());
+		settings.setValue(axisStr + "MainWindow/WindowState/" + dpiStr, saveState());
+	}
+
 	settings.setValue(axisStr + "RampSplitter/Geometry/" + dpiStr, ui.rampRateTabSplitter->saveGeometry());
 	settings.setValue(axisStr + "RampSplitter/WindowState/" + dpiStr, ui.rampRateTabSplitter->saveState());
 	settings.setValue(axisStr + "RampdownSplitter/Geometry/" + dpiStr, ui.rampdownTabSplitter->saveGeometry());
@@ -496,6 +546,9 @@ magnetdaq::~magnetdaq()
 
 	// save support settings
 	settings.setValue(axisStr + "Support/Subject", ui.caseEdit->text());
+
+	// save proxy settings
+	settings.setValue(axisStr + "SystemProxy", ui.systemProxyRadioButton->isChecked());
 }
 
 //---------------------------------------------------------------------------
@@ -509,6 +562,10 @@ void magnetdaq::actionRun(void)
 	progressDialog.setLabelText(QString("Reading remote 430 configuration..."));
 #endif
 	statusConnectState->clear();
+	clearErrorHistory();
+
+	if (errorstackDlg)
+		errorstackDlg->clearErrorListWidget();
 
 	// Display the dialog and start the event loop.
 	if (!startHidden)
@@ -521,7 +578,11 @@ void magnetdaq::actionRun(void)
 
 	// use the port 7180 (default) socket to collect high-speed data queries
 	socket = new Socket(&model430, this);
-	socket->connectToModel430(ui.ipAddressEdit->text(), port);
+
+	if (ui.noProxyRadioButton->isChecked())
+		socket->connectToModel430(ui.ipAddressEdit->text(), port, QNetworkProxy::NoProxy);
+	else if (ui.systemProxyRadioButton->isChecked())
+		socket->connectToModel430(ui.ipAddressEdit->text(), port, QNetworkProxy::applicationProxy().type());
 
 	if (socket->isConnected())
 	{
@@ -630,7 +691,12 @@ void magnetdaq::actionRun(void)
 
 			// use the port 23 (default) telnet socket for configuration and keypad simulation
 			telnet = new Socket(&model430, this);
-			telnet->connectToModel430(ui.ipAddressEdit->text(), tport);	// capture display/keypad broadcasts
+
+			// capture display/keypad broadcasts
+			if (ui.noProxyRadioButton->isChecked())
+				telnet->connectToModel430(ui.ipAddressEdit->text(), tport, QNetworkProxy::NoProxy);
+			else if (ui.systemProxyRadioButton->isChecked())
+				telnet->connectToModel430(ui.ipAddressEdit->text(), tport, QNetworkProxy::applicationProxy().type());
 
 			if (telnet->isConnected())
 			{
@@ -652,6 +718,7 @@ void magnetdaq::actionRun(void)
 				ui.actionUpgrade->setEnabled(checkAvailableFirmware());
 				ui.ipAddressEdit->setEnabled(false);
 				ui.ipAddressLabel->setEnabled(false);
+				ui.proxyGroupBox->setEnabled(false);
 				ui.logFileEdit->setEnabled(false);
 				ui.logFileLabel->setEnabled(false);
 				ui.logfileButton->setEnabled(false);
@@ -706,7 +773,8 @@ void magnetdaq::actionRun(void)
 					parser->_setParent(this);	// have to do this because parserThread wants to move member parent reference
 					parser->setDataSource(&model430);
 					parser->moveToThread(parserThread);
-					connect(parser, SIGNAL(error(QString)), this, SLOT(parserErrorString(QString)));
+					connect(parser, SIGNAL(error_msg(QString)), this, SLOT(parserErrorString(QString)));
+					connect(parser, SIGNAL(exit_app()), this, SLOT(exit_app()));
 					connect(parserThread, SIGNAL(started()), parser, SLOT(process()));
 					connect(parser, SIGNAL(finished()), parserThread, SLOT(quit()));
 					connect(parser, SIGNAL(finished()), parser, SLOT(deleteLater()));
@@ -839,6 +907,7 @@ void magnetdaq::actionStop(void)
 	ui.actionUpgrade->setEnabled(false);
 	ui.ipAddressEdit->setEnabled(true);
 	ui.ipAddressLabel->setEnabled(true);
+	ui.proxyGroupBox->setEnabled(true);
 	ui.logFileEdit->setEnabled(true);
 	ui.logFileLabel->setEnabled(true);
 	ui.logfileButton->setEnabled(true);
@@ -853,6 +922,16 @@ void magnetdaq::actionStop(void)
 	statusConnectState->setStyleSheet("color: red; font: bold");
 	statusConnectState->setText("Disconnected");
 	statusSampleRate->clear();
+}
+
+//---------------------------------------------------------------------------
+void magnetdaq::exit_app(void)
+{
+	// first disconnect
+	actionStop();
+
+	// then close app
+	close();
 }
 
 //---------------------------------------------------------------------------
@@ -932,6 +1011,21 @@ void magnetdaq::actionPrint(void)
 }
 
 //---------------------------------------------------------------------------
+void magnetdaq::actionShowErrorDialog(void)
+{
+	if (errorstackDlg == NULL)
+	{
+		errorstackDlg = new errorhistorydlg(this);
+		errorstackDlg->restoreDlgGeometry(axisStr);
+	}
+
+	errorstackDlg->loadErrorHistory(&errorStack);
+	errorstackDlg->show();
+	errorstackDlg->raise();
+	errorstackDlg->activateWindow();
+}
+
+//---------------------------------------------------------------------------
 void magnetdaq::actionHelp(void)
 {
 #if defined(Q_OS_MACOS)
@@ -975,10 +1069,87 @@ void magnetdaq::actionUpgrade(void)
 }
 
 //---------------------------------------------------------------------------
-// Outputs parser function errors
-void magnetdaq::parserErrorString(QString err)
+void magnetdaq::actionToggle_Collapse(bool checked)
 {
-	qDebug() << err;
+	// save selection
+	QSettings settings;
+
+	// save different geometry for different DPI screens
+	QString dpiStr = QString::number(QApplication::desktop()->screen()->logicalDpiX());
+
+	settings.setValue(axisStr + "MainWindow/Collapsed/Selected" + dpiStr, checked);
+
+	if (checked)
+	{
+		// save expanded layout
+		settings.setValue(axisStr + "MainWindow/Geometry/" + dpiStr, saveGeometry());
+		settings.setValue(axisStr + "MainWindow/WindowState/" + dpiStr, saveState());
+
+		// collapse window to hide mainTabWidget and hide all docked panels and disable
+		// toolbar items that show panels
+		ui.mainTabWidget->setHidden(true);
+		ui.setupDockWidget->hide();
+		ui.plotDockWidget->hide();
+		ui.keypadDockWidget->hide();
+		ui.actionPrint->setEnabled(false);
+		ui.actionSetup->setEnabled(false);
+		ui.actionPlot_Settings->setEnabled(false);
+		ui.actionShow_Keypad->setEnabled(false);
+		this->setFixedHeight(MIN_WINDOW_HEIGHT_COLLAPSED);
+
+		restoreGeometry(settings.value(axisStr + "MainWindow/Collapsed/Geometry/" + dpiStr).toByteArray());
+		restoreState(settings.value(axisStr + "MainWindow/Collapsed/WindowState/" + dpiStr).toByteArray());
+		ui.collapseButton->setToolTip("Expand Window");
+		ui.collapseButton->setArrowType(Qt::ArrowType::DownArrow);
+	}
+	else
+	{
+		// save collapsed layout
+		settings.setValue(axisStr + "MainWindow/Collapsed/Geometry/" + dpiStr, saveGeometry());
+		settings.setValue(axisStr + "MainWindow/Collapsed/WindowState/" + dpiStr, saveState());
+		this->setMinimumHeight(MIN_WINDOW_HEIGHT_EXPANDED);
+		this->setMaximumHeight(16777215);
+
+		// expand window to show mainTabWidget and enable toolbar items
+		ui.mainTabWidget->setHidden(false);
+		ui.actionPrint->setEnabled(true);
+		ui.actionSetup->setEnabled(true);
+		ui.actionPlot_Settings->setEnabled(true);
+		ui.actionShow_Keypad->setEnabled(true);
+
+		restoreGeometry(settings.value(axisStr + "MainWindow/Geometry/" + dpiStr).toByteArray());
+		restoreState(settings.value(axisStr + "MainWindow/WindowState/" + dpiStr).toByteArray());
+
+		ui.collapseButton->setToolTip("Collapse Window");
+		ui.collapseButton->setArrowType(Qt::ArrowType::UpArrow);
+	}
+}
+
+//---------------------------------------------------------------------------
+// Outputs parser function errors
+//---------------------------------------------------------------------------
+void magnetdaq::parserErrorString(QString errMsg)
+{
+	if (!parserErrorStatusIsActive)
+	{
+		parserErrorStatusIsActive = true;
+		lastStatusMiscStyle = statusMisc->styleSheet();
+		lastStatusMiscString = statusMisc->text();
+	}
+
+	statusMisc->setStyleSheet("color: red; font: bold");
+	QString err = "Parser Error: " + errMsg;
+	statusMisc->setText(err);
+	QTimer::singleShot(5000, this, SLOT(errorStatusTimeout()));
+	qDebug() << err;	// log remote parser errors
+}
+
+//---------------------------------------------------------------------------
+void magnetdaq::errorStatusTimeout(void)
+{
+	parserErrorStatusIsActive = false;
+	statusMisc->setStyleSheet(lastStatusMiscStyle);
+	statusMisc->setText(lastStatusMiscString);	// restore normal messages
 }
 
 //---------------------------------------------------------------------------
@@ -1174,9 +1345,15 @@ void magnetdaq::updateFrontPanel(QString displayString, bool shiftLED, bool fiel
 		ui.targetLED->setState(KLed::State::Off);
 
 	if (persistentLED)
+	{
 		ui.persistentLED->setState(KLed::State::On);
+		model430.persistentState = true;
+	}
 	else
+	{
 		ui.persistentLED->setState(KLed::State::Off);
+		model430.persistentState = false;
+	}
 
 	if (energizedLED)
 		ui.energizedLED->setState(KLed::State::On);
@@ -1187,6 +1364,12 @@ void magnetdaq::updateFrontPanel(QString displayString, bool shiftLED, bool fiel
 		ui.quenchLED->setState(KLed::State::On);
 	else
 		ui.quenchLED->setState(KLed::State::Off);
+
+	// set heater switch state
+	if (displayString.contains("PSwitch Heater: ON"))
+		model430.switchHeaterState = true;
+	else if(displayString.contains("PSwitch Heater: OFF"))
+		model430.switchHeaterState = false;
 }
 
 //---------------------------------------------------------------------------
@@ -1207,10 +1390,39 @@ void magnetdaq::displaySystemError(QString errMsg, QString errorSourceStr)
 	if (!errMsg.contains("No errors"))
 	{
 		statusError->setStyleSheet("color: red; font: bold");
-		statusError->setText(errMsg.remove("\r\n"));
-		qDebug() << errMsg.remove("\r\n") << "::" << errorSourceStr.remove("\r\n");	// send to log
-		postErrorRefresh();	// refresh currently displayed values, erasing any erroneous entry
-		QTimer::singleShot(3000, this, SLOT(clearErrorDisplay()));
+
+		// save device errors in error stacks, device errors have nullptr errorSourceStr
+		if (errorSourceStr == nullptr)
+		{
+			// send all device errors to parser
+			if (parser != nullptr)
+				parser->addSystemError(errMsg.remove("\r\n"));
+
+			// also save to device error stack
+			if (!errMsg.isEmpty())
+				errorStack.push(errMsg.remove("\r\n"));
+
+			if (errorstackDlg)
+			{
+				if (errorstackDlg->isVisible())
+					errorstackDlg->loadErrorHistory(&errorStack);
+			}
+
+			statusError->setText(errMsg.remove("\r\n"));
+			qDebug() << errMsg.remove("\r\n");	// send to log
+
+			postErrorRefresh();	// refresh currently displayed values, erasing any erroneous entry
+			QTimer::singleShot(3000, this, SLOT(clearErrorDisplay()));
+		}
+		else
+		{
+			statusMisc->setStyleSheet("color: red; font: bold");
+			statusMisc->setText(errMsg.remove("\r\n") + "::" + errorSourceStr.remove("\r\n"));
+			qDebug() << errMsg.remove("\r\n") << "::" << errorSourceStr.remove("\r\n");	// send to log
+
+			postErrorRefresh();	// refresh currently displayed values, erasing any erroneous entry
+			QTimer::singleShot(3000, this, SLOT(clearMiscDisplay()));
+		}
 	}
 }
 
@@ -1218,6 +1430,12 @@ void magnetdaq::displaySystemError(QString errMsg, QString errorSourceStr)
 void magnetdaq::clearErrorDisplay(void)
 {
 	statusError->clear();
+}
+
+//---------------------------------------------------------------------------
+void magnetdaq::clearErrorHistory(void)
+{
+	errorStack.clear();
 }
 
 //---------------------------------------------------------------------------
