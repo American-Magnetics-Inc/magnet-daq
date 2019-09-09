@@ -333,8 +333,13 @@ void magnetdaq::addDataPoint(qint64 time, double magField, double magCurrent, do
 			writeLogHeader();
 
 		// write data to log file
-		char buffer[120];
-		sprintf(buffer, "%lld,%0.8lf,%0.9lf,%0.8lf,%0.3lf,%0.8lf,%0.6lf\n", time, timebase, magField, magCurrent, magVoltage, supCurrent, supVoltage);
+		char buffer[256];
+
+		if (model430.switchInstalled())
+			sprintf(buffer, "%lld,%0.8lf,%0.9lf,%0.8lf,%0.3lf,%0.8lf,%0.6lf,%d\n", time, timebase, magField, magCurrent, magVoltage, supCurrent, supVoltage, model430.switchHeaterState);
+		else
+			sprintf(buffer, "%lld,%0.8lf,%0.9lf,%0.8lf,%0.3lf,%0.8lf,%0.6lf\n", time, timebase, magField, magCurrent, magVoltage, supCurrent, supVoltage);
+
 		logFile->write(buffer);
 
 		// flush every 300 lines (~1 minute)
@@ -403,21 +408,30 @@ void magnetdaq::writeLogHeader(void)
 	if (logFile)
 	{
 		QString unitsStr;
+		QString heaterStr;
 
+		// indicate field units
 		if (model430.fieldUnits() == 0)
 			unitsStr = "(kG)";
 		else
 			unitsStr = "(T)";
 
+		// if switch installed, add heater state column
+		if (model430.switchInstalled())
+			heaterStr = ",Heater State";
+		else
+			heaterStr = "";
+
 		// write data column header
 		if (ui.secondsRadioButton->isChecked())
-			logFile->write(QString("Unix time,Elapsed Time(sec),Magnet Field" + unitsStr + ",Magnet Current(A),Magnet Voltage(V),Supply Current(A),Supply Voltage(V)\n").toLocal8Bit());
+			logFile->write(QString("Unix time,Elapsed Time(sec),Magnet Field" + unitsStr + ",Magnet Current(A),Magnet Voltage(V),Supply Current(A),Supply Voltage(V)" + heaterStr + "\n").toLocal8Bit());
 		else
-			logFile->write(QString("Unix time,Elapsed Time(min),Magnet Field" + unitsStr + ",Magnet Current(A),Magnet Voltage(V),Supply Current(A),Supply Voltage(V)\n").toLocal8Bit());
+			logFile->write(QString("Unix time,Elapsed Time(min),Magnet Field" + unitsStr + ",Magnet Current(A),Magnet Voltage(V),Supply Current(A),Supply Voltage(V)" + heaterStr + "\n").toLocal8Bit());
 	}
 }
 
 //---------------------------------------------------------------------------
+#ifdef USE_QTPRINTER
 void magnetdaq::renderPlot(QPrinter *printer)
 {
 	printer->setPageSize(QPrinter::Letter);
@@ -446,6 +460,7 @@ void magnetdaq::renderPlot(QPrinter *printer)
 	ui.plotWidget->toPainter(&painter, plotWidth, plotHeight);
 	painter.drawText(-10, -10, QDateTime::currentDateTime().toString());
 }
+#endif
 
 //---------------------------------------------------------------------------
 void magnetdaq::resetAxes(bool checked)

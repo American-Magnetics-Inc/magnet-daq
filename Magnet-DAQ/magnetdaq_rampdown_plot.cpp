@@ -214,6 +214,7 @@ void magnetdaq::syncRampdownPlot(void)
 }
 
 //---------------------------------------------------------------------------
+#ifdef USE_QTPRINTER
 void magnetdaq::renderRampdownPlot(QPrinter *printer)
 {
 	printer->setPageSize(QPrinter::Letter);
@@ -242,6 +243,7 @@ void magnetdaq::renderRampdownPlot(QPrinter *printer)
 	ui.rampdownPlotWidget->toPainter(&painter, plotWidth, plotHeight);
 	painter.drawText(-10, -10, QDateTime::currentDateTime().toString());
 }
+#endif
 
 //---------------------------------------------------------------------------
 void magnetdaq::resetRampdownPlotAxes(bool checked)

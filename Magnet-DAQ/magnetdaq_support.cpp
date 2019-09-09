@@ -2,7 +2,7 @@
 #include "magnetdaq.h"
 
 //---------------------------------------------------------------------------
-// Contains methods related to the Support tab. 
+// Contains methods related to the Support tab.
 // Broken out from magnetdaq.cpp for ease of editing.
 //---------------------------------------------------------------------------
 
@@ -31,11 +31,17 @@ void magnetdaq::refreshSupportSettings(void)
 //---------------------------------------------------------------------------
 void magnetdaq::syncTextSettings(QString str)
 {
+	bool isLegacy = model430.firmwareVersion() < 3.00 ? true : false;
+
 	ui.settingsTextEdit->clear();
 
-	// prepend firmware version and serial number
-	str.prepend("Firmware Rev: " + QString::number(model430.firmwareVersion(), 'f', 2) + model430.getFirmwareSuffix() + "\n" +
-		"Serial Number: " + QString::number(model430.serialNumber()) + "\n\n");
+	// versions 2.10/3.10 and later output this info already
+	if ((isLegacy && (model430.firmwareVersion() < 2.10)) || (!isLegacy && (model430.firmwareVersion() < 3.10)))
+	{
+		// prepend firmware version and serial number
+		str.prepend("Firmware Rev: " + QString::number(model430.firmwareVersion(), 'f', 2) + model430.getFirmwareSuffix() + "\n" +
+			"Serial Number: " + model430.serialNumber() + "\n\n");
+	}
 
 	ui.settingsTextEdit->setPlainText(str);
 }

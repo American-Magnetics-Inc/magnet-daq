@@ -11,6 +11,7 @@
 #include "parser.h"
 #include "clickablelabel.h"
 
+#define USE_QTPRINTER	// remove define to omit QPrinter code
 #define N_SAMPLES_MOVING_AVG 60
 
 // some definitions for readability
@@ -74,6 +75,13 @@ private slots:
 	void selectedDeviceChanged(void);
 	void deleteDeviceClicked(bool checked);
 
+	// slots for printing support
+#ifdef USE_QTPRINTER
+	void renderPlot(QPrinter *printer);
+	void renderRampPlot(QPrinter *printer);
+	void renderRampdownPlot(QPrinter *printer);
+#endif
+
 	// slots for main plot
 	void restorePlotSettings(QSettings *settings);
 	void initPlot(void);
@@ -81,7 +89,6 @@ private slots:
 	void toggleAutoscrollButton(bool checked);
 	void addDataPoint(qint64 time, double magField, double magCurrent, double magVoltage, double supCurrent, double supVoltage);
 	void writeLogHeader(void);
-	void renderPlot(QPrinter *printer);
 	void resetAxes(bool checked);
 	void timebaseChanged(bool checked);
 	void currentAxisSelectionChanged(bool checked);
@@ -102,7 +109,6 @@ private slots:
 	void initRampPlot(void);
 	void setRampPlotCurrentAxisLabel(void);
 	void syncRampPlot(void);
-	void renderRampPlot(QPrinter *printer);
 	void resetRampPlotAxes(bool checked);
 	void rampPlotTimebaseChanged(bool checked);
 	void rampPlotSelectionChanged(void);
@@ -114,7 +120,6 @@ private slots:
 	void initRampdownPlot(void);
 	void setRampdownPlotCurrentAxisLabel(void);
 	void syncRampdownPlot(void);
-	void renderRampdownPlot(QPrinter *printer);
 	void resetRampdownPlotAxes(bool checked);
 	void rampdownPlotTimebaseChanged(bool checked);
 	void rampdownPlotSelectionChanged(void);

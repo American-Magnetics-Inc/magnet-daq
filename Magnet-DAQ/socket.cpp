@@ -106,7 +106,7 @@ void Socket::readyRead()
 	{
 		qDebug() << "WELCOME_STRING: " << reply;
 
-		if (ipPort == 23 || ipPort > 7189)
+		if (ipPort == 23 || ipPort > 7189 /* > 7189 for simulation use only */ )
 			queryState = MSG_UPDATE;	// receive broadcast MSG's on telnet port only, no commands or queries!
 		else
 			queryState = IDLE_STATE;	// commands and queries to port 7180
@@ -121,7 +121,7 @@ void Socket::readyRead()
 		QStringList strList = reply.split(",");
 
 		// parse serial number
-		model430->serialNumber.set(strList.at(2).toInt());
+		model430->serialNumber.set(strList.at(2));
 
 		// firmware revision is always last string
 		QString versionStr = strList.last();

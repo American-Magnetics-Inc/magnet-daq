@@ -239,6 +239,7 @@ void magnetdaq::syncRampPlot(void)
 }
 
 //---------------------------------------------------------------------------
+#ifdef USE_QTPRINTER
 void magnetdaq::renderRampPlot(QPrinter *printer)
 {
 	printer->setPageSize(QPrinter::Letter);
@@ -267,6 +268,7 @@ void magnetdaq::renderRampPlot(QPrinter *printer)
 	ui.rampPlotWidget->toPainter(&painter, plotWidth, plotHeight);
 	painter.drawText(-10, -10, QDateTime::currentDateTime().toString());
 }
+#endif
 
 //---------------------------------------------------------------------------
 void magnetdaq::resetRampPlotAxes(bool checked)

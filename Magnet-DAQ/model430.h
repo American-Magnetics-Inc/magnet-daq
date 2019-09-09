@@ -189,7 +189,7 @@ public:
 	double quenchCurrent;
 
 	Property<double> firmwareVersion;
-	Property<int> serialNumber;
+	Property<QString> serialNumber;
 	Property<int> mode;
 	Property<State> state;
 	Property<double> targetCurrent;

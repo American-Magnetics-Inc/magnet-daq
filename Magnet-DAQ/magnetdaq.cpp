@@ -598,7 +598,7 @@ void magnetdaq::actionRun(void)
 
 		// query firmware version and suffix
 		socket->getFirmwareVersion();
-		ui.serialNumEdit->setText(QString::number(model430.serialNumber()));
+		ui.serialNumEdit->setText(model430.serialNumber());
 
 		// check for required firmware update
 		if (checkFirmwareVersion())
@@ -997,8 +997,9 @@ void magnetdaq::actionShow_Keypad(void)
 //---------------------------------------------------------------------------
 void magnetdaq::actionPrint(void)
 {
+#ifdef USE_QTPRINTER
 	// print main plot
-	QPrinter printer(QPrinterInfo::defaultPrinter(), QPrinter::ScreenResolution);
+	QPrinter printer(QPrinterInfo::defaultPrinter()); // , QPrinter::ScreenResolution);
 	QPrintPreviewDialog previewDialog(&printer, this);
 
 	if (ui.mainTabWidget->currentIndex() == PLOT_TAB)
@@ -1008,6 +1009,7 @@ void magnetdaq::actionPrint(void)
 	else if (ui.mainTabWidget->currentIndex() == RAMPDOWN_TAB)
 		connect(&previewDialog, SIGNAL(paintRequested(QPrinter*)), SLOT(renderRampdownPlot(QPrinter*)));
 	previewDialog.exec();
+#endif
 }
 
 //---------------------------------------------------------------------------

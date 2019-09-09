@@ -1873,8 +1873,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>373</width>
-             <height>404</height>
+             <width>660</width>
+             <height>389</height>
             </rect>
            </property>
            <attribute name="label">
@@ -2031,6 +2031,11 @@ p, li { white-space: pre-wrap; }
                  <item>
                   <property name="text">
                    <string>AMI 03300PS</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Accel Instruments TS250-8</string>
                   </property>
                  </item>
                 </widget>
@@ -4638,10 +4643,10 @@ p, li { white-space: pre-wrap; }
        <attribute name="horizontalHeaderCascadingSectionResizes">
         <bool>false</bool>
        </attribute>
-       <attribute name="horizontalHeaderDefaultSectionSize">
+       <attribute name="horizontalHeaderMinimumSectionSize">
         <number>100</number>
        </attribute>
-       <attribute name="horizontalHeaderMinimumSectionSize">
+       <attribute name="horizontalHeaderDefaultSectionSize">
         <number>100</number>
        </attribute>
        <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
@@ -4653,10 +4658,10 @@ p, li { white-space: pre-wrap; }
        <attribute name="verticalHeaderVisible">
         <bool>false</bool>
        </attribute>
-       <attribute name="verticalHeaderDefaultSectionSize">
+       <attribute name="verticalHeaderMinimumSectionSize">
         <number>26</number>
        </attribute>
-       <attribute name="verticalHeaderMinimumSectionSize">
+       <attribute name="verticalHeaderDefaultSectionSize">
         <number>26</number>
        </attribute>
        <column>
