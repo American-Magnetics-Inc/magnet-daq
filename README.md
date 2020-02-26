@@ -20,6 +20,8 @@ An integrated Firmware Upgrade Wizard is included in the application along with 
 
 Version 1.08 introduces a Table tab with a list of target fields that can be optionally auto-stepped by the application. Also included is an option to execute an external application or Python script at each target, as well as automatically enter and exit persistence at each target. These features are intended to allow the customer to use the Magnet-DAQ application for automated data acquisition or other experimental procedures that *repeat* at various field points. An example Python script is included in the Help.
 
+![table](https://bitbucket.org/americanmagneticsinc/magnet-daq/raw/fd38e070b36eef59ecea22f000a22da181c272f8/help/images/screenshot4.png)
+
 ## User Manual Updates? ##
 
 Updated Model 430 and Power Supply System manuals are available to document all the new features in the latest Model 430 firmware:
@@ -61,11 +63,8 @@ Pre-compiled, ready-to-use binaries are available in the Downloads section of th
 
 * __Deployment hints for your own compilations__
 	* *For Windows*: The MagnetDAQ-Setup folder contains a setup project for producing a Windows installer. This requires the [Visual Studio Installer](https://marketplace.visualstudio.com/items?itemName=VisualStudioProductTeam.MicrosoftVisualStudio2017InstallerProjects) extension. A bin folder is referenced by the installer where you should place the Qt runtime binaries and plugins for packaging by the installer.
-	
 	* *For Linux:* See the README file in the binary download (see above) for the instructions for deploying on Ubuntu. Other versions of Linux may require a different procedure.
-	
-	  Linux high-DPI display support functions flawlessly in KDE Plasma (not surprising since KDE is Qt-based). The application may exhibit various unaddressed issues with high-DPI display in other desktop managers such as Unity and Gnome, as does the general desktop environment for those desktop managers at present.
-	
+	* Linux high-DPI display support functions flawlessly in KDE Plasma (not surprising since KDE is Qt-based). The application may exhibit various unaddressed issues with high-DPI display in other desktop managers such as Unity and Gnome, as does the general desktop environment for those desktop managers at present.
 	* *For Mac*: Simply unzip the binary distribution and copy the .app folder to the desired location. In order to include the Qt runtime libraries in any app bundle you compile yourself, you should use the [Mac Deployment Tool](http://doc.qt.io/qt-5/osx-deployment.html#macdeploy). The macOS "dark mode" is supported.
 
 ## License ##
@@ -83,9 +82,9 @@ AMI welcomes comments and feedback in order to continually improve the applicati
 
 ## Screenshots ##
 
-![screenshot1](https://bitbucket.org/americanmagneticsinc/magnet-daq/raw/e0a24648db6709d800c694c86ab1d30998885702/help/images/screenshot1.png)
+![screenshot1](https://bitbucket.org/americanmagneticsinc/magnet-daq/raw/fd38e070b36eef59ecea22f000a22da181c272f8/help/images/screenshot1.png)
 
-![screenshot2](https://bitbucket.org/americanmagneticsinc/magnet-daq/raw/e0a24648db6709d800c694c86ab1d30998885702/help/images/screenshot2.png)
+![screenshot2](https://bitbucket.org/americanmagneticsinc/magnet-daq/raw/fd38e070b36eef59ecea22f000a22da181c272f8/help/images/screenshot2.png)
 
-
+![screenshot3](https://bitbucket.org/americanmagneticsinc/magnet-daq/raw/fd38e070b36eef59ecea22f000a22da181c272f8/help/images/screenshot3.png)
 
