@@ -4,10 +4,11 @@
 
 TEMPLATE = app
 TARGET = Magnet-DAQ
-QT += core network opengl widgets gui printsupport concurrent
+QT += core network opengl widgets gui printsupport concurrent gui-private
 DEFINES += QT_NETWORK_LIB QT_CONCURRENT_LIB QT_WIDGETS_LIB QT_PRINTSUPPORT_LIB QT_OPENGL_LIB
 INCLUDEPATH += ./GeneratedFiles \
     . \
+    ./header \
 PRECOMPILED_HEADER = stdafx.h
 DEPENDPATH += .
 UI_DIR += ./GeneratedFiles

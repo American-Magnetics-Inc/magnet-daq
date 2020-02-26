@@ -9,6 +9,7 @@ Model430::Model430(QObject *parent) : QObject(parent)
 	socket = NULL;
 	persistentState = false;
 	switchHeaterState = false;
+	shortSampleMode = false;
 	magnetField = 0.0;
 	magnetCurrent = 0.0;
 	magnetVoltage = 0.0;
@@ -100,7 +101,7 @@ void Model430::sync(void)
 //---------------------------------------------------------------------------
 void Model430::syncFieldUnits(void)
 {
-	if (socket)
+	if (socket && !shortSampleMode)
 	{
 		socket->sendQuery("FIELD::UNITS?\r\n", FIELD_UNITS);
 	}
@@ -136,9 +137,12 @@ void Model430::syncLoadSetup(void)
 		socket->sendQuery("STAB:MODE?\r\n", STABILITY_MODE);
 		socket->sendQuery("STAB?\r\n", STABILITY_SETTING);
 		socket->sendQuery("STAB:RES?\r\n", STABILITY_RESISTOR);
-		socket->sendQuery("COIL?\r\n", COIL_CONSTANT);
-		socket->sendQuery("IND?\r\n", INDUCTANCE);
-		socket->sendQuery("AB?\r\n", ABSORBER_PRESENT);
+		if (!shortSampleMode)
+		{
+			socket->sendQuery("COIL?\r\n", COIL_CONSTANT);
+			socket->sendQuery("IND?\r\n", INDUCTANCE);
+			socket->sendQuery("AB?\r\n", ABSORBER_PRESENT);
+		}
 	}
 }
 
@@ -146,7 +150,7 @@ void Model430::syncLoadSetup(void)
 void Model430::syncSwitchSetup(void)
 {
 	// sync the state of this object with remote instrument's values
-	if (socket)
+	if (socket && !shortSampleMode)
 	{
 		socket->sendQuery("PS:INST?\r\n", SWITCH_INSTALLED);
 		socket->sendQuery("STAB:RES?\r\n", STABILITY_RESISTOR);
@@ -156,6 +160,11 @@ void Model430::syncSwitchSetup(void)
 		socket->sendQuery("PS:CTIME?\r\n", SWITCH_COOLED_TIME);
 		socket->sendQuery("PS:PSRR?\r\n", PS_RAMP_RATE);
 		socket->sendQuery("PS:CGAIN?\r\n", SWITCH_COOLING_GAIN);
+
+		if (switchInstalled())
+			socket->sendQuery("PS?\r\n", SWITCH_HTR_STATE);
+		else
+			switchHeaterState = false;
 	}
 }
 
@@ -167,10 +176,13 @@ void Model430::syncProtectionSetup(void)
 	{
 		socket->sendQuery("CURR:LIM?\r\n", CURRENT_LIMIT);
 		socket->sendQuery("QU:DET?\r\n", QUENCH_ENABLE);
-		socket->sendQuery("QU:RATE?\r\n", QUENCH_SENSITIVITY);
-		socket->sendQuery("RAMPD:ENAB?\r\n", EXT_RAMPDOWN);
+		if (!shortSampleMode)
+		{
+			socket->sendQuery("QU:RATE?\r\n", QUENCH_SENSITIVITY);
+			socket->sendQuery("RAMPD:ENAB?\r\n", EXT_RAMPDOWN);
+		}
 
-		if (mode() & 0x02)
+		if (!shortSampleMode && (mode() & USE_OPCONSTS))
 		{
 			socket->sendQuery("OPL:MODE?\r\n", PROTECTION_MODE);
 			socket->sendQuery("OPL:ICSLOPE?\r\n", IC_SLOPE);
@@ -190,12 +202,16 @@ void Model430::syncEventCounts(bool isBlocking)
 	{
 		if (isBlocking)
 		{
-			socket->sendExtendedQuery("RAMPD:COUNT?\r\n", RAMPDOWN_COUNT, 2); // 2 second time limit on reply
+			if (!shortSampleMode)
+				socket->sendExtendedQuery("RAMPD:COUNT?\r\n", RAMPDOWN_COUNT, 2); // 2 second time limit on reply
+
 			socket->sendExtendedQuery("QU:COUNT?\r\n", QUENCH_COUNT, 2); // 2 second time limit on reply
 		}
 		else
 		{
-			socket->sendQuery("RAMPD:COUNT?\r\n", RAMPDOWN_COUNT);
+			if (!shortSampleMode)
+				socket->sendQuery("RAMPD:COUNT?\r\n", RAMPDOWN_COUNT);
+
 			socket->sendQuery("QU:COUNT?\r\n", QUENCH_COUNT);
 		}
 	}
@@ -211,7 +227,7 @@ void Model430::syncTargetCurrent(void)
 //---------------------------------------------------------------------------
 void Model430::syncTargetField(void)
 {
-	if (socket)
+	if (socket && !shortSampleMode)
 		socket->sendQuery("FIELD:TARG?\r\n", TARGET_FIELD);
 }
 
@@ -232,7 +248,7 @@ void Model430::syncStabilitySetting(void)
 //---------------------------------------------------------------------------
 void Model430::syncInductance(void)
 {
-	if (socket)
+	if (socket && !shortSampleMode)
 		socket->sendQuery("IND?\r\n", INDUCTANCE);
 }
 
@@ -245,23 +261,26 @@ void Model430::syncRampRates(void)
 		// get the present target setpoint in A
 		socket->sendQuery("CURR:TARG?\r\n", TARGET_CURRENT);
 
-		// get the present target setpoint in present field units
-		socket->sendQuery("FIELD:TARG?\r\n", TARGET_FIELD);
-
-		// get the present voltage limit
-		socket->sendQuery("VOLT:LIM?\r\n", VOLTAGE_LIMIT);
-
 		// get the present number of segments
 		socket->sendQuery("RAMP:RATE:SEG?\r\n", RAMP_SEGMENTS);
-
-		// get the present number of rampdown segments
-		socket->sendQuery("RAMPD:RATE:SEG?\r\n", RAMPDOWN_SEGMENTS);
 
 		// get the time units (sec or min)
 		socket->sendQuery("RAMP:RATE:UNITS?\r\n", RAMP_TIMEBASE);
 
-		// get the field units (kG or T)
-		socket->sendQuery("FIELD:UNITS?\r\n", FIELD_UNITS);
+		if (!shortSampleMode)
+		{
+			// get the present target setpoint in present field units
+			socket->sendQuery("FIELD:TARG?\r\n", TARGET_FIELD);
+
+			// get the present voltage limit
+			socket->sendQuery("VOLT:LIM?\r\n", VOLTAGE_LIMIT);
+
+			// get the present number of rampdown segments
+			socket->sendQuery("RAMPD:RATE:SEG?\r\n", RAMPDOWN_SEGMENTS);
+
+			// get the field units (kG or T)
+			socket->sendQuery("FIELD:UNITS?\r\n", FIELD_UNITS);
+		}
 
 		syncRampSegmentValues();
 	}
@@ -278,18 +297,22 @@ void Model430::syncRampSegmentValues(void)
 			QString queryStr = "RAMP:RATE:CURR:" + QString::number(i + 1) + "?\r\n";
 			socket->sendRampQuery(queryStr, RAMP_RATE_CURRENT, i + 1);
 
-			queryStr = "RAMP:RATE:FIELD:" + QString::number(i + 1) + "?\r\n";
-			socket->sendRampQuery(queryStr, RAMP_RATE_FIELD, i + 1);
+			if (!shortSampleMode)
+			{
+				queryStr = "RAMP:RATE:FIELD:" + QString::number(i + 1) + "?\r\n";
+				socket->sendRampQuery(queryStr, RAMP_RATE_FIELD, i + 1);
+			}
 		}
 
-		emit syncRampPlot();
+		if (!shortSampleMode)
+			emit syncRampPlot();
 	}
 }
 
 //---------------------------------------------------------------------------
 void Model430::syncRampdownSegmentValues(void)
 {
-	if (socket)
+	if (socket && !shortSampleMode)
 	{
 		// get the present number of segments
 		socket->sendExtendedQuery("RAMPD:RATE:SEG?\r\n", RAMPDOWN_SEGMENTS, 2); // 2 second time limit on reply
@@ -312,6 +335,27 @@ void Model430::syncRampdownSegmentValues(void)
 void Model430::valueChanged(QueryState aState)
 {
 	emit configurationChanged(aState);
+}
+
+//---------------------------------------------------------------------------
+void Model430::modeValueChanged(void)
+{
+	if (mode() & SHORT_SAMPLE_MODE)
+	{
+		if (shortSampleMode == false)
+		{
+			shortSampleMode = true;
+			emit shortSampleModeChanged(shortSampleMode);
+		}
+	}
+	else
+	{
+		if (shortSampleMode == true)
+		{
+			shortSampleMode = false;
+			emit shortSampleModeChanged(shortSampleMode);
+		}
+	}
 }
 
 //---------------------------------------------------------------------------

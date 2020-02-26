@@ -19,6 +19,7 @@ enum MAIN_TABS
 {
 	PLOT_TAB = 0,
 	RAMP_TAB,
+	TABLE_TAB,
 	CONFIG_TAB,
 	RAMPDOWN_TAB,
 	RAMPDOWN_EVENTS_TAB,
@@ -26,6 +27,23 @@ enum MAIN_TABS
 	SUPPORT_TAB
 };
 
+typedef enum
+{
+	NO_TABLE_ERROR = 0,		// no error
+
+	NON_NUMERICAL_ENTRY,		// non-numerical parameter
+	EXCEEDS_CURRENT_LIMIT,		// current/field value exceeds magnet limit
+	COOLED_SWITCH				// cannot ramp to table target with cooled switch
+} TableError;
+
+// main plot trace ids
+constexpr auto MAGNET_CURRENT_GRAPH = 0;
+constexpr auto MAGNET_FIELD_GRAPH = 1;
+constexpr auto SUPPLY_CURRENT_GRAPH = 2;
+constexpr auto MAGNET_VOLTAGE_GRAPH = 3;
+constexpr auto SUPPLY_VOLTAGE_GRAPH = 4;
+
+//---------------------------------------------------------------------------
 class magnetdaq : public QMainWindow
 {
 	Q_OBJECT
@@ -37,10 +55,12 @@ public:
 
 public slots:
 	void configurationChanged(QueryState state);
+	void shortSampleModeChanged(bool isSampleMode);
 
 private slots:
 	void actionRun(void);
 	void actionStop(void);
+	void droppedTelnet(void);
 	void exit_app(void);
 	void actionSetup(void);
 	void actionPlot_Settings(void);
@@ -51,6 +71,8 @@ private slots:
 	void actionAbout(void);
 	void actionUpgrade(void);
 	void actionToggle_Collapse(bool);
+	void setStatusMsg(QString msg);
+	void showErrorString(QString errMsg, bool highlight);
 	void parserErrorString(QString err);
 	void errorStatusTimeout(void);
 	void ipAddressEdited(QString text);
@@ -176,6 +198,53 @@ private slots:
 	void showFirmwareUpgradeWizard(void);
 	void wizardFinished(int result);
 
+	// slots for current/field table feature
+	void restoreTableSettings(QSettings *settings);
+	void actionLoad_Table(void);
+	void convertFieldValues(int newUnits, bool forceConversion);
+	void setTableHeader(void);
+	void syncTableUnits(void);
+	void actionSave_Table(void);
+	void tableSelectionChanged(void);
+	void tableAddRowAbove(void);
+	void tableAddRowBelow(void);
+	void initNewRow(int newRow);
+	void updatePresentTableSelection(int row, bool removed);
+	void tableRemoveRow(void);
+	void tableClear(void);
+	void tableTogglePersistence(void);
+	void tableItemChanged(QTableWidgetItem *item);
+	void actionGenerate_Excel_Report(void);
+	void saveReport(QString reportFileName);
+	TableError checkNextTarget(double target, QString label);
+	void sendNextTarget(double target);
+	int calculateRampingTime(double target, double currentValue);
+	void manualCtrlTimerTick(void);
+	void markTableSelectionAsPass(int rowIndex);
+	void markTableSelectionAsFail(int rowIndex, double quenchCurrent);
+	void abortTableTarget(void);
+	void goToSelectedTableEntry(void);
+	void goToNextTableEntry(void);
+	bool goToTableSelection(int vectorIndex, bool makeTarget);
+	void autostepRangeChanged(void);
+	void calculateAutostepRemainingTime(int startIndex, int endIndex);
+	void displayAutostepRemainingTime(void);
+	void startAutostep(void);
+	void abortAutostep(QString errorString);
+	void stopAutostep(void);
+	void autostepTimerTick(void);
+	void enableTableControls(void);
+	void abortManualCtrl(QString errorString);
+	void recalculateRemainingTime(void);
+	void doAutosaveReport(bool forceOutput);
+	void browseForAppPath(void);
+	void browseForPythonPath(void);
+	bool checkExecutionTime(void);
+	void executeNowClick(void);
+	void executeApp(void);
+	void appCheckBoxChanged(int state);
+	void pythonCheckBoxChanged(int state);
+
 private:
 	Ui::magnetdaqClass ui;
 	Model430 model430;	// contains the presently-connected 430 settings
@@ -188,6 +257,8 @@ private:
 	int errorCode;
 	QStack<QString> errorStack;	// the error stack (LIFO)
 	errorhistorydlg *errorstackDlg;		// the error history dialog
+	QTimer *manualCtrlTimer;
+	QString ssSampleVoltageText;
 
 	// command line support
 	QString targetIP;	// optional command line ip start
@@ -243,9 +314,13 @@ private:
 	ClickableLabel *statusError;
 	QLabel *statusSampleRate;
 	QLabel *statusMisc;
-	bool parserErrorStatusIsActive;
 	QString lastStatusMiscStyle;
 	QString lastStatusMiscString;
+
+	// error status items
+	std::atomic<bool> errorStatusIsActive;
+	std::atomic<bool> parserErrorStatusIsActive;
+	TableError tableError;	// last selected table row had error?
 
 	// ramp segments convenience arrays
 	QLabel	  *rampSegLabels[10];
@@ -283,6 +358,29 @@ private:
 	QWizardPage * createIntroPage(void);
 	QWizardPage * createUploadPage(void);
 	QWizardPage * createConclusionPage(void);
+
+	// current/field table
+	QString tableFileName;
+	QString lastTableLoadPath;
+	QString saveTableFileName;
+	QString lastTableSavePath;
+	QString lastReportPath;
+	QString reportFileName;
+	int presentTableValue;
+	int lastTableValue;		// last known good table selection
+	int remainingTime;		// time remaining for arrival at target
+	int tableUnits;
+
+	// table autostepping
+	QTimer *autostepTimer;
+	int elapsedTimerTicks;
+	int autostepStartIndex;
+	int autostepEndIndex;
+	int autostepRemainingTime;
+	bool haveAutosavedReport;
+	TableError autostepError;
+	QString lastAppFilePath;
+	QString lastPythonPath;
 };
 
 #endif // magnetdaq_H

@@ -40,8 +40,10 @@ void magnetdaq::syncTextSettings(QString str)
 	{
 		// prepend firmware version and serial number
 		str.prepend("Firmware Rev: " + QString::number(model430.firmwareVersion(), 'f', 2) + model430.getFirmwareSuffix() + "\n" +
-			"Serial Number: " + model430.serialNumber() + "\n\n");
+            "Serial Number: " + model430.serialNumber() + "\n" + "Internal Switch S2 State: 0x" + QString::number((ushort)model430.mode(), 16) + "\n\n");
 	}
+	else
+        str.prepend("Internal Switch S2 State: 0x" + QString::number((ushort)model430.mode(), 16) + "\n\n");
 
 	ui.settingsTextEdit->setPlainText(str);
 }

@@ -5,10 +5,15 @@
 #include "aboutdialog.h"
 
 //---------------------------------------------------------------------------
-// Constants
+// Local constants
 //---------------------------------------------------------------------------
-const int MIN_WINDOW_HEIGHT_EXPANDED = 600;
+const int MIN_WINDOW_HEIGHT_EXPANDED = 730;
+
+#if defined(Q_OS_MACOS)
+const int MIN_WINDOW_HEIGHT_COLLAPSED = 220;
+#else
 const int MIN_WINDOW_HEIGHT_COLLAPSED = 210;
+#endif
 
 
 //---------------------------------------------------------------------------
@@ -35,6 +40,7 @@ magnetdaq::magnetdaq(QWidget *parent)
 	this->setWindowTitle(QCoreApplication::applicationName() + " - v" + QCoreApplication::applicationVersion() + "   (AMI Model 430 Remote Control)");
 	ui.voltageLimitLabel->setText("<html>Voltage Limit (&plusmn;V) :</html>");
 	ui.currentLimitLabel->setText("<html>Current Limit (&plusmn;A) :</html>");
+	ui.droppedConnectionLabel->setText("Emulated display/keypad not presently connected to a remote device.");
 
 #if defined(Q_OS_LINUX)
 	QGuiApplication::setFont(QFont("Ubuntu", 9));
@@ -90,8 +96,8 @@ magnetdaq::magnetdaq(QWidget *parent)
 
 #else	// Windows assumed
 	QGuiApplication::setFont(QFont("Segoe UI", 9));
-	this->setStyleSheet("QMainWindow::separator {background: rgb(200, 200, 200); width: 1px; height: 1px;} QTabBar {font-size: 8pt};");
-	ui.mainTabWidget->tabBar()->setStyleSheet("font-size: 9pt");
+	this->setStyleSheet("QMainWindow::separator {background: rgb(200, 200, 200); width: 1px; height: 1px;} QTabBar {font-family: Arial; font-weight: bold; font-size: 8pt};");
+	ui.mainTabWidget->tabBar()->setStyleSheet("font-family: \"Segoe UI\"; font-size: 9pt");
 #endif
 
 	/************************************************************
@@ -113,6 +119,7 @@ magnetdaq::magnetdaq(QWidget *parent)
 
 	// init states
 	parserErrorStatusIsActive = false;
+	errorStatusIsActive = false;
 	parser = NULL;	// stdin parser
 	isXAxis = false;
 	isYAxis = false;
@@ -177,16 +184,19 @@ magnetdaq::magnetdaq(QWidget *parent)
 	{
 		this->setWindowIcon(QIcon(":magnetdaq/Resources/Magnet-DAQ-x.ico"));
 		axisStr = "XAxis/";
+		ui.tableTab->setEnabled(false);	// no table function for multi-axis operation
 	}
 	else if (isYAxis = cmdLineParse.isSet(yAxisOption))
 	{
 		this->setWindowIcon(QIcon(":magnetdaq/Resources/Magnet-DAQ-y.ico"));
 		axisStr = "YAxis/";
+		ui.tableTab->setEnabled(false);	// no table function for multi-axis operation
 	}
 	else if (isZAxis = cmdLineParse.isSet(zAxisOption))
 	{
 		this->setWindowIcon(QIcon(":magnetdaq/Resources/Magnet-DAQ-z.ico"));
 		axisStr = "ZAxis/";
+		ui.tableTab->setEnabled(false);	// no table function for multi-axis operation
 	}
 	else
 	{
@@ -224,7 +234,7 @@ magnetdaq::magnetdaq(QWidget *parent)
 		restoreState(settings.value(axisStr + "MainWindow/Collapsed/WindowState/" + dpiStr).toByteArray());
 
 		ui.collapseButton->setToolTip("Expand Window");
-		ui.collapseButton->setArrowType(Qt::ArrowType::DownArrow);
+		//ui.collapseButton->setArrowType(Qt::ArrowType::DownArrow);
 	}
 	else
 	{
@@ -258,6 +268,10 @@ magnetdaq::magnetdaq(QWidget *parent)
 	errorstackDlg = nullptr;
 	ui.actionRun->setEnabled(true);
 	ui.actionStop->setEnabled(false);
+
+	// save microvolt symbol from UI file
+	ssSampleVoltageText = ui.magnetVoltageCheckBox->text();
+	ui.magnetVoltageCheckBox->setText("Magnet Voltage (V)");
 
 	// create convenience arrays for ramp rate values
 	setupRampRateArrays();
@@ -316,6 +330,9 @@ magnetdaq::magnetdaq(QWidget *parent)
 
 	// restore support settings
 	restoreSupportSettings(&settings);
+
+	// restore table tab settings
+	restoreTableSettings(&settings);
 
 	// init LED states
 	ui.shiftLED->setLook(KLed::Flat);
@@ -433,6 +450,7 @@ magnetdaq::magnetdaq(QWidget *parent)
 	connect(ui.quenchListWidget, SIGNAL(currentRowChanged(int)), this, SLOT(quenchEventSelectionChanged(int)));
 	connect(ui.quenchRefreshButton, SIGNAL(clicked()), this, SLOT(refreshQuenchList()));
 	connect(ui.autoscrollXCheckBox, SIGNAL(clicked(bool)), this, SLOT(toggleAutoscrollXCheckBox(bool)));
+	connect(&model430, SIGNAL(shortSampleModeChanged(bool)), this, SLOT(shortSampleModeChanged(bool)));
 
 	// More command line options parsing
 	QString portStr = cmdLineParse.value(portOption);
@@ -527,16 +545,31 @@ magnetdaq::~magnetdaq()
 	settings.setValue(axisStr + "Graph/AutoscrollX", ui.autoscrollXCheckBox->isChecked());
 
 	// save titles (minus units)
-	settings.setValue(axisStr + "Graph/Title", mainPlotTitle);
 	settings.setValue(axisStr + "Graph/TitleX", mainPlotXTitle);
 	settings.setValue(axisStr + "Graph/TitleYCurrent", mainPlotYTitleCurrent);
 	settings.setValue(axisStr + "Graph/TitleYField", mainPlotYTitleField);
 	settings.setValue(axisStr + "Graph/TitleY2", mainPlotY2Title);
-	settings.setValue(axisStr + "Graph/Legend0", mainLegend[0]);
-	settings.setValue(axisStr + "Graph/Legend1", mainLegend[1]);
-	settings.setValue(axisStr + "Graph/Legend2", mainLegend[2]);
-	settings.setValue(axisStr + "Graph/Legend3", mainLegend[3]);
-	settings.setValue(axisStr + "Graph/Legend4", mainLegend[4]);
+
+	if (model430.shortSampleMode)
+	{
+		settings.setValue("ssGraph/Title", mainPlotTitle);
+
+		settings.setValue("ssGraph/Legend0", mainLegend[0]);
+		settings.setValue("ssGraph/Legend1", mainLegend[1]);
+		settings.setValue("ssGraph/Legend2", mainLegend[2]);
+		settings.setValue("ssGraph/Legend3", mainLegend[3]);
+		settings.setValue("ssGraph/Legend4", mainLegend[4]);
+	}
+	else
+	{
+		settings.setValue(axisStr + "Graph/Title", mainPlotTitle);
+
+		settings.setValue(axisStr + "Graph/Legend0", mainLegend[0]);
+		settings.setValue(axisStr + "Graph/Legend1", mainLegend[1]);
+		settings.setValue(axisStr + "Graph/Legend2", mainLegend[2]);
+		settings.setValue(axisStr + "Graph/Legend3", mainLegend[3]);
+		settings.setValue(axisStr + "Graph/Legend4", mainLegend[4]);
+	}
 
 	// save main plot settings
 	settings.setValue(axisStr + "Graph/PlotField", ui.magnetFieldRadioButton->isChecked());
@@ -549,6 +582,15 @@ magnetdaq::~magnetdaq()
 
 	// save proxy settings
 	settings.setValue(axisStr + "SystemProxy", ui.systemProxyRadioButton->isChecked());
+
+	// save table settings
+	settings.setValue("Table/AutosaveReport", ui.autosaveReportCheckBox->isChecked());
+	settings.setValue("Table/EnableExecution", ui.executeCheckBox->isChecked());
+	settings.setValue("Table/AppPath", ui.appLocationEdit->text());
+	settings.setValue("Table/AppArgs", ui.appArgsEdit->text());
+	settings.setValue("Table/PythonPath", ui.pythonPathEdit->text());
+	settings.setValue("Table/ExecutionTime", ui.appStartEdit->text());
+	settings.setValue("Table/PythonScript", ui.pythonCheckBox->isChecked());
 }
 
 //---------------------------------------------------------------------------
@@ -562,6 +604,7 @@ void magnetdaq::actionRun(void)
 	progressDialog.setLabelText(QString("Reading remote 430 configuration..."));
 #endif
 	statusConnectState->clear();
+	ui.droppedConnectionLabel->clear();
 	clearErrorHistory();
 
 	if (errorstackDlg)
@@ -610,7 +653,7 @@ void magnetdaq::actionRun(void)
 			connect(socket, SIGNAL(model430Disconnected()), this, SLOT(actionStop()));
 			connect(socket, SIGNAL(systemErrorMessage(QString, QString)), this, SLOT(displaySystemError(QString, QString)), Qt::ConnectionType::QueuedConnection);
 
-			// query 430 mode (s2 state)
+			// query 430 mode (s2 state), sets up interface for short-sample mode if needed
 			socket->getMode();
 
 			// query 430 status
@@ -706,6 +749,7 @@ void magnetdaq::actionRun(void)
 
 				// connect error signal
 				connect(telnet, SIGNAL(systemError()), this, SLOT(systemErrorNotification()));
+				connect(telnet, SIGNAL(model430Disconnected()), this, SLOT(droppedTelnet()));
 
 				// connect change notifications
 				connect(telnet, SIGNAL(fieldUnitsChanged()), &model430, SLOT(syncFieldUnits()));
@@ -739,6 +783,10 @@ void magnetdaq::actionRun(void)
 					timeAxis->setRange(ui.xminEdit->text().toDouble(), ui.xmaxEdit->text().toDouble());
 
 				plotTimer->start();
+
+				// enable table functions
+				ui.manualControlGroupBox->setEnabled(true);
+				ui.autoStepGroupBox->setEnabled(true);
 
 				statusConnectState->setStyleSheet("color: green; font: bold");
 				statusConnectState->setText("Connected to " + ui.ipAddressEdit->text());
@@ -781,9 +829,21 @@ void magnetdaq::actionRun(void)
 					connect(parserThread, SIGNAL(finished()), parserThread, SLOT(deleteLater()));
 					parserThread->start();
 				}
+
+				// check switch installed state change and clear table if needed
+				{
+					static bool lastSwitchInstalledValue = false;	// retain between calls
+
+					if (model430.switchInstalled() != lastSwitchInstalledValue)
+						tableClear();
+
+					lastSwitchInstalledValue = model430.switchInstalled();
+					setTableHeader();
+				}
 			}
 			else
 			{
+				ui.droppedConnectionLabel->setText("Display/keypad connection interrupted, Stop and re-Connect to re-establish communication");
 				statusConnectState->setStyleSheet("color: red; font: bold");
 				statusConnectState->setText("Failed to connect!");
 				socket->deleteLater();
@@ -876,6 +936,9 @@ void magnetdaq::actionStop(void)
 		parser = NULL;
 	}
 
+	// stop any active table auto-stepping
+	stopAutostep();
+
 	// stop plotting
 	plotTimer->stop();
 
@@ -919,9 +982,22 @@ void magnetdaq::actionStop(void)
 	if (ui.devicesTableWidget->selectionModel()->selectedRows().count())
 		ui.deleteDeviceButton->setEnabled(true);
 
+	// table execution disabled until connect
+	ui.manualControlGroupBox->setEnabled(false);
+	ui.autoStepGroupBox->setEnabled(false);
+
 	statusConnectState->setStyleSheet("color: red; font: bold");
 	statusConnectState->setText("Disconnected");
 	statusSampleRate->clear();
+
+	ui.droppedConnectionLabel->setText("Emulated display/keypad not presently connected to a remote device.");
+}
+
+//---------------------------------------------------------------------------
+void magnetdaq::droppedTelnet(void)
+{
+	if (ui.actionStop->isEnabled())
+		ui.droppedConnectionLabel->setText("Display/keypad connection interrupted, Stop and re-Connect to re-establish communication");
 }
 
 //---------------------------------------------------------------------------
@@ -1102,7 +1178,7 @@ void magnetdaq::actionToggle_Collapse(bool checked)
 		restoreGeometry(settings.value(axisStr + "MainWindow/Collapsed/Geometry/" + dpiStr).toByteArray());
 		restoreState(settings.value(axisStr + "MainWindow/Collapsed/WindowState/" + dpiStr).toByteArray());
 		ui.collapseButton->setToolTip("Expand Window");
-		ui.collapseButton->setArrowType(Qt::ArrowType::DownArrow);
+		//ui.collapseButton->setArrowType(Qt::ArrowType::DownArrow);
 	}
 	else
 	{
@@ -1123,12 +1199,47 @@ void magnetdaq::actionToggle_Collapse(bool checked)
 		restoreState(settings.value(axisStr + "MainWindow/WindowState/" + dpiStr).toByteArray());
 
 		ui.collapseButton->setToolTip("Collapse Window");
-		ui.collapseButton->setArrowType(Qt::ArrowType::UpArrow);
+		//ui.collapseButton->setArrowType(Qt::ArrowType::UpArrow);
 	}
 }
 
 //---------------------------------------------------------------------------
-// Outputs parser function errors
+// Outputs general and parser function errors
+//---------------------------------------------------------------------------
+void magnetdaq::setStatusMsg(QString msg)
+{
+	// always save the msg
+	lastStatusMiscString = msg;
+
+	if (!errorStatusIsActive && !parserErrorStatusIsActive)	// show it now!
+		statusMisc->setText(msg);
+}
+
+//---------------------------------------------------------------------------
+void magnetdaq::showErrorString(QString errMsg, bool highlight)
+{
+	QString err;
+
+	if (!errorStatusIsActive)
+	{
+		errorStatusIsActive = true;
+		lastStatusMiscStyle = statusMisc->styleSheet();
+		lastStatusMiscString = statusMisc->text();
+	}
+
+	if (highlight)
+	{
+		statusMisc->setStyleSheet("color: red; font: bold");
+		err = "Error: " + errMsg;
+	}
+	else
+		err = errMsg;
+
+	statusMisc->setText(err);
+	QTimer::singleShot(5000, this, SLOT(errorStatusTimeout()));
+	qDebug() << err;	// send to log
+}
+
 //---------------------------------------------------------------------------
 void magnetdaq::parserErrorString(QString errMsg)
 {
@@ -1149,7 +1260,12 @@ void magnetdaq::parserErrorString(QString errMsg)
 //---------------------------------------------------------------------------
 void magnetdaq::errorStatusTimeout(void)
 {
-	parserErrorStatusIsActive = false;
+	if (errorStatusIsActive)
+		errorStatusIsActive = false;
+
+	if (parserErrorStatusIsActive)
+		parserErrorStatusIsActive = false;
+
 	statusMisc->setStyleSheet(lastStatusMiscStyle);
 	statusMisc->setText(lastStatusMiscString);	// restore normal messages
 }
@@ -1507,11 +1623,27 @@ void magnetdaq::keypadClicked(bool checked)
 		else if (button->text() == "3")
 			telnet->sendCommand("W_KEY_3\r\n");
 		else if (button->text() == "4")
+		{
 			telnet->sendCommand("W_KEY_4\r\n");
+
+			if (ui.shiftLED->state())
+			{
+				// abort any automatic table functions
+				abortTableTarget();
+			}
+		}
 		else if (button->text() == "5")
 			telnet->sendCommand("W_KEY_5\r\n");
 		else if (button->text() == "6")
+		{
 			telnet->sendCommand("W_KEY_6\r\n");
+
+			if (ui.shiftLED->state())
+			{
+				// abort any automatic table functions
+				abortTableTarget();
+			}
+		}
 		else if (button->text() == "7")
 			telnet->sendCommand("W_KEY_7\r\n");
 		else if (button->text() == "8")
@@ -1527,7 +1659,12 @@ void magnetdaq::keypadClicked(bool checked)
 		else if (button->text() == "shift")
 			telnet->sendCommand("W_KEY_SHIFT\r\n");
 		else if (button->text() == "zero")
+		{
 			telnet->sendCommand("W_KEY_ZEROFIELD\r\n");
+
+			// abort any automatic table functions
+			abortTableTarget();
+		}
 		else if (button->text() == "esc")
 			telnet->sendCommand("W_KEY_ESC\r\n");
 		else if (button->text() == "menu")
@@ -1644,6 +1781,117 @@ void magnetdaq::setupRampdownArrays(void)
 	{
 		connect(rampdownSegMaxLimits[i], SIGNAL(editingFinished()), this, SLOT(rampdownSegmentValueChanged()));
 		connect(rampdownSegValues[i], SIGNAL(editingFinished()), this, SLOT(rampdownSegmentValueChanged()));
+	}
+}
+
+//---------------------------------------------------------------------------
+void magnetdaq::shortSampleModeChanged(bool isSampleMode)
+{
+	// reconfigure UI for sample mode
+	if (isSampleMode)
+	{
+		model430.switchInstalled = false;
+
+		// set table headings as appropriate
+		setTableHeader();
+
+		if (tableUnits != AMPS)
+			tableClear();	// can't use field values with short-sample mode
+
+		// set several items as invisible that do not apply
+		ui.targetFieldSetpointButton->setText("Target Current Setpoint");
+		ui.rampdownTabSplitter->setVisible(false);
+		ui.voltageModeInputLabel->setText("V-C Mode Input Range (V) :");
+		ui.switchPage->setVisible(false);
+		ui.stabilityModeLabel->setVisible(false);
+		ui.stabilityModeComboBox->setVisible(false);
+		ui.coilConstantEdit->setVisible(false);
+		ui.coilConstantLabel->setVisible(false);
+		ui.inductanceButton->setVisible(false);
+		ui.magInductanceEdit->setVisible(false);
+		ui.magInductanceLabel->setVisible(false);
+		ui.absorberComboBox->setVisible(false);
+		ui.absorberLabel->setVisible(false);
+		ui.quenchSensitivityComboBox->setVisible(false);
+		ui.quenchSensitivityLabel->setVisible(false);
+		ui.externRampdownComboBox->setVisible(false);
+		ui.externRampdownLabel->setVisible(false);
+		ui.opcGroupBox->setVisible(false);
+		ui.rampPlotWidget->setVisible(false);
+		ui.voltageLimitEdit->setVisible(false);
+		ui.voltageLimitLabel->setVisible(false);
+		ui.rampUnitsComboBox->setCurrentIndex(0);
+		ui.rampUnitsComboBox->setVisible(false);
+		ui.rampUnitsLabel->setVisible(false);
+		ui.magnetCurrentRadioButton->setText("Sample Current (A)");
+		ui.supplyVoltageCheckBox->setText("Program Out (V)");
+		ui.magnetVoltageCheckBox->setText(ssSampleVoltageText);
+		ui.magnetFieldRadioButton->setVisible(false);
+
+		// restore legend names
+		// Note: Should not have "axisStr" for multi-axis control in current mode
+		QSettings settings;
+		mainLegend[MAGNET_CURRENT_GRAPH] = settings.value("ssGraph/Legend0", "Sample Current").toString();
+		mainLegend[MAGNET_FIELD_GRAPH] = settings.value("ssGraph/Legend1", "Magnet Field (N/A)").toString();
+		mainLegend[SUPPLY_CURRENT_GRAPH] = settings.value("ssGraph/Legend2", "Supply Current").toString();
+		mainLegend[MAGNET_VOLTAGE_GRAPH] = settings.value("ssGraph/Legend3", "Sample Voltage").toString();
+		mainLegend[SUPPLY_VOLTAGE_GRAPH] = settings.value("ssGraph/Legend4", "Program Out").toString();
+
+		mainPlotTitle = settings.value("ssGraph/Title", "Current/Voltage vs. Time").toString();
+
+		ui.plotWidget->graph(MAGNET_CURRENT_GRAPH)->setName(mainLegend[MAGNET_CURRENT_GRAPH]);
+		ui.plotWidget->graph(MAGNET_FIELD_GRAPH)->setName(mainLegend[MAGNET_FIELD_GRAPH]);
+		ui.plotWidget->graph(SUPPLY_CURRENT_GRAPH)->setName(mainLegend[SUPPLY_CURRENT_GRAPH]);
+		ui.plotWidget->graph(MAGNET_VOLTAGE_GRAPH)->setName(mainLegend[MAGNET_VOLTAGE_GRAPH]);
+		ui.plotWidget->graph(SUPPLY_VOLTAGE_GRAPH)->setName(mainLegend[SUPPLY_VOLTAGE_GRAPH]);
+		ssPlotTitle->setText(mainPlotTitle);
+	}
+	else
+	{
+		ui.targetFieldSetpointButton->setText("Target Field Setpoint");
+		ui.rampdownTabSplitter->setVisible(true);
+		ui.voltageModeInputLabel->setText("V-V Mode Input Range (V) :");
+		ui.switchPage->setVisible(true);
+		ui.stabilityModeLabel->setVisible(true);
+		ui.stabilityModeComboBox->setVisible(true);
+		ui.coilConstantEdit->setVisible(true);
+		ui.coilConstantLabel->setVisible(true);
+		ui.inductanceButton->setVisible(true);
+		ui.magInductanceEdit->setVisible(true);
+		ui.magInductanceLabel->setVisible(true);
+		ui.absorberComboBox->setVisible(true);
+		ui.absorberLabel->setVisible(true);
+		ui.quenchSensitivityComboBox->setVisible(true);
+		ui.quenchSensitivityLabel->setVisible(true);
+		ui.externRampdownComboBox->setVisible(true);
+		ui.externRampdownLabel->setVisible(true);
+		ui.opcGroupBox->setVisible(true);
+		ui.rampPlotWidget->setVisible(true);
+		ui.voltageLimitEdit->setVisible(true);
+		ui.voltageLimitLabel->setVisible(true);
+		ui.rampUnitsComboBox->setVisible(true);
+		ui.rampUnitsLabel->setVisible(true);
+		ui.magnetCurrentRadioButton->setText("Magnet Current (A)");
+		ui.magnetVoltageCheckBox->setText("Magnet Voltage (V)");
+		ui.supplyVoltageCheckBox->setText("Supply Voltage (V)");
+		ui.magnetFieldRadioButton->setVisible(true);
+
+		// restore legend names
+		QSettings settings;
+		mainLegend[MAGNET_CURRENT_GRAPH] = settings.value(axisStr + "Graph/Legend0", "Magnet Current").toString();
+		mainLegend[MAGNET_FIELD_GRAPH] = settings.value(axisStr + "Graph/Legend1", "Magnet Field").toString();
+		mainLegend[SUPPLY_CURRENT_GRAPH] = settings.value(axisStr + "Graph/Legend2", "Supply Current").toString();
+		mainLegend[MAGNET_VOLTAGE_GRAPH] = settings.value(axisStr + "Graph/Legend3", "Magnet Voltage").toString();
+		mainLegend[SUPPLY_VOLTAGE_GRAPH] = settings.value(axisStr + "Graph/Legend4", "Supply Voltage").toString();
+
+		mainPlotTitle = settings.value(axisStr + "Graph/Title", "Magnet Current/Voltage vs. Time").toString();
+
+		ui.plotWidget->graph(MAGNET_CURRENT_GRAPH)->setName(mainLegend[MAGNET_CURRENT_GRAPH]);
+		ui.plotWidget->graph(MAGNET_FIELD_GRAPH)->setName(mainLegend[MAGNET_FIELD_GRAPH]);
+		ui.plotWidget->graph(SUPPLY_CURRENT_GRAPH)->setName(mainLegend[SUPPLY_CURRENT_GRAPH]);
+		ui.plotWidget->graph(MAGNET_VOLTAGE_GRAPH)->setName(mainLegend[MAGNET_VOLTAGE_GRAPH]);
+		ui.plotWidget->graph(SUPPLY_VOLTAGE_GRAPH)->setName(mainLegend[SUPPLY_VOLTAGE_GRAPH]);
+		ssPlotTitle->setText(mainPlotTitle);
 	}
 }
 

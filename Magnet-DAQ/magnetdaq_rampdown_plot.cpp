@@ -101,7 +101,7 @@ void magnetdaq::setRampdownPlotCurrentAxisLabel(void)
 		rampdownCurrentAxis->setLabel("Current (A)");
 	else
 	{
-		if (model430.fieldUnits == 0)
+		if (model430.fieldUnits == KG)
 			rampdownCurrentAxis->setLabel("Field (kG)");
 		else
 			rampdownCurrentAxis->setLabel("Field (T)");

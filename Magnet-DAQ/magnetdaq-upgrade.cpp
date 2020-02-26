@@ -21,9 +21,9 @@ const double requiredLegacyFirmwareId = 2.55;
 const double requiredFirmwareId = 3.05;
 
 // firmware versions included in Resource file (update these values when new version is included)
-const double legacyFirmwareId = 2.59;
+const double legacyFirmwareId = 2.62;
 const QString legacyFirmwareSuffix = "";
-const double firmwareId = 3.09;
+const double firmwareId = 3.12;
 const QString firmwareSuffix = "";
 
 //---------------------------------------------------------------------------

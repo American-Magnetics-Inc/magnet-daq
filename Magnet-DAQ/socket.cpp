@@ -196,8 +196,9 @@ void Socket::readyRead()
 	}
 
 	// simple boolean type queries
-	else if (queryState == ABSORBER_PRESENT || queryState == SWITCH_INSTALLED ||
-			 queryState == EXT_RAMPDOWN		|| queryState == STABILITY_RESISTOR)
+	else if (queryState == ABSORBER_PRESENT || queryState == SWITCH_INSTALLED   ||
+			 queryState == EXT_RAMPDOWN		|| queryState == STABILITY_RESISTOR ||
+			 queryState == SWITCH_HTR_STATE)
 	{
 		#ifdef DEBUG
 		if (queryState == ABSORBER_PRESENT)
@@ -208,6 +209,8 @@ void Socket::readyRead()
 			qDebug() << "RAMPD:ENAB? Reply: " << reply;
 		else if (queryState == STABILITY_RESISTOR)
 			qDebug() << "STAB:RES? Reply: " << reply;
+		else if (queryState == SWITCH_HTR_STATE)
+			qDebug() << "PS? Reply: " << reply;
 		#endif
 
 		// read return data
@@ -224,6 +227,8 @@ void Socket::readyRead()
 				model430->extRampdownEnabled = temp;
 			else if (queryState == STABILITY_RESISTOR)
 				model430->stabilityResistor = temp;
+			else if (queryState == SWITCH_HTR_STATE)
+				model430->switchHeaterState = temp;
 		}
 		queryState = IDLE_STATE;
 	}
@@ -234,7 +239,7 @@ void Socket::readyRead()
 			 queryState == SWITCH_HEATED_TIME || queryState == SWITCH_COOLED_TIME ||
 			 queryState == QUENCH_ENABLE	  || queryState == QUENCH_SENSITIVITY ||
 			 queryState == PROTECTION_MODE	  || queryState == MODE				  ||
-			 queryState == RAMP_TIMEBASE		  || queryState == FIELD_UNITS		  ||
+			 queryState == RAMP_TIMEBASE	  || queryState == FIELD_UNITS		  ||
 			 queryState == RAMP_SEGMENTS	  || queryState == RAMPDOWN_SEGMENTS  ||
 			 queryState == RAMPDOWN_COUNT	  || queryState	== QUENCH_COUNT		  ||
 			 queryState == STATE)

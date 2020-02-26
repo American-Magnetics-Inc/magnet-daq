@@ -6,17 +6,21 @@
 
 This repository is the source code and binary distribution point for the Magnet-DAQ application for comprehensive remote control of the AMI Model 430 Programmer.
 
-**The current application version is 1.06.** An integrated Help file is included that you may preview in PDF format [here](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/Magnet-DAQ-Help.pdf). The Magnet-DAQ application *requires* firmware version 2.55 or later in the Model 430 programmer. 
+**The current application version is 1.08.** An integrated Help file is included that you may preview in PDF format [here](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/Magnet-DAQ-Help.pdf). The Magnet-DAQ application *requires* firmware version 2.55 or later in the Model 430 programmer. 
 
 Magnet-DAQ is also a required prerequisite for the [Multi-Axis Operation](https://bitbucket.org/americanmagneticsinc/multi-axis-operation) open source application developed by AMI for control of AMI Maxes(tm) magnet systems.
 
-### Firmware Upgrade ###
+### Included Firmware Upgrade ###
 
-An integrated Firmware Upgrade Wizard is included in the application along with the latest Model 430 firmware versions 2.59 (legacy) and 3.09. Upon connection to a Model 430, the application will present the Firmware Upgrade Wizard as appropriate, or on demand via the new toolbar icon.
+An integrated Firmware Upgrade Wizard is included in the application along with the latest Model 430 firmware versions 2.62 (legacy) and 3.12. Upon connection to a Model 430, the application will present the Firmware Upgrade Wizard as appropriate, or on demand via the "Upgrade" toolbar icon.
 
-**NOTE:** The latest firmware includes optional communication on Ethernet port 7185 without the "welcome message." This is of importance to customers using VISA and LabVIEW to develop "stateless" communication drivers, and in fact the latest [AMI Drivers for LabVIEW](https://bitbucket.org/americanmagneticsinc/ami-drivers) require port 7185.
+**NOTE:** The latest firmware includes optional communication on Ethernet port 7185 without the "Welcome" message. This is of importance to customers using VISA and LabVIEW to develop "stateless" communication drivers, and in fact the latest [AMI Drivers for LabVIEW](https://bitbucket.org/americanmagneticsinc/ami-drivers) require port 7185.
 
-## Manual Updates? ##
+### New Table Feature
+
+Version 1.08 introduces a Table tab with a list of target fields that can be optionally auto-stepped by the application. Also included is an option to execute an external application or Python script at each target, as well as automatically enter and exit persistence at each target. These features are intended to allow the customer to use the Magnet-DAQ application for automated data acquisition or other experimental procedures that *repeat* at various field points. An example Python script is included in the Help.
+
+## User Manual Updates? ##
 
 Updated Model 430 and Power Supply System manuals are available to document all the new features in the latest Model 430 firmware:
 
@@ -49,16 +53,20 @@ Pre-compiled, ready-to-use binaries are available in the Downloads section of th
 
 
 * __Dependencies__
-	* Requires [Qt 5.13.1 or later open-source distribution](https://www.qt.io/download-open-source/)
+	* Requires [Qt 5.14.1 or later open-source distribution](https://www.qt.io/download-open-source/)
+	* Uses the [QtXlsxWriter library](https://github.com/dbzhang800/QtXlsxWriter) built as a DLL for the Windows version.
+	* Linux and macOS versions use the files from the [QXlsx project](https://j2doll.github.io/QXlsx/) and include the source directly in the project. Note this library links to private Qt API which may break in future Qt releases.
 	* The help file was written using [Help & Manual 7.3.5](https://www.helpandmanual.com/). Reproduction of the Help output included in the binaries requires a license for Help & Manual.
 
 
 * __Deployment hints for your own compilations__
-	* *For Windows*: The MagnetDAQ-Setup folder contains a setup project for producing a Windows installer. This requires the [Visual Studio Installer](https://marketplace.visualstudio.com/items?itemName=VisualStudioProductTeam.MicrosoftVisualStudio2017InstallerProjects) extension. A bin folder is referenced by the installer where you should place the binaries for packaging by the installer.
+	* *For Windows*: The MagnetDAQ-Setup folder contains a setup project for producing a Windows installer. This requires the [Visual Studio Installer](https://marketplace.visualstudio.com/items?itemName=VisualStudioProductTeam.MicrosoftVisualStudio2017InstallerProjects) extension. A bin folder is referenced by the installer where you should place the Qt runtime binaries and plugins for packaging by the installer.
 	
-	* *For Linux:* See the README file in the binary download (see above) for the instructions for deploying on Ubuntu. Other versions of Linux may require a different procedure. High-DPI display support functions flawlessly in KDE Plasma (not surprising since KDE is Qt-based). The application exhibits various unaddressed issues with high-DPI display in other desktop managers such as Unity and Gnome, as does the general desktop environment for those desktop managers at present.
+	* *For Linux:* See the README file in the binary download (see above) for the instructions for deploying on Ubuntu. Other versions of Linux may require a different procedure.
 	
-	* *For Mac*: Simply unzip the binary distribution and copy the .app folder to the desired location. In order to include the Qt runtime libraries in any app bundle you compile yourself, you should use the [Mac Deployment Tool](http://doc.qt.io/qt-5/osx-deployment.html#macdeploy).
+	  Linux high-DPI display support functions flawlessly in KDE Plasma (not surprising since KDE is Qt-based). The application may exhibit various unaddressed issues with high-DPI display in other desktop managers such as Unity and Gnome, as does the general desktop environment for those desktop managers at present.
+	
+	* *For Mac*: Simply unzip the binary distribution and copy the .app folder to the desired location. In order to include the Qt runtime libraries in any app bundle you compile yourself, you should use the [Mac Deployment Tool](http://doc.qt.io/qt-5/osx-deployment.html#macdeploy). The macOS "dark mode" is supported.
 
 ## License ##
 
@@ -70,6 +78,8 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 ## Who do I talk to? ##
 
 <support@americanmagnetics.com>
+
+AMI welcomes comments and feedback in order to continually improve the application to meet the needs of our customers.
 
 ## Screenshots ##
 

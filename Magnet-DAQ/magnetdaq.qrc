@@ -74,5 +74,25 @@
         <file>Resources/move_right_off.png</file>
         <file>Resources/move_right_off@2x.png</file>
         <file>Resources/Magnet-DAQ.ico</file>
+        <file>Resources/insert-below@2x.png</file>
+        <file>Resources/insert-above@2x.png</file>
+        <file>Resources/insert-below.png</file>
+        <file>Resources/insert-above.png</file>
+        <file>Resources/erase-table@2x.png</file>
+        <file>Resources/erase-table.png</file>
+        <file>Resources/delete-row.png</file>
+        <file>Resources/delete-row@2x.png</file>
+        <file>Resources/export_to_csv.png</file>
+        <file>Resources/export_to_csv@2x.png</file>
+        <file>Resources/export_to_excel.png</file>
+        <file>Resources/export_to_excel@2x.png</file>
+        <file>Resources/import_from_csv.png</file>
+        <file>Resources/import_from_csv@2x.png</file>
+        <file>Resources/show_less@2x.png</file>
+        <file>Resources/show_more@2x.png</file>
+        <file>Resources/show_less.png</file>
+        <file>Resources/show_more.png</file>
+        <file>Resources/pswitch.png</file>
+        <file>Resources/pswitch@2x.png</file>
     </qresource>
 </RCC>

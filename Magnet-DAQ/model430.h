@@ -14,6 +14,18 @@ class Socket;
 #define STANDARD_EVENT					0x20
 #define REQUEST_SERVICE					0x40
 
+// handy constants for units
+constexpr auto KG = 0;
+constexpr auto TESLA = 1;
+constexpr auto AMPS = 2;
+
+// handy constants for Mode (s2 switch states)
+constexpr auto NO_FRONT_PANEL = 0x01;		// no keypad/display configuration
+constexpr auto USE_OPCONSTS = 0x02;			// use Operational Limits menu and Aux 3 temperature input
+constexpr auto SHORT_SAMPLE_MODE = 0x04;	// short-sample mode (voltage controls current)
+constexpr auto FLUXGATE_1X_SCALING = 0x08;	// fluxgate ADC input scaling (1x ADC gain instead of 32x for shunts)
+constexpr auto FLUXGATE_STATUS = 0x10;		// switch to enable fluxgate status pin check
+
 enum errorDefs
 {
 #if defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
@@ -138,6 +150,9 @@ enum QueryState
 	// trigger
 	TRG_SAMPLE,
 
+	// switch state
+	SWITCH_HTR_STATE,
+
 	// idle
 	IDLE_STATE
 };
@@ -156,6 +171,7 @@ enum State
 	SWITCH_COOLING,
 	EXTERNAL_RAMPDOWN
 };
+
 
 class Model430 : public QObject {
 	Q_OBJECT
@@ -181,6 +197,7 @@ public:
 	qint64 timestamp;
 	bool switchHeaterState; // is pswitch heater on?
 	bool persistentState;	// is magnet in persistent mode?
+	bool shortSampleMode;	// is system in short-sample mode?
 	double magnetField;
 	double magnetCurrent;
 	double magnetVoltage;
@@ -190,7 +207,7 @@ public:
 
 	Property<double> firmwareVersion;
 	Property<QString> serialNumber;
-	Property<int> mode;
+	Property<int> mode;	//S2 switch state
 	Property<State> state;
 	Property<double> targetCurrent;
 	Property<double> targetField;
@@ -263,6 +280,7 @@ public:
 
 signals:
 	void configurationChanged(QueryState aState);
+	void shortSampleModeChanged(bool isSampleMode);
 	void systemError(QString errMsg);
 	void syncRampPlot(void);
 	void syncRampdownPlot(void);
@@ -296,7 +314,7 @@ private:
 	QString ipName;
 
 	void valueChanged(QueryState);
-	void modeValueChanged(void) {};
+	void modeValueChanged(void);
 	void fieldUnitsChanged(void);
 };
 

@@ -140,6 +140,10 @@ void magnetdaq::menuValueChanged(int index)
 				socket->sendCommand("CONF:PS " + QString::number(temp) + "\r\n");
 				model430.switchInstalled = (bool)temp;
 				switchSettingsEnable();
+
+				// if switch presence changes, clear the table values and require re-import
+				tableClear();
+				setTableHeader();
 			}
 		}
 		else if (comboBox == ui.switchTransitionComboBox)
@@ -186,6 +190,7 @@ void magnetdaq::menuValueChanged(int index)
 		{
 			syncRampRates();
 			syncRampPlot();
+			syncTableUnits();
 		}
 		else if (comboBox == ui.rampTimebaseComboBox)
 		{
@@ -235,6 +240,9 @@ void magnetdaq::textValueChanged(void)
 
 						// sync target field
 						QMetaObject::invokeMethod(&model430, "syncTargetField", Qt::QueuedConnection);
+
+						// abort any automatic table functions
+						abortTableTarget();
 					}
 				}
 				else
@@ -246,6 +254,9 @@ void magnetdaq::textValueChanged(void)
 
 						// sync target current
 						QMetaObject::invokeMethod(&model430, "syncTargetCurrent", Qt::QueuedConnection);
+
+						// abort any automatic table functions
+						abortTableTarget();
 					}
 				}
 			}
@@ -410,6 +421,8 @@ void magnetdaq::rampSegmentCountChanged(int value)
 	{
 		socket->sendBlockingCommand("CONF:RAMP:RATE:SEG " + QString::number(value) + "\r\n");
 		model430.rampRateSegments = value;
+
+		recalculateRemainingTime();
 	}
 }
 
@@ -440,9 +453,11 @@ void magnetdaq::rampSegmentValueChanged(void)
 					{
 						valueChanged = true;
 						QString queryStr = "CONF:RAMP:RATE:CURR " + QString::number(i + 1) + "," +
-							QString::number(model430.currentRampRates[i](), 'f', 7) + "," + QString::number(temp, 'f', 1) + "\r\n";
+							QString::number(model430.currentRampRates[i](), 'g', 10) + "," + QString::number(temp, 'f', 1) + "\r\n";
 						socket->sendBlockingCommand(queryStr);
 						model430.currentRampLimits[i] = temp;
+
+						recalculateRemainingTime();
 					}
 				}
 				else // field units
@@ -452,9 +467,11 @@ void magnetdaq::rampSegmentValueChanged(void)
 					{
 						valueChanged = true;
 						QString queryStr = "CONF:RAMP:RATE:FIELD " + QString::number(i + 1) + "," +
-							QString::number(model430.fieldRampRates[i](), 'f', 7) + "," + QString::number(temp, 'f', 1) + "\r\n";
+							QString::number(model430.fieldRampRates[i](), 'g', 10) + "," + QString::number(temp, 'f', 1) + "\r\n";
 						socket->sendBlockingCommand(queryStr);
 						model430.fieldRampLimits[i] = temp;
+
+						recalculateRemainingTime();
 					}
 				}
 				break;
@@ -470,9 +487,11 @@ void magnetdaq::rampSegmentValueChanged(void)
 					{
 						valueChanged = true;
 						QString queryStr = "CONF:RAMP:RATE:CURR " + QString::number(i + 1) + "," +
-							QString::number(temp, 'f', 7) + "," + QString::number(model430.currentRampLimits[i](), 'f', 1) + "\r\n";
+							QString::number(temp, 'g', 10) + "," + QString::number(model430.currentRampLimits[i](), 'f', 1) + "\r\n";
 						socket->sendBlockingCommand(queryStr);
 						model430.currentRampRates[i] = temp;
+
+						recalculateRemainingTime();
 					}
 				}
 				else // field units
@@ -482,9 +501,11 @@ void magnetdaq::rampSegmentValueChanged(void)
 					{
 						valueChanged = true;
 						QString queryStr = "CONF:RAMP:RATE:FIELD " + QString::number(i + 1) + "," +
-							QString::number(temp, 'f', 7) + "," + QString::number(model430.fieldRampLimits[i](), 'f', 1) + "\r\n";
+							QString::number(temp, 'g', 10) + "," + QString::number(model430.fieldRampLimits[i](), 'f', 1) + "\r\n";
 						socket->sendBlockingCommand(queryStr);
 						model430.fieldRampRates[i] = temp;
+
+						recalculateRemainingTime();
 					}
 				}
 				break;
@@ -531,7 +552,7 @@ void magnetdaq::rampdownSegmentValueChanged(void)
 					{
 						valueChanged = true;
 						QString queryStr = "CONF:RAMPD:RATE:CURR " + QString::number(i + 1) + "," +
-							QString::number(model430.currentRampdownRates[i](), 'f', 7) + "," + QString::number(temp, 'f', 1) + "\r\n";
+							QString::number(model430.currentRampdownRates[i](), 'g', 10) + "," + QString::number(temp, 'f', 1) + "\r\n";
 						socket->sendBlockingCommand(queryStr);
 						model430.currentRampdownLimits[i] = temp;
 					}
@@ -543,7 +564,7 @@ void magnetdaq::rampdownSegmentValueChanged(void)
 					{
 						valueChanged = true;
 						QString queryStr = "CONF:RAMPD:RATE:FIELD " + QString::number(i + 1) + "," +
-							QString::number(model430.fieldRampdownRates[i](), 'f', 7) + "," + QString::number(temp, 'f', 1) + "\r\n";
+							QString::number(model430.fieldRampdownRates[i](), 'g', 10) + "," + QString::number(temp, 'f', 1) + "\r\n";
 						socket->sendBlockingCommand(queryStr);
 						model430.fieldRampdownLimits[i] = temp;
 					}
@@ -561,7 +582,7 @@ void magnetdaq::rampdownSegmentValueChanged(void)
 					{
 						valueChanged = true;
 						QString queryStr = "CONF:RAMPD:RATE:CURR " + QString::number(i + 1) + "," +
-							QString::number(temp, 'f', 7) + "," + QString::number(model430.currentRampdownLimits[i](), 'f', 1) + "\r\n";
+							QString::number(temp, 'g', 10) + "," + QString::number(model430.currentRampdownLimits[i](), 'f', 1) + "\r\n";
 						socket->sendBlockingCommand(queryStr);
 						model430.currentRampdownRates[i] = temp;
 					}
@@ -573,7 +594,7 @@ void magnetdaq::rampdownSegmentValueChanged(void)
 					{
 						valueChanged = true;
 						QString queryStr = "CONF:RAMPD:RATE:FIELD " + QString::number(i + 1) + "," +
-							QString::number(temp, 'f', 7) + "," + QString::number(model430.fieldRampdownLimits[i](), 'f', 1) + "\r\n";
+							QString::number(temp, 'g', 10) + "," + QString::number(model430.fieldRampdownLimits[i](), 'f', 1) + "\r\n";
 						socket->sendBlockingCommand(queryStr);
 						model430.fieldRampdownRates[i] = temp;
 					}
@@ -707,16 +728,21 @@ void magnetdaq::configurationChanged(QueryState state)
 		this->writeLogHeader();
 		this->setCurrentAxisLabel();
 
+		// convert table values
+		convertFieldValues(model430.fieldUnits(), false);
+
 		// change coil constant label
-		if (model430.fieldUnits() == 0)
+		if (model430.fieldUnits() == KG)
 			ui.coilConstantLabel->setText("Coil Constant (kG/A) :");
 		else
 			ui.coilConstantLabel->setText("Coil Constant (T/A) :");
 
-		// if in LOAD settings tab, update coil constant value
+		// always need to get new coil constant value in new units
+		QMetaObject::invokeMethod(&model430, "syncLoadSetup", Qt::QueuedConnection);
+
+		// if in LOAD settings tab is visible, update coil constant display
 		if (ui.mainTabWidget->currentIndex() == CONFIG_TAB && ui.setupToolBox->currentIndex() == LOAD_PAGE)
 		{
-			QMetaObject::invokeMethod(&model430, "syncLoadSetup", Qt::QueuedConnection);
 			QMetaObject::invokeMethod(this, "syncLoadTab", Qt::QueuedConnection);
 		}
 		// else if a ramping tab is visible, update it

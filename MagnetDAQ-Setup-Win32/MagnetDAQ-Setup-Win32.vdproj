@@ -21,6 +21,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_02865AB06423403F9D8A683B09BF30EB"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_045E3BA6DE224ACDBF1076709976F949"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -34,6 +40,12 @@
         "Entry"
         {
         "MsmKey" = "8:_05BB6481AC104568A0F33FD873E1872E"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_05E3266551794749B8FB08EEEC9A2294"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -94,6 +106,18 @@
         "Entry"
         {
         "MsmKey" = "8:_0FBAE497E1974E389542603EFE3CC5D5"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_0FF1D8F78E6F4626B52EF1BE8738F244"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_122C5C0F389A4A8D895B175B74AA1780"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -375,6 +399,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_42F2F161ADE544FF913F041B7DCAD53D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_434F1F607F144AA19DFEDCF84B868F79"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -441,6 +471,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_508BB1DCF57B491BB0962DEA560716C4"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_52465184CC904DE5A0F405763901522D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -454,6 +490,12 @@
         "Entry"
         {
         "MsmKey" = "8:_54D1C76DC06146B2BC973B19D59250D0"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_55049D1CB1B24020BB1B28D193250157"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -514,6 +556,12 @@
         "Entry"
         {
         "MsmKey" = "8:_5F829760A13F4A2B9C56425E0D05DD28"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6047E045CB6D427C889678B305D05F85"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -597,7 +645,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_6E259DCF0D6B4B90B7A5787954ED9E36"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_6FCDD8A4FDBC49E3A6F6DCE5F61DE7E4"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7091FFE83E4C45A19A8120E1A00B5800"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -616,6 +676,12 @@
         "Entry"
         {
         "MsmKey" = "8:_71C96DC865224C23A650A5D64F6EAE0F"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_720CC36C04864D968900B03BDCB64B85"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -640,6 +706,12 @@
         "Entry"
         {
         "MsmKey" = "8:_7B8B818D807441D08CC8ECC3F34D6559"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7DBC88AAEF544AE28BE4A6DA477F8E96"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -700,6 +772,12 @@
         "Entry"
         {
         "MsmKey" = "8:_8B2137CBCF5B4835822B87FEABD80EE0"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8BBC3537D90E400EB337ACD86F12CBE1"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -999,7 +1077,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_CDA5FE86DE184897BA510F2EAFF25C06"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_CEAF87A168394687A2EF5584F34791AB"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_CF189AFA93C3451586AAEE0D9E08FFCD"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1066,6 +1156,12 @@
         "Entry"
         {
         "MsmKey" = "8:_DCC3A3B9450B47D39A72588084C08FAE"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_DD146628C30546A3A727AFC12AA0D041"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1428,6 +1524,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_02865AB06423403F9D8A683B09BF30EB"
+            {
+            "SourcePath" = "8:..\\help\\HTML\\images\\pwitch@2x.png"
+            "TargetName" = "8:pwitch@2x.png"
+            "Tag" = "8:"
+            "Folder" = "8:_7653A9E32EC64C93B1B08E75F1B0A8D1"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_045E3BA6DE224ACDBF1076709976F949"
             {
             "SourcePath" = "8:..\\help\\HTML\\images\\firmware-notice.png"
@@ -1474,6 +1590,26 @@
             "TargetName" = "8:toc_chapter_open.svg"
             "Tag" = "8:"
             "Folder" = "8:_7653A9E32EC64C93B1B08E75F1B0A8D1"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_05E3266551794749B8FB08EEEC9A2294"
+            {
+            "SourcePath" = "8:..\\help\\HTML\\jstopics\\table-import-format.js"
+            "TargetName" = "8:table-import-format.js"
+            "Tag" = "8:"
+            "Folder" = "8:_62462B37A33B4E18A6B964B72209D923"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1672,6 +1808,46 @@
             {
             "SourcePath" = "8:..\\help\\HTML\\images\\connect-button.png"
             "TargetName" = "8:connect-button.png"
+            "Tag" = "8:"
+            "Folder" = "8:_7653A9E32EC64C93B1B08E75F1B0A8D1"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0FF1D8F78E6F4626B52EF1BE8738F244"
+            {
+            "SourcePath" = "8:..\\help\\HTML\\images\\import_from_csv@2x.png"
+            "TargetName" = "8:import_from_csv@2x.png"
+            "Tag" = "8:"
+            "Folder" = "8:_7653A9E32EC64C93B1B08E75F1B0A8D1"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_122C5C0F389A4A8D895B175B74AA1780"
+            {
+            "SourcePath" = "8:..\\help\\HTML\\images\\table-editing.png"
+            "TargetName" = "8:table-editing.png"
             "Tag" = "8:"
             "Folder" = "8:_7653A9E32EC64C93B1B08E75F1B0A8D1"
             "Condition" = "8:"
@@ -2608,6 +2784,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_42F2F161ADE544FF913F041B7DCAD53D"
+            {
+            "SourcePath" = "8:..\\help\\HTML\\images\\export_to_csv@2x.png"
+            "TargetName" = "8:export_to_csv@2x.png"
+            "Tag" = "8:"
+            "Folder" = "8:_7653A9E32EC64C93B1B08E75F1B0A8D1"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_434F1F607F144AA19DFEDCF84B868F79"
             {
             "SourcePath" = "8:..\\help\\HTML\\images\\status-bar.png"
@@ -2828,6 +3024,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_508BB1DCF57B491BB0962DEA560716C4"
+            {
+            "SourcePath" = "8:..\\help\\HTML\\example-python-script.html"
+            "TargetName" = "8:example-python-script.html"
+            "Tag" = "8:"
+            "Folder" = "8:_6F2B864D183C4A99A174296602EB3E88"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_52465184CC904DE5A0F405763901522D"
             {
             "SourcePath" = "8:..\\help\\HTML\\images\\kw-page.gif"
@@ -2874,6 +3090,26 @@
             "TargetName" = "8:support-tab.html"
             "Tag" = "8:"
             "Folder" = "8:_6F2B864D183C4A99A174296602EB3E88"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_55049D1CB1B24020BB1B28D193250157"
+            {
+            "SourcePath" = "8:..\\help\\HTML\\images\\export_to_excel@2x.png"
+            "TargetName" = "8:export_to_excel@2x.png"
+            "Tag" = "8:"
+            "Folder" = "8:_7653A9E32EC64C93B1B08E75F1B0A8D1"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3072,6 +3308,26 @@
             {
             "SourcePath" = "8:..\\help\\HTML\\images\\load-settings.png"
             "TargetName" = "8:load-settings.png"
+            "Tag" = "8:"
+            "Folder" = "8:_7653A9E32EC64C93B1B08E75F1B0A8D1"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6047E045CB6D427C889678B305D05F85"
+            {
+            "SourcePath" = "8:..\\help\\HTML\\images\\vector-control.png"
+            "TargetName" = "8:vector-control.png"
             "Tag" = "8:"
             "Folder" = "8:_7653A9E32EC64C93B1B08E75F1B0A8D1"
             "Condition" = "8:"
@@ -3348,12 +3604,52 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6E259DCF0D6B4B90B7A5787954ED9E36"
+            {
+            "SourcePath" = "8:..\\help\\HTML\\images\\table-format.png"
+            "TargetName" = "8:table-format.png"
+            "Tag" = "8:"
+            "Folder" = "8:_7653A9E32EC64C93B1B08E75F1B0A8D1"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6FCDD8A4FDBC49E3A6F6DCE5F61DE7E4"
             {
             "SourcePath" = "8:..\\help\\HTML\\js\\helpman_settings.js"
             "TargetName" = "8:helpman_settings.js"
             "Tag" = "8:"
             "Folder" = "8:_E0867D7A7EDD4E3A8B9BA0F8CA214829"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7091FFE83E4C45A19A8120E1A00B5800"
+            {
+            "SourcePath" = "8:..\\help\\HTML\\table-tab.html"
+            "TargetName" = "8:table-tab.html"
+            "Tag" = "8:"
+            "Folder" = "8:_6F2B864D183C4A99A174296602EB3E88"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3414,6 +3710,26 @@
             "TargetName" = "8:setup@2x.png"
             "Tag" = "8:"
             "Folder" = "8:_7653A9E32EC64C93B1B08E75F1B0A8D1"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_720CC36C04864D968900B03BDCB64B85"
+            {
+            "SourcePath" = "8:..\\bin32\\QtXlsxWriter.dll"
+            "TargetName" = "8:QtXlsxWriter.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_74DED266078E4E36B2711E7814A38DD7"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3492,6 +3808,26 @@
             {
             "SourcePath" = "8:..\\help\\HTML\\jstopics\\plot-tab.js"
             "TargetName" = "8:plot-tab.js"
+            "Tag" = "8:"
+            "Folder" = "8:_62462B37A33B4E18A6B964B72209D923"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7DBC88AAEF544AE28BE4A6DA477F8E96"
+            {
+            "SourcePath" = "8:..\\help\\HTML\\jstopics\\table-tab.js"
+            "TargetName" = "8:table-tab.js"
             "Tag" = "8:"
             "Folder" = "8:_62462B37A33B4E18A6B964B72209D923"
             "Condition" = "8:"
@@ -3694,6 +4030,26 @@
             "TargetName" = "8:firmware-update-wizard.html"
             "Tag" = "8:"
             "Folder" = "8:_6F2B864D183C4A99A174296602EB3E88"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8BBC3537D90E400EB337ACD86F12CBE1"
+            {
+            "SourcePath" = "8:..\\help\\HTML\\images\\execute.png"
+            "TargetName" = "8:execute.png"
+            "Tag" = "8:"
+            "Folder" = "8:_7653A9E32EC64C93B1B08E75F1B0A8D1"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4668,12 +5024,52 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CDA5FE86DE184897BA510F2EAFF25C06"
+            {
+            "SourcePath" = "8:..\\help\\HTML\\jstopics\\example-python-script.js"
+            "TargetName" = "8:example-python-script.js"
+            "Tag" = "8:"
+            "Folder" = "8:_62462B37A33B4E18A6B964B72209D923"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CEAF87A168394687A2EF5584F34791AB"
             {
             "SourcePath" = "8:..\\bin32\\translations\\qt_gd.qm"
             "TargetName" = "8:qt_gd.qm"
             "Tag" = "8:"
             "Folder" = "8:_7C4A5D94A4E4440183A5F1F3B2DD31BF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CF189AFA93C3451586AAEE0D9E08FFCD"
+            {
+            "SourcePath" = "8:..\\help\\HTML\\images\\table-tab.png"
+            "TargetName" = "8:table-tab.png"
+            "Tag" = "8:"
+            "Folder" = "8:_7653A9E32EC64C93B1B08E75F1B0A8D1"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4894,6 +5290,26 @@
             "TargetName" = "8:zoom_search.js"
             "Tag" = "8:"
             "Folder" = "8:_E0867D7A7EDD4E3A8B9BA0F8CA214829"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DD146628C30546A3A727AFC12AA0D041"
+            {
+            "SourcePath" = "8:..\\help\\HTML\\table-import-format.html"
+            "TargetName" = "8:table-import-format.html"
+            "Tag" = "8:"
+            "Folder" = "8:_6F2B864D183C4A99A174296602EB3E88"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5938,15 +6354,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Magnet-DAQ"
-        "ProductCode" = "8:{3C1F76BB-B95C-44A4-B60A-0FC68A95FF2A}"
-        "PackageCode" = "8:{DEDF0CCF-5E7D-4510-AAF1-3B5C76856B64}"
+        "ProductCode" = "8:{D693C604-CE9D-4C20-9987-27BDDE66A5E9}"
+        "PackageCode" = "8:{D20B582E-6D41-444A-AF13-948447C21695}"
         "UpgradeCode" = "8:{03C8B04A-93FE-4574-BA50-A6C3599A5CE1}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.06"
+        "ProductVersion" = "8:1.08"
         "Manufacturer" = "8:American Magnetics, Inc."
         "ARPHELPTELEPHONE" = "8:865 482-1056"
         "ARPHELPLINK" = "8:http://www.americanmagnetics.com/support-center/"
@@ -5954,7 +6370,7 @@
         "Subject" = "8:AMI Model 430 Remote Control app"
         "ARPCONTACT" = "8:American Magnetics, Inc."
         "Keywords" = "8:"
-        "ARPCOMMENTS" = "8:Magnet-DAQ v1.06"
+        "ARPCOMMENTS" = "8:Magnet-DAQ v1.08"
         "ARPURLINFOABOUT" = "8:http://www.americanmagnetics.com"
         "ARPPRODUCTICON" = "8:_F7B8AF449B154A99A93194495A39C513"
         "ARPIconIndex" = "3:0"
@@ -6512,7 +6928,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_9A956FDA982B411698EBB62E87A7352C"
             {
-            "SourcePath" = "8:..\\x64\\Debug\\Magnet-DAQ.exe"
+            "SourcePath" = "8:..\\x64\\Release\\Magnet-DAQ.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_74DED266078E4E36B2711E7814A38DD7"

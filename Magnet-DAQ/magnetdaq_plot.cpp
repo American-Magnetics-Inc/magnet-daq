@@ -6,12 +6,6 @@
 // time plot. Broken out from magnetdaq.cpp for ease of editing.
 //---------------------------------------------------------------------------
 
-const int MAGNET_CURRENT_GRAPH = 0;
-const int MAGNET_FIELD_GRAPH = 1;
-const int SUPPLY_CURRENT_GRAPH = 2;
-const int MAGNET_VOLTAGE_GRAPH = 3;
-const int SUPPLY_VOLTAGE_GRAPH = 4;
-
 //---------------------------------------------------------------------------
 void magnetdaq::restorePlotSettings(QSettings *settings)
 {
@@ -274,7 +268,7 @@ void magnetdaq::setCurrentAxisLabel(void)
 	// add units
 	tempStrCurrent = mainPlotYTitleCurrent + " (A)";
 
-	if (model430.fieldUnits() == 0)
+	if (model430.fieldUnits() == KG)
 		tempStrField = mainPlotYTitleField + " (kG)";
 	else
 		tempStrField = mainPlotYTitleField + " (T)";
@@ -335,10 +329,17 @@ void magnetdaq::addDataPoint(qint64 time, double magField, double magCurrent, do
 		// write data to log file
 		char buffer[256];
 
-		if (model430.switchInstalled())
-			sprintf(buffer, "%lld,%0.8lf,%0.9lf,%0.8lf,%0.3lf,%0.8lf,%0.6lf,%d\n", time, timebase, magField, magCurrent, magVoltage, supCurrent, supVoltage, model430.switchHeaterState);
+		if (model430.shortSampleMode)
+		{
+			sprintf(buffer, "%lld,%0.8lf,%0.8lf,%0.3lf,%0.8lf,%0.6lf\n", time, timebase, magCurrent /* sample Curr */, magVoltage /*sample uV */, supCurrent, supVoltage);
+		}
 		else
-			sprintf(buffer, "%lld,%0.8lf,%0.9lf,%0.8lf,%0.3lf,%0.8lf,%0.6lf\n", time, timebase, magField, magCurrent, magVoltage, supCurrent, supVoltage);
+		{
+			if (model430.switchInstalled())
+				sprintf(buffer, "%lld,%0.8lf,%0.9lf,%0.8lf,%0.3lf,%0.8lf,%0.6lf,%d\n", time, timebase, magField, magCurrent, magVoltage, supCurrent, supVoltage, model430.switchHeaterState);
+			else
+				sprintf(buffer, "%lld,%0.8lf,%0.9lf,%0.8lf,%0.3lf,%0.8lf,%0.6lf\n", time, timebase, magField, magCurrent, magVoltage, supCurrent, supVoltage);
+		}
 
 		logFile->write(buffer);
 
@@ -407,26 +408,38 @@ void magnetdaq::writeLogHeader(void)
 {
 	if (logFile)
 	{
-		QString unitsStr;
-		QString heaterStr;
+		if (model430.shortSampleMode)
+		{
+			// write data column header
+			if (ui.secondsRadioButton->isChecked())
+				logFile->write(QString("Unix time,Elapsed Time(sec),Sample Current(A),Sample Voltage(uV),Supply Current(A),Program Out(V)\n").toLocal8Bit());
+			else
+				logFile->write(QString("Unix time,Elapsed Time(min),Sample Current(A),Sample Voltage(uV),Supply Current(A),Program Out(V)\n").toLocal8Bit());
 
-		// indicate field units
-		if (model430.fieldUnits() == 0)
-			unitsStr = "(kG)";
+		}
 		else
-			unitsStr = "(T)";
+		{
+			QString unitsStr;
+			QString heaterStr;
 
-		// if switch installed, add heater state column
-		if (model430.switchInstalled())
-			heaterStr = ",Heater State";
-		else
-			heaterStr = "";
+			// indicate field units
+			if (model430.fieldUnits() == KG)
+				unitsStr = "(kG)";
+			else
+				unitsStr = "(T)";
 
-		// write data column header
-		if (ui.secondsRadioButton->isChecked())
-			logFile->write(QString("Unix time,Elapsed Time(sec),Magnet Field" + unitsStr + ",Magnet Current(A),Magnet Voltage(V),Supply Current(A),Supply Voltage(V)" + heaterStr + "\n").toLocal8Bit());
-		else
-			logFile->write(QString("Unix time,Elapsed Time(min),Magnet Field" + unitsStr + ",Magnet Current(A),Magnet Voltage(V),Supply Current(A),Supply Voltage(V)" + heaterStr + "\n").toLocal8Bit());
+			// if switch installed, add heater state column
+			if (model430.switchInstalled())
+				heaterStr = ",Heater State";
+			else
+				heaterStr = "";
+
+			// write data column header
+			if (ui.secondsRadioButton->isChecked())
+				logFile->write(QString("Unix time,Elapsed Time(sec),Magnet Field" + unitsStr + ",Magnet Current(A),Magnet Voltage(V),Supply Current(A),Supply Voltage(V)" + heaterStr + "\n").toLocal8Bit());
+			else
+				logFile->write(QString("Unix time,Elapsed Time(min),Magnet Field" + unitsStr + ",Magnet Current(A),Magnet Voltage(V),Supply Current(A),Supply Voltage(V)" + heaterStr + "\n").toLocal8Bit());
+		}
 	}
 }
 
