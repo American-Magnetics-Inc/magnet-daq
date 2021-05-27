@@ -121,7 +121,7 @@ void QTableWidgetWithCopyPaste::saveToFile(QString filename)
 				out << ',';
 
 			if (cell)
-				out << cell->text();
+				out << cell->text().remove('\n');	// strip any hard line feeds
 		}
 		out << '\n';
 
@@ -138,11 +138,11 @@ void QTableWidgetWithCopyPaste::saveToFile(QString filename)
 				QTableWidgetItem *cell = item(i, j);
 
 				if (cell)
-					out << cell->text();
+					out << cell->text().remove('\n');	// strip any hard line feeds
 			}
 		}
 
-		flush(out);
+		out.flush();
 		fclose(outFile);
 	}
 }
@@ -173,13 +173,13 @@ void QTableWidgetWithCopyPaste::loadFromFile(QString filename, bool makeCheckabl
 		setRowCount(numRows - skipCnt);
 		qDebug() << "Set row count = " + QString::number(numRows - skipCnt);
 
-		if (numColumns < minimumNumCols)
+		if (numColumns < m_minimumNumCols)
 		{
-			setColumnCount(minimumNumCols);
+			setColumnCount(m_minimumNumCols);
 #ifdef DEBUG
-			qDebug() << "Set col count = " + QString::number(minimumNumCols);
+			qDebug() << "Set col count = " + QString::number(m_minimumNumCols);
 #endif
-			numColumns = minimumNumCols;
+			numColumns = m_minimumNumCols;
 		}
 		else
 		{
@@ -257,6 +257,18 @@ void QTableWidgetWithCopyPaste::loadFromFile(QString filename, bool makeCheckabl
 		qDebug() << "Closed file";
 #endif
 	}
+}
+
+//---------------------------------------------------------------------------
+void QTableWidgetWithCopyPaste::addColumn(void)
+{
+	setColumnCount(columnCount() + 1);
+}
+
+//---------------------------------------------------------------------------
+void QTableWidgetWithCopyPaste::deleteLastColumn(void)
+{
+	setColumnCount(columnCount() - 1);
 }
 
 //---------------------------------------------------------------------------

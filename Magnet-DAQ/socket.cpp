@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "socket.h"
 #include "QDateTime"
+#include <magnetdaq.h>
 
 #undef DEBUG
 
@@ -11,6 +12,10 @@
 // timeout constant
 const int TIMEOUT = 1000;
 
+// save parent
+static magnetdaq* magnetdaqParent;
+
+
 //---------------------------------------------------------------------------
 Socket::Socket(QObject *parent)
 	: QObject(parent)
@@ -20,6 +25,9 @@ Socket::Socket(QObject *parent)
 	unitConnected = false;
 	queryState = WELCOME_STRING;
 	commandTimer.setInterval(0);
+	refCurrent = 0.0;
+	state = 0;
+	heater = 0;
 	connect(&commandTimer, SIGNAL(timeout()), this, SLOT(commandTimerTimeout()));
 }
 
@@ -27,6 +35,7 @@ Socket::Socket(QObject *parent)
 Socket::Socket(Model430 *settings, QObject *parent)
 {
 	model430 = settings;
+	magnetdaqParent = dynamic_cast<magnetdaq *>(parent);
 	socket = NULL;
 	unitConnected = false;
 	queryState = WELCOME_STRING;
@@ -61,7 +70,7 @@ void Socket::connectToModel430(QString ipaddress, quint16 port, QNetworkProxy::P
 	ipPort = port;
 	socket->connectToHost(ipaddress, port);
 
-	if (!socket->waitForConnected(3000))
+	if (!socket->waitForConnected(5000))
 	{
 		qDebug() << "Error: " << socket->errorString();
 		unitConnected = false;
@@ -76,8 +85,9 @@ void Socket::connected()
 
 	if (socket->waitForReadyRead(1000))	// if WELCOME_STRING is returned
 	{
-		// set for *ETE 151
-		sendCommand("*ETE 151\r\n");
+		// set for *ETE 151 if *AMITRG not supported
+		if (!magnetdaqParent->supports_AMITRG())
+			sendCommand("*ETE 151\r\n");
 	}
 }
 
@@ -187,6 +197,15 @@ void Socket::readyRead()
 					break;
 				case 4:
 					supplyVoltage = temp;
+					break;
+				case 5:
+					refCurrent = temp;
+					break;
+				case 6:
+					state = (quint8)temp;
+					break;
+				case 7:
+					heater = (quint8)temp;
 					break;
 				}
 			}
@@ -712,10 +731,17 @@ void Socket::getNextDataPoint()
 			qint64 currentTime = QDateTime::currentMSecsSinceEpoch();
 
 			queryState = TRG_SAMPLE;
-			socket->write("*TRG\r\n");
+
+			if (magnetdaqParent->supports_AMITRG())	// firmware 2.64/3.14 or later supports private trigger
+				socket->write("*AMITRG\r\n");
+			else
+				socket->write("*TRG\r\n");
+
 			socket->waitForReadyRead(500);
 
-			emit nextDataPoint(currentTime, magnetField, magnetCurrent, magnetVoltage, supplyCurrent, supplyVoltage);
+			// last three values not received in firmware prior to 2.64/3.14
+			emit nextDataPoint(currentTime, magnetField, magnetCurrent, magnetVoltage, supplyCurrent, supplyVoltage, refCurrent, state, heater);
+
 			queryState = IDLE_STATE;
 		}
 	}
@@ -792,7 +818,7 @@ void Socket::sendQuery(QString queryStr, QueryState aState)
 {
 	if (unitConnected)
 	{
-		QTime timeout;
+		QElapsedTimer timeout;
 		timeout.restart();
 
 		while (queryState != IDLE_STATE)
@@ -832,7 +858,7 @@ void Socket::sendExtendedQuery(QString queryStr, QueryState aState, int timelimi
 {
 	if (unitConnected)
 	{
-		QTime timeout;
+		QElapsedTimer timeout;
 		timeout.restart();
 
 		while (queryState != IDLE_STATE)
@@ -869,7 +895,7 @@ void Socket::sendRampQuery(QString queryStr, QueryState aState, int segment)
 {
 	if (unitConnected)
 	{
-		QTime timeout;
+		QElapsedTimer timeout;
 		timeout.restart();
 
 		while (queryState != IDLE_STATE)
@@ -906,7 +932,7 @@ void Socket::getFirmwareVersion(void)
 {
 	if (unitConnected)
 	{
-		QTime timeout;
+		QElapsedTimer timeout;
 		timeout.restart();
 
 		while (queryState != IDLE_STATE)
@@ -941,7 +967,7 @@ void Socket::getMode(void)
 {
 	if (unitConnected)
 	{
-		QTime timeout;
+		QElapsedTimer timeout;
 		timeout.restart();
 
 		while (queryState != IDLE_STATE)
@@ -976,7 +1002,7 @@ void Socket::getState(void)
 {
 	if (unitConnected)
 	{
-		QTime timeout;
+		QElapsedTimer timeout;
 		timeout.restart();
 
 		while (queryState != IDLE_STATE)
@@ -1011,7 +1037,7 @@ void Socket::getStatusByte(void)
 {
 	if (unitConnected)
 	{
-		QTime timeout;
+		QElapsedTimer timeout;
 		timeout.restart();
 
 		while (queryState != IDLE_STATE)
@@ -1046,7 +1072,7 @@ void Socket::getIpName(void)
 {
 	if (unitConnected)
 	{
-		QTime timeout;
+		QElapsedTimer timeout;
 		timeout.restart();
 
 		while (queryState != IDLE_STATE)

@@ -78,6 +78,9 @@ void magnetdaq::initRampPlot(void)
 	ui.rampPlotWidget->plotLayout()->insertRow(0);
 	rampPlotTitle = new QCPTextElement(ui.rampPlotWidget, "Charge Voltage vs. Current/Field", titleFont);
 	ui.rampPlotWidget->plotLayout()->addElement(0, 0, rampPlotTitle);
+	ui.rampPlotWidget->plotLayout()->elementAt(0)->setMaximumSize(16777215, 26);
+	ui.rampPlotWidget->plotLayout()->elementAt(0)->setMinimumSize(200, 26);
+	ui.rampPlotWidget->plotLayout()->elementAt(1)->setMaximumSize(16777215, 16777215);
 
 #if defined(Q_OS_MACOS)
 	QFont axesFont(".SF NS Text", 13, QFont::Normal);
@@ -242,9 +245,10 @@ void magnetdaq::syncRampPlot(void)
 #ifdef USE_QTPRINTER
 void magnetdaq::renderRampPlot(QPrinter *printer)
 {
-	printer->setPageSize(QPrinter::Letter);
-	printer->setOrientation(QPrinter::Landscape);
-	printer->setPageMargins(0.75, 0.75, 0.75, 0.75, QPrinter::Unit::Inch);
+	QPageSize pageSize(QPageSize::Letter);
+	QPageLayout pageLayout(pageSize, QPageLayout::Orientation::Landscape, QMarginsF(0.75, 0.75, 0.75, 0.75), QPageLayout::Unit::Inch);
+	printer->setPageLayout(pageLayout);
+	
 	QCPPainter painter(printer);
 	QRectF pageRect = printer->pageRect(QPrinter::DevicePixel);
 

@@ -10,7 +10,11 @@
 void magnetdaq::restoreDeviceList(QSettings *settings)
 {
 	// restore data from saved settings
+	qRegisterMetaType<QList<QStringList>>("Devices");
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 	qRegisterMetaTypeStreamOperators<QList<QStringList>>("Devices");
+#endif
 	QList<QStringList> data = settings->value("DeviceList").value<QList<QStringList>>();
 
 	// create the table from saved data
@@ -27,7 +31,8 @@ void magnetdaq::restoreDeviceList(QSettings *settings)
 
 	// restore header layout
 	// restore different geometry for different DPI screens
-	QString dpiStr = QString::number(QApplication::desktop()->screen()->logicalDpiX());
+	QScreen* screen = QApplication::primaryScreen();
+	QString dpiStr = QString::number(screen->logicalDotsPerInch());
 	ui.devicesTableWidget->horizontalHeader()->restoreState(settings->value(axisStr + "DeviceList/HorizontalState/" + dpiStr).toByteArray());
 	ui.devicesTableWidget->horizontalHeader()->restoreGeometry(settings->value(axisStr + "DeviceList/HorizontalGeometry/" + dpiStr).toByteArray());
 

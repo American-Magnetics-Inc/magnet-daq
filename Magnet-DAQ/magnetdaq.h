@@ -5,13 +5,14 @@
 #include <QLabel>
 #include "ui_magnetdaq.h"
 #include "errorhistorydlg.h"
-#include "qcustomplot.h"
+#include "qcp.h"
 #include "socket.h"
 #include "model430.h"
 #include "parser.h"
 #include "clickablelabel.h"
 
 #define USE_QTPRINTER	// remove define to omit QPrinter code
+
 #define N_SAMPLES_MOVING_AVG 60
 
 // some definitions for readability
@@ -29,8 +30,7 @@ enum MAIN_TABS
 
 typedef enum
 {
-	NO_TABLE_ERROR = 0,		// no error
-
+	NO_TABLE_ERROR = 0,			// no error
 	NON_NUMERICAL_ENTRY,		// non-numerical parameter
 	EXCEEDS_CURRENT_LIMIT,		// current/field value exceeds magnet limit
 	COOLED_SWITCH				// cannot ramp to table target with cooled switch
@@ -52,6 +52,7 @@ public:
 	magnetdaq(QWidget *parent = 0);
 	~magnetdaq();
 	QString getAxisStr(void) { return axisStr; }
+	bool supports_AMITRG(void);
 
 public slots:
 	void configurationChanged(QueryState state);
@@ -72,6 +73,7 @@ private slots:
 	void actionUpgrade(void);
 	void actionToggle_Collapse(bool);
 	void setStatusMsg(QString msg);
+	void pinErrorString(QString errMsg, bool highlight);
 	void showErrorString(QString errMsg, bool highlight);
 	void parserErrorString(QString err);
 	void errorStatusTimeout(void);
@@ -109,7 +111,7 @@ private slots:
 	void initPlot(void);
 	void toggleAutoscrollXCheckBox(bool checked);
 	void toggleAutoscrollButton(bool checked);
-	void addDataPoint(qint64 time, double magField, double magCurrent, double magVoltage, double supCurrent, double supVoltage);
+	void addDataPoint(qint64 time, double magField, double magCurrent, double magVoltage, double supCurrent, double supVoltage, double refCurrent, quint8 state, quint8 heater);
 	void writeLogHeader(void);
 	void resetAxes(bool checked);
 	void timebaseChanged(bool checked);
@@ -220,6 +222,7 @@ private slots:
 	void sendNextTarget(double target);
 	int calculateRampingTime(double target, double currentValue);
 	void manualCtrlTimerTick(void);
+	void markTableSelectionWithOutput(int rowIndex, QString output);
 	void markTableSelectionAsPass(int rowIndex);
 	void markTableSelectionAsFail(int rowIndex, double quenchCurrent);
 	void abortTableTarget(void);
@@ -242,6 +245,7 @@ private slots:
 	bool checkExecutionTime(void);
 	void executeNowClick(void);
 	void executeApp(void);
+	void finishedApp(int exitCode, QProcess::ExitStatus exitStatus);
 	void appCheckBoxChanged(int state);
 	void pythonCheckBoxChanged(int state);
 
@@ -373,6 +377,7 @@ private:
 
 	// table autostepping
 	QTimer *autostepTimer;
+	QProcess* process;
 	int elapsedTimerTicks;
 	int autostepStartIndex;
 	int autostepEndIndex;

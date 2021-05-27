@@ -5,20 +5,27 @@
 class QTableWidgetWithCopyPaste : public QTableWidget
 {
 public:
-	QTableWidgetWithCopyPaste(int rows, int columns, QWidget *parent) :
-	  QTableWidget(rows, columns, parent)
-	  {minimumNumCols = 1;};
+	QTableWidgetWithCopyPaste(int rows, int columns, QWidget* parent) :
+		QTableWidget(rows, columns, parent)
+	{
+		m_minimumNumCols = 1;
+	};
 
-	  QTableWidgetWithCopyPaste(QWidget *parent) :
-	  QTableWidget(parent)
-	  {minimumNumCols = 1;};
+	QTableWidgetWithCopyPaste(QWidget* parent) :
+		QTableWidget(parent)
+	{
+		m_minimumNumCols = 1;
+	};
 
 	void saveToFile(QString filename);
 	void loadFromFile(QString filename, bool makeCheckable, int skipCnt);
-	void setMinimumNumCols(int numCols) { minimumNumCols = numCols; }
+	void setMinimumNumCols(int numCols) { m_minimumNumCols = numCols; }
+	int minimumNumCols(void) { return m_minimumNumCols; }
+	void addColumn(void);
+	void deleteLastColumn(void);
 
 private:
-	int minimumNumCols;
+	int m_minimumNumCols;
 	void copy();
 	void paste();
 	void performDelete();

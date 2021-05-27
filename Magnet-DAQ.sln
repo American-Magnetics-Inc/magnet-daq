@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2020
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31129.286
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Magnet-DAQ", "Magnet-DAQ\Magnet-DAQ.vcxproj", "{E4550AD4-5BFC-4F38-8EDE-677E3E701C3F}"
 EndProject
@@ -12,29 +12,42 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
 		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
 		Release|Win32 = Release|Win32
 		Release|x64 = Release|x64
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E4550AD4-5BFC-4F38-8EDE-677E3E701C3F}.Debug|Win32.ActiveCfg = Debug|x64
-		{E4550AD4-5BFC-4F38-8EDE-677E3E701C3F}.Debug|Win32.Build.0 = Debug|x64
+		{E4550AD4-5BFC-4F38-8EDE-677E3E701C3F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E4550AD4-5BFC-4F38-8EDE-677E3E701C3F}.Debug|Win32.Build.0 = Debug|Win32
 		{E4550AD4-5BFC-4F38-8EDE-677E3E701C3F}.Debug|x64.ActiveCfg = Debug|x64
 		{E4550AD4-5BFC-4F38-8EDE-677E3E701C3F}.Debug|x64.Build.0 = Debug|x64
+		{E4550AD4-5BFC-4F38-8EDE-677E3E701C3F}.Debug|x86.ActiveCfg = Debug|Win32
+		{E4550AD4-5BFC-4F38-8EDE-677E3E701C3F}.Debug|x86.Build.0 = Debug|Win32
 		{E4550AD4-5BFC-4F38-8EDE-677E3E701C3F}.Release|Win32.ActiveCfg = Release|Win32
 		{E4550AD4-5BFC-4F38-8EDE-677E3E701C3F}.Release|Win32.Build.0 = Release|Win32
 		{E4550AD4-5BFC-4F38-8EDE-677E3E701C3F}.Release|x64.ActiveCfg = Release|x64
 		{E4550AD4-5BFC-4F38-8EDE-677E3E701C3F}.Release|x64.Build.0 = Release|x64
+		{E4550AD4-5BFC-4F38-8EDE-677E3E701C3F}.Release|x86.ActiveCfg = Release|Win32
+		{E4550AD4-5BFC-4F38-8EDE-677E3E701C3F}.Release|x86.Build.0 = Release|Win32
 		{21DF96DF-DBCD-4C28-BA27-AC5812DA3887}.Debug|Win32.ActiveCfg = Debug
+		{21DF96DF-DBCD-4C28-BA27-AC5812DA3887}.Debug|Win32.Build.0 = Debug
 		{21DF96DF-DBCD-4C28-BA27-AC5812DA3887}.Debug|x64.ActiveCfg = Debug
+		{21DF96DF-DBCD-4C28-BA27-AC5812DA3887}.Debug|x86.ActiveCfg = Debug
+		{21DF96DF-DBCD-4C28-BA27-AC5812DA3887}.Debug|x86.Build.0 = Debug
 		{21DF96DF-DBCD-4C28-BA27-AC5812DA3887}.Release|Win32.ActiveCfg = Release
 		{21DF96DF-DBCD-4C28-BA27-AC5812DA3887}.Release|x64.ActiveCfg = Release
+		{21DF96DF-DBCD-4C28-BA27-AC5812DA3887}.Release|x86.ActiveCfg = Release
+		{21DF96DF-DBCD-4C28-BA27-AC5812DA3887}.Release|x86.Build.0 = Release
 		{B29BCE47-8071-46B1-AFFD-A1290A598023}.Debug|Win32.ActiveCfg = Debug
 		{B29BCE47-8071-46B1-AFFD-A1290A598023}.Debug|Win32.Build.0 = Debug
 		{B29BCE47-8071-46B1-AFFD-A1290A598023}.Debug|x64.ActiveCfg = Debug
-		{B29BCE47-8071-46B1-AFFD-A1290A598023}.Debug|x64.Build.0 = Debug
+		{B29BCE47-8071-46B1-AFFD-A1290A598023}.Debug|x86.ActiveCfg = Debug
+		{B29BCE47-8071-46B1-AFFD-A1290A598023}.Debug|x86.Build.0 = Debug
 		{B29BCE47-8071-46B1-AFFD-A1290A598023}.Release|Win32.ActiveCfg = Release
-		{B29BCE47-8071-46B1-AFFD-A1290A598023}.Release|Win32.Build.0 = Release
 		{B29BCE47-8071-46B1-AFFD-A1290A598023}.Release|x64.ActiveCfg = Release
+		{B29BCE47-8071-46B1-AFFD-A1290A598023}.Release|x86.ActiveCfg = Release
+		{B29BCE47-8071-46B1-AFFD-A1290A598023}.Release|x86.Build.0 = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

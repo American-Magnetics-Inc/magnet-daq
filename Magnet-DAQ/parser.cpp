@@ -677,8 +677,6 @@ void Parser::parseInput(char *commbuf, char* outputBuffer)
 //---------------------------------------------------------------------------
 void Parser::parse_query_C(char* word, char* outputBuffer)
 {
-	double temp1;
-
 	if (strcmp(word, _CURR) == 0 || strcmp(word, _CURRENT) == 0)
 	{
 		word = strtok(NULL, DELIMITER);		// get next token

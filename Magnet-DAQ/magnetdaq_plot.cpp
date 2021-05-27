@@ -141,6 +141,9 @@ void magnetdaq::initPlot(void)
 	ui.plotWidget->plotLayout()->insertRow(0);
 	ssPlotTitle = new QCPTextElement(ui.plotWidget, mainPlotTitle, titleFont);
 	ui.plotWidget->plotLayout()->addElement(0, 0, ssPlotTitle);
+	ui.plotWidget->plotLayout()->elementAt(0)->setMaximumSize(16777215, 26);
+	ui.plotWidget->plotLayout()->elementAt(0)->setMinimumSize(200, 26);
+	ui.plotWidget->plotLayout()->elementAt(1)->setMaximumSize(16777215, 16777215);
 
 #if defined(Q_OS_MACOS)
 	QFont axesFont(".SF NS Text", 13, QFont::Normal);
@@ -152,11 +155,15 @@ void magnetdaq::initPlot(void)
 	timeAxis->grid()->setSubGridVisible(true);
 	setTimeAxisLabel();
 
+	currentAxis->setNumberFormat("gbc");
+	currentAxis->setNumberPrecision(7);
 	currentAxis->setLabelFont(axesFont);
 	currentAxis->grid()->setSubGridVisible(true);
 	setCurrentAxisLabel();
 
 	voltageAxis->setLabelFont(axesFont);
+	voltageAxis->setNumberFormat("gbc");
+	voltageAxis->setNumberPrecision(6);
 	setVoltageAxisLabel();
 
 	// create quick-access autoscroll enable/disable button
@@ -175,7 +182,7 @@ void magnetdaq::initPlot(void)
 		QVBoxLayout* innerlayout = new QVBoxLayout;
 		QSpacerItem* innerspacer = new QSpacerItem(0, 200, QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 		innerlayout->setContentsMargins(QMargins(0, 0, 0, 0));
-		innerlayout->setMargin(0);
+		//innerlayout->setMargin(0);
 		innerlayout->addSpacerItem(innerspacer);
 		innerlayout->addWidget(autoscrollButton);
 		ui.plotWidget->setLayout(innerlayout);
@@ -239,6 +246,8 @@ void magnetdaq::setTimeAxisLabel(void)
 		timeAxis->setLabel(mainPlotXTitle + " (seconds)");
 	else
 		timeAxis->setLabel(mainPlotXTitle + " (minutes)");
+
+	timeAxis->setLabelPadding(10);
 }
 
 //---------------------------------------------------------------------------
@@ -282,6 +291,7 @@ void magnetdaq::setCurrentAxisLabel(void)
 		mainPlotYTitle = tempStrCurrent;
 
 	currentAxis->setLabel(mainPlotYTitle);
+	currentAxis->setLabelPadding(14);
 	lastFieldUnits = model430.fieldUnits();
 }
 
@@ -289,15 +299,19 @@ void magnetdaq::setCurrentAxisLabel(void)
 void magnetdaq::setVoltageAxisLabel(void)
 {
 	voltageAxis->setLabel(mainPlotY2Title + " (V)");
+	voltageAxis->setLabelPadding(14);
 }
 
 //---------------------------------------------------------------------------
-void magnetdaq::addDataPoint(qint64 time, double magField, double magCurrent, double magVoltage, double supCurrent, double supVoltage)
+void magnetdaq::addDataPoint(qint64 time, double magField, double magCurrent, double magVoltage, double supCurrent, double supVoltage, double refCurrent, quint8 state, quint8 heater)
 {
 	double timebase = (double)(time - startTime) / 1000.0;
 
 	// save current data to model430 object
 	model430.setCurrentData(time, magField, magCurrent, magVoltage, supCurrent, supVoltage);
+
+	if (supports_AMITRG())
+		model430.switchHeaterState = (bool)heater;
 
 	// sample rate calculation
 	double deltaTime = (double)(time - lastTime) / 1000.0;
@@ -331,14 +345,27 @@ void magnetdaq::addDataPoint(qint64 time, double magField, double magCurrent, do
 
 		if (model430.shortSampleMode)
 		{
-			sprintf(buffer, "%lld,%0.8lf,%0.8lf,%0.3lf,%0.8lf,%0.6lf\n", time, timebase, magCurrent /* sample Curr */, magVoltage /*sample uV */, supCurrent, supVoltage);
+			if (supports_AMITRG())
+				sprintf(buffer, "%lld,%0.8lf,%0.8lf,%0.3lf,%0.8lf,%0.6lf,%0.8lf,%d\n", time, timebase, magCurrent /* sample Curr */, magVoltage /*sample uV */, supCurrent, supVoltage, refCurrent, state);
+			else
+				sprintf(buffer, "%lld,%0.8lf,%0.8lf,%0.3lf,%0.8lf,%0.6lf\n", time, timebase, magCurrent /* sample Curr */, magVoltage /*sample uV */, supCurrent, supVoltage);
 		}
 		else
 		{
-			if (model430.switchInstalled())
-				sprintf(buffer, "%lld,%0.8lf,%0.9lf,%0.8lf,%0.3lf,%0.8lf,%0.6lf,%d\n", time, timebase, magField, magCurrent, magVoltage, supCurrent, supVoltage, model430.switchHeaterState);
+			if (supports_AMITRG())
+			{
+				if (model430.switchInstalled())
+					sprintf(buffer, "%lld,%0.8lf,%0.9lf,%0.8lf,%0.3lf,%0.8lf,%0.6lf,%0.8lf,%d,%d\n", time, timebase, magField, magCurrent, magVoltage, supCurrent, supVoltage, refCurrent, state, heater);
+				else
+					sprintf(buffer, "%lld,%0.8lf,%0.9lf,%0.8lf,%0.3lf,%0.8lf,%0.6lf,%0.8lf,%d\n", time, timebase, magField, magCurrent, magVoltage, supCurrent, supVoltage, refCurrent, state);
+			}
 			else
-				sprintf(buffer, "%lld,%0.8lf,%0.9lf,%0.8lf,%0.3lf,%0.8lf,%0.6lf\n", time, timebase, magField, magCurrent, magVoltage, supCurrent, supVoltage);
+			{
+				if (model430.switchInstalled())
+					sprintf(buffer, "%lld,%0.8lf,%0.9lf,%0.8lf,%0.3lf,%0.8lf,%0.6lf,%d\n", time, timebase, magField, magCurrent, magVoltage, supCurrent, supVoltage, model430.switchHeaterState);
+				else
+					sprintf(buffer, "%lld,%0.8lf,%0.9lf,%0.8lf,%0.3lf,%0.8lf,%0.6lf\n", time, timebase, magField, magCurrent, magVoltage, supCurrent, supVoltage);
+			}
 		}
 
 		logFile->write(buffer);
@@ -411,11 +438,20 @@ void magnetdaq::writeLogHeader(void)
 		if (model430.shortSampleMode)
 		{
 			// write data column header
-			if (ui.secondsRadioButton->isChecked())
-				logFile->write(QString("Unix time,Elapsed Time(sec),Sample Current(A),Sample Voltage(uV),Supply Current(A),Program Out(V)\n").toLocal8Bit());
+			if (supports_AMITRG())
+			{
+				if (ui.secondsRadioButton->isChecked())
+					logFile->write(QString("Unix time,Elapsed Time(sec),Sample Current(A),Sample Voltage(uV),Supply Current(A),Program Out(V),Ref Current(A),State\n").toLocal8Bit());
+				else
+					logFile->write(QString("Unix time,Elapsed Time(min),Sample Current(A),Sample Voltage(uV),Supply Current(A),Program Out(V),Ref Current(A),State\n").toLocal8Bit());
+			}
 			else
-				logFile->write(QString("Unix time,Elapsed Time(min),Sample Current(A),Sample Voltage(uV),Supply Current(A),Program Out(V)\n").toLocal8Bit());
-
+			{
+				if (ui.secondsRadioButton->isChecked())
+					logFile->write(QString("Unix time,Elapsed Time(sec),Sample Current(A),Sample Voltage(uV),Supply Current(A),Program Out(V)\n").toLocal8Bit());
+				else
+					logFile->write(QString("Unix time,Elapsed Time(min),Sample Current(A),Sample Voltage(uV),Supply Current(A),Program Out(V)\n").toLocal8Bit());
+			}
 		}
 		else
 		{
@@ -430,15 +466,25 @@ void magnetdaq::writeLogHeader(void)
 
 			// if switch installed, add heater state column
 			if (model430.switchInstalled())
-				heaterStr = ",Heater State";
+				heaterStr = ",Switch Heater";
 			else
 				heaterStr = "";
 
 			// write data column header
-			if (ui.secondsRadioButton->isChecked())
-				logFile->write(QString("Unix time,Elapsed Time(sec),Magnet Field" + unitsStr + ",Magnet Current(A),Magnet Voltage(V),Supply Current(A),Supply Voltage(V)" + heaterStr + "\n").toLocal8Bit());
+			if (supports_AMITRG())
+			{
+				if (ui.secondsRadioButton->isChecked())
+					logFile->write(QString("Unix time,Elapsed Time(sec),Magnet Field" + unitsStr + ",Magnet Current(A),Magnet Voltage(V),Supply Current(A),Supply Voltage(V),Ref Current(A),State" + heaterStr + "\n").toLocal8Bit());
+				else
+					logFile->write(QString("Unix time,Elapsed Time(min),Magnet Field" + unitsStr + ",Magnet Current(A),Magnet Voltage(V),Supply Current(A),Supply Voltage(V),Ref Current(A),State" + heaterStr + "\n").toLocal8Bit());
+			}
 			else
-				logFile->write(QString("Unix time,Elapsed Time(min),Magnet Field" + unitsStr + ",Magnet Current(A),Magnet Voltage(V),Supply Current(A),Supply Voltage(V)" + heaterStr + "\n").toLocal8Bit());
+			{
+				if (ui.secondsRadioButton->isChecked())
+					logFile->write(QString("Unix time,Elapsed Time(sec),Magnet Field" + unitsStr + ",Magnet Current(A),Magnet Voltage(V),Supply Current(A),Supply Voltage(V)" + heaterStr + "\n").toLocal8Bit());
+				else
+					logFile->write(QString("Unix time,Elapsed Time(min),Magnet Field" + unitsStr + ",Magnet Current(A),Magnet Voltage(V),Supply Current(A),Supply Voltage(V)" + heaterStr + "\n").toLocal8Bit());
+			}
 		}
 	}
 }
@@ -447,9 +493,10 @@ void magnetdaq::writeLogHeader(void)
 #ifdef USE_QTPRINTER
 void magnetdaq::renderPlot(QPrinter *printer)
 {
-	printer->setPageSize(QPrinter::Letter);
-	printer->setOrientation(QPrinter::Landscape);
-	printer->setPageMargins(0.75, 0.75, 0.75, 0.75, QPrinter::Unit::Inch);
+	QPageSize pageSize(QPageSize::Letter);
+	QPageLayout pageLayout(pageSize, QPageLayout::Orientation::Landscape, QMarginsF(0.75, 0.75, 0.75, 0.75), QPageLayout::Unit::Inch);
+	printer->setPageLayout(pageLayout);
+
 	QCPPainter painter(printer);
 	QRectF pageRect = printer->pageRect(QPrinter::DevicePixel);
 
@@ -582,7 +629,8 @@ void magnetdaq::titleDoubleClick(QMouseEvent* event)
 		dlg.setTextValue(mainPlotTitle);
 
 		// save/restore different geometry for different DPI screens
-		QString dpiStr = QString::number(QApplication::desktop()->screen()->logicalDpiX());
+		QScreen* screen = QApplication::primaryScreen();
+		QString dpiStr = QString::number(screen->logicalDotsPerInch());
 		dlg.restoreGeometry(settings.value(axisStr + "LabelDialog/Geometry/" + dpiStr).toByteArray());
 		ok = dlg.exec();
 
@@ -619,7 +667,8 @@ void magnetdaq::axisLabelDoubleClick(QCPAxis *axis, QCPAxis::SelectablePart part
 			dlg.setTextValue(mainPlotY2Title);
 
 		// save/restore different geometry for different DPI screens
-		QString dpiStr = QString::number(QApplication::desktop()->screen()->logicalDpiX());
+		QScreen* screen = QApplication::primaryScreen();
+		QString dpiStr = QString::number(screen->logicalDotsPerInch());
 		dlg.restoreGeometry(settings.value(axisStr + "LabelDialog/Geometry/" + dpiStr).toByteArray());
 		ok = dlg.exec();
 
@@ -681,7 +730,8 @@ void magnetdaq::legendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item
 		dlg.setTextValue(plItem->plottable()->name());
 
 		// save/restore different geometry for different DPI screens
-		QString dpiStr = QString::number(QApplication::desktop()->screen()->logicalDpiX());
+		QScreen* screen = QApplication::primaryScreen();
+		QString dpiStr = QString::number(screen->logicalDotsPerInch());
 		dlg.restoreGeometry(settings.value(axisStr + "LabelDialog/Geometry/" + dpiStr).toByteArray());
 		ok = dlg.exec();
 

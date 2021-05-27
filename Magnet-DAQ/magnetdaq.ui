@@ -128,6 +128,7 @@
            <widget class="QLabel" name="fieldAtTargetLEDLabel">
             <property name="font">
              <font>
+              <family>Segoe UI</family>
               <pointsize>9</pointsize>
              </font>
             </property>
@@ -156,6 +157,7 @@
            <widget class="QLabel" name="persistentLEDLabel">
             <property name="font">
              <font>
+              <family>Segoe UI</family>
               <pointsize>9</pointsize>
              </font>
             </property>
@@ -184,6 +186,7 @@
            <widget class="QLabel" name="energizedLEDLabel">
             <property name="font">
              <font>
+              <family>Segoe UI</family>
               <pointsize>9</pointsize>
              </font>
             </property>
@@ -212,6 +215,7 @@
            <widget class="QLabel" name="quenchLabel">
             <property name="font">
              <font>
+              <family>Segoe UI</family>
               <pointsize>9</pointsize>
              </font>
             </property>
@@ -273,6 +277,7 @@
             </property>
             <property name="font">
              <font>
+              <family>Segoe UI</family>
               <pointsize>9</pointsize>
              </font>
             </property>
@@ -300,6 +305,7 @@
             </property>
             <property name="font">
              <font>
+              <family>Segoe UI</family>
               <pointsize>9</pointsize>
              </font>
             </property>
@@ -327,6 +333,7 @@
             </property>
             <property name="font">
              <font>
+              <family>Segoe UI</family>
               <pointsize>9</pointsize>
              </font>
             </property>
@@ -480,7 +487,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Bubbledot Fine Positive';&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="tabStopWidth">
-             <number>80</number>
+             <number>0</number>
             </property>
             <property name="acceptRichText">
              <bool>true</bool>
@@ -576,111 +583,6 @@ p, li { white-space: pre-wrap; }
             <property name="verticalSpacing">
              <number>6</number>
             </property>
-            <item row="6" column="2">
-             <widget class="QSpinBox" name="rampSegmentsSpinBox">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>Enter from 1 to 10 segments</string>
-              </property>
-              <property name="buttonSymbols">
-               <enum>QAbstractSpinBox::NoButtons</enum>
-              </property>
-              <property name="minimum">
-               <number>1</number>
-              </property>
-              <property name="maximum">
-               <number>10</number>
-              </property>
-             </widget>
-            </item>
-            <item row="9" column="1">
-             <spacer name="verticalSpacer_21">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Preferred</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>10</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="4" column="0" colspan="2">
-             <widget class="QLabel" name="rampTimebaseLabel">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>Timebase :</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0" colspan="2">
-             <widget class="QLabel" name="rampUnitsLabel">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>Ramp Rate Units :</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="2">
-             <widget class="QComboBox" name="rampTimebaseComboBox">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>250</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>Choose rate time unit</string>
-              </property>
-              <item>
-               <property name="text">
-                <string>Seconds</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Minutes</string>
-               </property>
-              </item>
-             </widget>
-            </item>
             <item row="3" column="2">
              <widget class="QComboBox" name="rampUnitsComboBox">
               <property name="sizePolicy">
@@ -708,22 +610,6 @@ p, li { white-space: pre-wrap; }
                 <string>Field (kG or T)</string>
                </property>
               </item>
-             </widget>
-            </item>
-            <item row="6" column="0" colspan="2">
-             <widget class="QLabel" name="rampSegmentsLabel">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>Ramp Segments :</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
              </widget>
             </item>
             <item row="8" column="0" colspan="4">
@@ -1759,16 +1645,6 @@ p, li { white-space: pre-wrap; }
               </layout>
              </widget>
             </item>
-            <item row="1" column="0" colspan="2">
-             <widget class="QLabel" name="voltageLimitLabel">
-              <property name="text">
-               <string>Voltage Limit (V) :</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
             <item row="1" column="2">
              <widget class="QLineEdit" name="voltageLimitEdit">
               <property name="toolTip">
@@ -1776,10 +1652,77 @@ p, li { white-space: pre-wrap; }
               </property>
              </widget>
             </item>
-            <item row="0" column="0" colspan="2">
-             <widget class="QLabel" name="targetSetpointLabel">
+            <item row="4" column="2">
+             <widget class="QComboBox" name="rampTimebaseComboBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>250</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Choose rate time unit</string>
+              </property>
+              <item>
+               <property name="text">
+                <string>Seconds</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Minutes</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="4" column="0" colspan="2">
+             <widget class="QLabel" name="rampTimebaseLabel">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="text">
-               <string>Target Setpoint (A) :</string>
+               <string>Timebase :</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="9" column="1">
+             <spacer name="verticalSpacer_21">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Preferred</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>10</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="6" column="0" colspan="2">
+             <widget class="QLabel" name="rampSegmentsLabel">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Ramp Segments :</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1799,6 +1742,22 @@ p, li { white-space: pre-wrap; }
               </property>
              </widget>
             </item>
+            <item row="7" column="2">
+             <spacer name="verticalSpacer_20">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Expanding</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
             <item row="5" column="2">
              <spacer name="verticalSpacer_19">
               <property name="orientation">
@@ -1815,21 +1774,69 @@ p, li { white-space: pre-wrap; }
               </property>
              </spacer>
             </item>
-            <item row="7" column="2">
-             <spacer name="verticalSpacer_20">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
+            <item row="3" column="0" colspan="2">
+             <widget class="QLabel" name="rampUnitsLabel">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Expanding</enum>
+              <property name="text">
+               <string>Ramp Rate Units :</string>
               </property>
-              <property name="sizeHint" stdset="0">
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="2">
+             <widget class="QSpinBox" name="rampSegmentsSpinBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
                <size>
-                <width>20</width>
-                <height>20</height>
+                <width>50</width>
+                <height>16777215</height>
                </size>
               </property>
-             </spacer>
+              <property name="toolTip">
+               <string>Enter from 1 to 10 segments</string>
+              </property>
+              <property name="buttonSymbols">
+               <enum>QAbstractSpinBox::UpDownArrows</enum>
+              </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>10</number>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0" colspan="2">
+             <widget class="QLabel" name="targetSetpointLabel">
+              <property name="text">
+               <string>Target Setpoint (A) :</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" colspan="2">
+             <widget class="QLabel" name="voltageLimitLabel">
+              <property name="text">
+               <string>Voltage Limit (V) :</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>
@@ -2123,6 +2130,8 @@ p, li { white-space: pre-wrap; }
          <widget class="QTableWidgetWithCopyPaste" name="tableWidget">
           <property name="font">
            <font>
+            <family>Segoe UI</family>
+            <pointsize>9</pointsize>
             <weight>50</weight>
             <bold>false</bold>
            </font>
@@ -2525,6 +2534,7 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="font">
               <font>
+               <family>Segoe UI</family>
                <pointsize>9</pointsize>
               </font>
              </property>
@@ -2878,7 +2888,7 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>373</width>
+             <width>377</width>
              <height>400</height>
             </rect>
            </property>
@@ -5107,12 +5117,12 @@ p, li { white-space: pre-wrap; }
              <widget class="QSpinBox" name="rampdownSegmentsSpinBox">
               <property name="maximumSize">
                <size>
-                <width>16777215</width>
+                <width>50</width>
                 <height>16777215</height>
                </size>
               </property>
               <property name="buttonSymbols">
-               <enum>QAbstractSpinBox::NoButtons</enum>
+               <enum>QAbstractSpinBox::UpDownArrows</enum>
               </property>
               <property name="minimum">
                <number>0</number>
@@ -5188,6 +5198,7 @@ p, li { white-space: pre-wrap; }
           <property name="font">
            <font>
             <family>Lucida Console</family>
+            <pointsize>9</pointsize>
            </font>
           </property>
           <property name="lineWrapMode">
@@ -5249,6 +5260,7 @@ p, li { white-space: pre-wrap; }
           <property name="font">
            <font>
             <family>Lucida Console</family>
+            <pointsize>9</pointsize>
            </font>
           </property>
           <property name="lineWrapMode">
@@ -5325,6 +5337,7 @@ p, li { white-space: pre-wrap; }
           <property name="font">
            <font>
             <family>Lucida Console</family>
+            <pointsize>9</pointsize>
            </font>
           </property>
           <property name="lineWrapMode">
@@ -5362,6 +5375,7 @@ p, li { white-space: pre-wrap; }
           <property name="font">
            <font>
             <family>Lucida Console</family>
+            <pointsize>9</pointsize>
            </font>
           </property>
           <property name="lineWrapMode">
@@ -5612,6 +5626,7 @@ p, li { white-space: pre-wrap; }
       <widget class="QTableWidget" name="devicesTableWidget">
        <property name="font">
         <font>
+         <family>Segoe UI</family>
          <pointsize>9</pointsize>
          <weight>50</weight>
          <bold>false</bold>
@@ -6696,6 +6711,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="font">
     <font>
+     <family>Segoe UI</family>
      <pointsize>9</pointsize>
     </font>
    </property>
@@ -7019,9 +7035,8 @@ p, li { white-space: pre-wrap; }
   </widget>
   <action name="actionRun">
    <property name="icon">
-    <iconset>
-     <normaloff>:/ssdaq/Resources/run.png</normaloff>
-     <normalon>:/magnetdaq/Resources/button_green_play@2x.png</normalon>:/ssdaq/Resources/run.png</iconset>
+    <iconset resource="magnetdaq.qrc">
+     <normaloff>:/magnetdaq/Resources/button_green_play.png</normaloff>:/magnetdaq/Resources/button_green_play.png</iconset>
    </property>
    <property name="text">
     <string>Connect</string>
@@ -7035,9 +7050,8 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="actionStop">
    <property name="icon">
-    <iconset>
-     <normaloff>:/ssdaq/Resources/stop.png</normaloff>
-     <normalon>:/magnetdaq/Resources/action_stop.png</normalon>:/ssdaq/Resources/stop.png</iconset>
+    <iconset resource="magnetdaq.qrc">
+     <normaloff>:/magnetdaq/Resources/action_stop.png</normaloff>:/magnetdaq/Resources/action_stop.png</iconset>
    </property>
    <property name="text">
     <string>Stop</string>
@@ -7150,15 +7164,15 @@ p, li { white-space: pre-wrap; }
    <header>qtablewidgetwithcopypaste.h</header>
   </customwidget>
   <customwidget>
-   <class>QCustomPlot</class>
-   <extends>QWidget</extends>
-   <header>qcustomplot.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>KLed</class>
    <extends>QWidget</extends>
    <header>qled.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QCustomPlot</class>
+   <extends>QWidget</extends>
+   <header>qcp.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

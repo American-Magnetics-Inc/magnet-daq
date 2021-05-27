@@ -215,7 +215,8 @@ magnetdaq::magnetdaq(QWidget *parent)
 	ui.rampUnitsComboBox->setCurrentIndex(settings.value("RampUnits").toInt());
 
 	// restore different geometry for different DPI screens
-	QString dpiStr = QString::number(QApplication::desktop()->screen()->logicalDpiX());
+	QScreen* screen = QApplication::primaryScreen();
+	QString dpiStr = QString::number(screen->logicalDotsPerInch());
 
 	// restore main window according to collapsed preference
 	if (settings.value(axisStr + "MainWindow/Collapsed/Selected" + dpiStr, false).toBool())
@@ -508,7 +509,8 @@ magnetdaq::~magnetdaq()
 	QSettings settings;
 
 	// save different geometry for different DPI screens
-	QString dpiStr = QString::number(QApplication::desktop()->screen()->logicalDpiX());
+	QScreen* screen = QApplication::primaryScreen();
+	QString dpiStr = QString::number(screen->logicalDotsPerInch());
 
 	// save ramp value (not time) units
 	settings.setValue("RampUnits", ui.rampUnitsComboBox->currentIndex());
@@ -647,8 +649,9 @@ void magnetdaq::actionRun(void)
 		if (checkFirmwareVersion())
 		{
 			// connect the socket data ready signal to the plot
-			connect(socket, SIGNAL(nextDataPoint(qint64, double, double, double, double, double)), this, SLOT(addDataPoint(qint64, double, double, double, double, double)));
-
+			connect(socket, SIGNAL(nextDataPoint(qint64, double, double, double, double, double, double, quint8, quint8)),
+				this, SLOT(addDataPoint(qint64, double, double, double, double, double, double, quint8, quint8)));
+			
 			// connect error signals
 			connect(socket, SIGNAL(model430Disconnected()), this, SLOT(actionStop()));
 			connect(socket, SIGNAL(systemErrorMessage(QString, QString)), this, SLOT(displaySystemError(QString, QString)), Qt::ConnectionType::QueuedConnection);
@@ -920,6 +923,7 @@ void magnetdaq::actionRun(void)
 	{
 		statusConnectState->setStyleSheet("color: red; font: bold");
 		statusConnectState->setText("Failed to connect!");
+		ui.droppedConnectionLabel->setText("Emulated display/keypad not presently connected to a remote device.");
 		socket->deleteLater();
 		socket = NULL;
 		telnet = NULL;
@@ -1073,7 +1077,7 @@ void magnetdaq::actionShow_Keypad(void)
 //---------------------------------------------------------------------------
 void magnetdaq::actionPrint(void)
 {
-#ifdef USE_QTPRINTER
+#if defined(USE_QTPRINTER) || defined(USE_QTPRINTER_6)
 	// print main plot
 	QPrinter printer(QPrinterInfo::defaultPrinter()); // , QPrinter::ScreenResolution);
 	QPrintPreviewDialog previewDialog(&printer, this);
@@ -1153,7 +1157,8 @@ void magnetdaq::actionToggle_Collapse(bool checked)
 	QSettings settings;
 
 	// save different geometry for different DPI screens
-	QString dpiStr = QString::number(QApplication::desktop()->screen()->logicalDpiX());
+	QScreen* screen = QApplication::primaryScreen();
+	QString dpiStr = QString::number(screen->logicalDotsPerInch());
 
 	settings.setValue(axisStr + "MainWindow/Collapsed/Selected" + dpiStr, checked);
 
@@ -1208,11 +1213,34 @@ void magnetdaq::actionToggle_Collapse(bool checked)
 //---------------------------------------------------------------------------
 void magnetdaq::setStatusMsg(QString msg)
 {
+	// restore style
+	statusMisc->setStyleSheet(lastStatusMiscStyle);
+
 	// always save the msg
 	lastStatusMiscString = msg;
 
 	if (!errorStatusIsActive && !parserErrorStatusIsActive)	// show it now!
 		statusMisc->setText(msg);
+}
+
+//---------------------------------------------------------------------------
+void magnetdaq::pinErrorString(QString errMsg, bool highlight)
+{
+	QString err;
+
+	lastStatusMiscStyle = statusMisc->styleSheet();
+
+	if (highlight)
+	{
+		statusMisc->setStyleSheet("color: red; font: bold");
+		err = "Error: " + errMsg;
+	}
+	else
+		err = errMsg;
+
+	statusMisc->setText(err);
+
+	qDebug() << err;	// send to log
 }
 
 //---------------------------------------------------------------------------
@@ -1237,6 +1265,7 @@ void magnetdaq::showErrorString(QString errMsg, bool highlight)
 
 	statusMisc->setText(err);
 	QTimer::singleShot(5000, this, SLOT(errorStatusTimeout()));
+
 	qDebug() << err;	// send to log
 }
 
@@ -1344,7 +1373,8 @@ void magnetdaq::updateFrontPanel(QString displayString, bool shiftLED, bool fiel
 	htmlDisplay += "<html><head><meta name =\"qrichtext\" content=\"1\"/><style type=\"text/css\">p, li{white-space:pre-wrap;}\n";
 
 	// font scaling, 14pt is the base font size at 120 dpi
-	qreal dpi = QApplication::desktop()->screen()->logicalDpiX();
+	QScreen* screen = this->window()->windowHandle()->screen();
+	qreal dpi = screen->logicalDotsPerInch();
 	double font_size = 120.0 / dpi * 14.0;
 
 	htmlDisplay += "</style></head><body style =\"font-family:'Bubbledot Fine Positive'; font-size:" + QString::number(font_size, 'f', 1) + "pt; font-style:normal; \"bgcolor=\"#000000\">\n";
@@ -1358,19 +1388,19 @@ void magnetdaq::updateFrontPanel(QString displayString, bool shiftLED, bool fiel
 	displayString.replace("?", "&#x3F;");
 
 	// replace less than symbol
-	displayString.replace(60, "&lt;");
+	displayString.replace(QChar(60), "&lt;");
 
 	// replace greater than symbol
-	displayString.replace(63, "&gt;");
+	displayString.replace(QChar(63), "&gt;");
 
 	// replace linefeed and special characters
 	displayString.replace("\n", "<br/>");	// linefeed
 
 	// plus/minus symbol
-	displayString.replace(241, "&plusmn;");
+	displayString.replace(QChar(241), "&plusmn;");
 
 	// DEGREE address: 0x86
-	displayString.replace(0x86, "&deg;");
+	displayString.replace(QChar(0x86), "&deg;");
 
 	// *********************************************
 	// Platform/font specific code replacements for special characters
@@ -1379,69 +1409,69 @@ void magnetdaq::updateFrontPanel(QString displayString, bool shiftLED, bool fiel
 	font_size = 120.0 / dpi * 12.0;
 
 	// reverse "P" address: 0x80
-	displayString.replace(0x80, "<span style = \"font-family:'Bubbledot Fine Negative';font-size:" + QString::number(font_size, 'f', 1) + "pt;\">P</span>");
+	displayString.replace(QChar(0x80), "<span style = \"font-family:'Bubbledot Fine Negative';font-size:" + QString::number(font_size, 'f', 1) + "pt;\">P</span>");
 
 	// "UP" address: 0x81
-	displayString.replace(0x81, "<span style=\"font-size:" + QString::number(font_size, 'f', 1) + "pt;\">" + QString("\u2191") + "</span>");
+	displayString.replace(QChar(0x81), "<span style=\"font-size:" + QString::number(font_size, 'f', 1) + "pt;\">" + QString("\u2191") + "</span>");
 
 	// "DOWN" address: 0x82
-	displayString.replace(0x82, "<span style=\"font-size:" + QString::number(font_size, 'f', 1) + "pt;\">" + QString("\u2193") + "</span>");
+	displayString.replace(QChar(0x82), "<span style=\"font-size:" + QString::number(font_size, 'f', 1) + "pt;\">" + QString("\u2193") + "</span>");
 
 	// "->" address: 0x83
-	displayString.replace(0x83, "<span style=\"font-size:" + QString::number(font_size, 'f', 1) + "pt;\">" + QString("\u261B") + "</span>");
+	displayString.replace(QChar(0x83), "<span style=\"font-size:" + QString::number(font_size, 'f', 1) + "pt;\">" + QString("\u261B") + "</span>");
 
 	// "<-" address: 0x84
-	displayString.replace(0x84, "<span style=\"font-size:" + QString::number(font_size, 'f', 1) + "pt;\">" + QString("\u261A") + "</span>");
+	displayString.replace(QChar(0x84), "<span style=\"font-size:" + QString::number(font_size, 'f', 1) + "pt;\">" + QString("\u261A") + "</span>");
 
 	// MENU pointer address: 0x85
-	displayString.replace(0x85, "<span style=\"font-size:" + QString::number(font_size, 'f', 1) + "pt;\">" + QString("\u25BA") + "</span>");
+	displayString.replace(QChar(0x85), "<span style=\"font-size:" + QString::number(font_size, 'f', 1) + "pt;\">" + QString("\u25BA") + "</span>");
 
 	// ENCODER IN USE address: 0x87
-	displayString.replace(0x87, "<span style=\"font-size:" + QString::number(font_size, 'f', 1) + "pt;\">" + QString("\u21D5") + "</span>");
+	displayString.replace(QChar(0x87), "<span style=\"font-size:" + QString::number(font_size, 'f', 1) + "pt;\">" + QString("\u21D5") + "</span>");
 
 	// reverse "V" address: 0x88
-	displayString.replace(0x88, "<span style=\"font-family:'Bubbledot Fine Negative';\">V</span>");
+	displayString.replace(QChar(0x88), "<span style=\"font-family:'Bubbledot Fine Negative';\">V</span>");
 
 	// inverse "C" address: 0x89
-	displayString.replace(0x89, "<span style=\"font-family:'Bubbledot Fine Negative';\">C</span>");
+	displayString.replace(QChar(0x89), "<span style=\"font-family:'Bubbledot Fine Negative';\">C</span>");
 
 	// inverse "T" address: 0x8A
-	displayString.replace(0x8A, "<span style=\"font-family:'Bubbledot Fine Negative';\">T</span>");
+	displayString.replace(QChar(0x8A), "<span style=\"font-family:'Bubbledot Fine Negative';\">T</span>");
 
 #else	// Windows and Linux
 	font_size = 120.0 / dpi * 13.0;	// slightly smaller
 
 	// reverse "P" address: 0x80
-	displayString.replace(0x80, "<span style = \"font-family:'Bubbledot Fine Negative'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">P</span>");
+	displayString.replace(QChar(0x80), "<span style = \"font-family:'Bubbledot Fine Negative'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">P</span>");
 
 	// "UP" address: 0x81
-	displayString.replace(0x81, "<span style=\"font-family:'Wingdings 3'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">h</span>");
+	displayString.replace(QChar(0x81), "<span style=\"font-family:'Wingdings 3'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">h</span>");
 
 	// "DOWN" address: 0x82
-	displayString.replace(0x82, "<span style=\"font-family:'Wingdings 3'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">i</span>");
+	displayString.replace(QChar(0x82), "<span style=\"font-family:'Wingdings 3'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">i</span>");
 
 	// reverse "V" address: 0x88
-	displayString.replace(0x88, "<span style=\"font-family:'Bubbledot Fine Negative'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">V</span>");
+	displayString.replace(QChar(0x88), "<span style=\"font-family:'Bubbledot Fine Negative'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">V</span>");
 
 	// inverse "C" address: 0x89
-	displayString.replace(0x89, "<span style=\"font-family:'Bubbledot Fine Negative'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">C</span>");
+	displayString.replace(QChar(0x89), "<span style=\"font-family:'Bubbledot Fine Negative'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">C</span>");
 
 	// inverse "T" address: 0x8A
-	displayString.replace(0x8A, "<span style=\"font-family:'Bubbledot Fine Negative'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">T</span>");
+	displayString.replace(QChar(0x8A), "<span style=\"font-family:'Bubbledot Fine Negative'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">T</span>");
 
 	font_size = 120.0 / dpi * 10.0;	// somewhat smaller
 
 	// "->" address: 0x83
-	displayString.replace(0x83, "<span style=\"font-family:'Wingdings 3'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">&#xE2;</span>");
+	displayString.replace(QChar(0x83), "<span style=\"font-family:'Wingdings 3'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">&#xE2;</span>");
 
 	// "<-" address: 0x84
-	displayString.replace(0x84, "<span style=\"font-family:'Wingdings 3'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">&#xE1;</span>");
+	displayString.replace(QChar(0x84), "<span style=\"font-family:'Wingdings 3'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">&#xE1;</span>");
 
 	// MENU pointer address: 0x85
-	displayString.replace(0x85, "<span style=\"font-family:'Wingdings 3'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">u</span>");
+	displayString.replace(QChar(0x85), "<span style=\"font-family:'Wingdings 3'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">u</span>");
 
 	// ENCODER IN USE address: 0x87
-	displayString.replace(0x87, "<span style=\"font-family:'Wingdings 3'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">o</span>");
+	displayString.replace(QChar(0x87), "<span style=\"font-family:'Wingdings 3'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">o</span>");
 #endif
 
 	// complete the displayString
@@ -1483,11 +1513,14 @@ void magnetdaq::updateFrontPanel(QString displayString, bool shiftLED, bool fiel
 	else
 		ui.quenchLED->setState(KLed::State::Off);
 
-	// set heater switch state
-	if (displayString.contains("PSwitch Heater: ON"))
-		model430.switchHeaterState = true;
-	else if(displayString.contains("PSwitch Heater: OFF"))
-		model430.switchHeaterState = false;
+	// set heater switch state if prior to firmware that supports heater state
+	if (!supports_AMITRG())
+	{
+		if (displayString.contains("PSwitch Heater: ON"))
+			model430.switchHeaterState = true;
+		else if (displayString.contains("PSwitch Heater: OFF"))
+			model430.switchHeaterState = false;
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -1837,7 +1870,7 @@ void magnetdaq::shortSampleModeChanged(bool isSampleMode)
 		mainLegend[MAGNET_VOLTAGE_GRAPH] = settings.value("ssGraph/Legend3", "Sample Voltage").toString();
 		mainLegend[SUPPLY_VOLTAGE_GRAPH] = settings.value("ssGraph/Legend4", "Program Out").toString();
 
-		mainPlotTitle = settings.value("ssGraph/Title", "Current/Voltage vs. Time").toString();
+		mainPlotTitle = settings.value("ssGraph/Title", "Sample Current/Voltage vs. Time").toString();
 
 		ui.plotWidget->graph(MAGNET_CURRENT_GRAPH)->setName(mainLegend[MAGNET_CURRENT_GRAPH]);
 		ui.plotWidget->graph(MAGNET_FIELD_GRAPH)->setName(mainLegend[MAGNET_FIELD_GRAPH]);

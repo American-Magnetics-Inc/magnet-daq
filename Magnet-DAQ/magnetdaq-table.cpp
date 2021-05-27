@@ -40,6 +40,7 @@ void magnetdaq::restoreTableSettings(QSettings *settings)
 {
 	// initializations
 	tableUnits = AMPS;	// amps by default
+	ui.tableWidget->setMinimumNumCols(3); // field, hold time, pass/fail
 
 	// restore any persistent values
 	ui.autosaveReportCheckBox->setChecked(settings->value("Table/AutosaveReport", false).toBool());
@@ -643,7 +644,7 @@ void magnetdaq::saveReport(QString reportFileName)
 		QXlsx::Document xlsx;
 		QString limitsUnitsStr;
 		QString rateUnitsStr;
-		QString pm(0x00B1);	// plus minus character
+        QString pm(QChar(0x00B1));	// plus minus character
 
 		// save filename path
 		settings.setValue("LastReportPath", reportFileName);
@@ -753,7 +754,7 @@ void magnetdaq::saveReport(QString reportFileName)
 
                 if ((item = ui.tableWidget->item(i, j)))
 				{
-					if (item->text() == "Pass" || item->text() == "Fail" || item->text().isEmpty())
+					if (item->text().contains("Pass") || item->text().contains("Fail") || item->text().contains(":") || item->text().isEmpty())
 					{
 						xlsx.write(i + 10, j + 1, ui.tableWidget->item(i, j)->text(), alignCenterFormat);
 					}
@@ -1092,6 +1093,28 @@ void magnetdaq::manualCtrlTimerTick(void)
 }
 
 //---------------------------------------------------------------------------
+void magnetdaq::markTableSelectionWithOutput(int rowIndex, QString output)
+{
+	tableIsLoading = true;	// inhibit itemChanged() actions
+
+	if (rowIndex >= 0)
+	{
+		QTableWidgetItem* cell = ui.tableWidget->item(rowIndex, 2);
+
+		// create cell if it does not exist
+		if (cell == nullptr)
+			ui.tableWidget->setItem(rowIndex, 2, cell = new QTableWidgetItem(""));
+
+		if (cell->text().isEmpty())
+			cell->setText(output);
+		else
+			cell->setText(cell->text() + ": " + output);
+	}
+
+	tableIsLoading = false;
+}
+
+//---------------------------------------------------------------------------
 void magnetdaq::markTableSelectionAsPass(int rowIndex)
 {
 	tableIsLoading = true;	// inhibit itemChanged() actions
@@ -1164,7 +1187,7 @@ void magnetdaq::abortTableTarget(void)
 	if (!autostepTimer->isActive() && !manualCtrlTimer->isActive())
 		statusMisc->clear();
 
-	abortAutostep("Autostep aborted due to manual control action");
+	abortAutostep("Auto-stepping aborted due to manual control action");
 	abortManualCtrl("Table target interrupted by manual control action");
 }
 
@@ -1621,7 +1644,7 @@ void magnetdaq::autostepTimerTick(void)
 						if (index >= 1)
 							tempStr.truncate(index - 1);
 
-						QString timeStr = " (" + QString::number(temp - elapsedTimerTicks) + " sec remaining)";
+						QString timeStr = " (" + QString::number(temp - elapsedTimerTicks) + " sec of Hold Time remaining)";
 						setStatusMsg(tempStr + timeStr);
 					}
 				}
@@ -1833,7 +1856,11 @@ void magnetdaq::executeApp(void)
 {
 	QString program = ui.appLocationEdit->text();
 	QString args = ui.appArgsEdit->text();
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
 	QStringList arguments = args.split(" ", QString::SkipEmptyParts);
+#else
+	QStringList arguments = args.split(" ", Qt::SkipEmptyParts);
+#endif
 
 	// if a python script, use python path for executable
 	if (ui.pythonCheckBox->isChecked())
@@ -1842,12 +1869,60 @@ void magnetdaq::executeApp(void)
 		arguments.insert(0, ui.appLocationEdit->text());
 	}
 
-	// launch detached background process
-	QProcess *process = new QProcess(this);
+	// launch background process
+	process = new QProcess(this);
 	process->setProgram(program);
 	process->setArguments(arguments);
-	process->startDetached();
+
+	connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+		[=](int exitCode, QProcess::ExitStatus exitStatus) { finishedApp(exitCode, exitStatus); });
+
+	// disable Execute Now and Start button
+	ui.executeNowButton->setEnabled(false);
+	ui.autostepStartButton->setEnabled(false);
+
+	process->start(program, arguments);
+}
+
+//---------------------------------------------------------------------------
+void magnetdaq::finishedApp(int exitCode, QProcess::ExitStatus exitStatus)
+{
+	QString output = process->readAllStandardOutput();
+
+	// strip cr/lf
+	output = output.simplified();
+
+	// post any output text from process
+	if (!output.isEmpty())
+		markTableSelectionWithOutput(presentTableValue, output);
+
 	process->deleteLater();
+	process = nullptr;
+
+	// check for error state, and if error stop autostepping and show error
+	if (exitCode)
+	{
+		if (autostepTimer->isActive())	// first checks for active autostep sequence
+		{
+			manualCtrlTimer->stop();	// this displays ramp timing for each step
+			autostepTimer->stop();
+
+			pinErrorString("Auto-stepping aborted: " + output, true);
+			lastStatusMiscString.clear();
+
+			enableTableControls();
+
+			tableSelectionChanged();
+			autostepRangeChanged();
+			haveExecuted = false;
+		}
+	}
+
+	if (!autostepTimer->isActive())	// re-enable Execute Now button
+	{
+		ui.executeNowButton->setEnabled(true);
+		ui.autostepStartButton->setEnabled(true);
+	}
 }
 
 //---------------------------------------------------------------------------
