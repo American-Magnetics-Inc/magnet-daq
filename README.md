@@ -6,31 +6,39 @@
 
 This repository is the source code and binary distribution point for the Magnet-DAQ application for comprehensive remote control of the AMI Model 430 Programmer.
 
-**The current application version is 1.09.** An integrated Help file is included that you may preview in PDF format [here](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/Magnet-DAQ-Help.pdf). The Magnet-DAQ application *requires* firmware version 2.55 or later in the Model 430 programmer. 
+**The current application version is 1.10.** An integrated Help file is included that you may preview in PDF format [here](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/Magnet-DAQ-Help.pdf). The Magnet-DAQ application *requires* firmware version 2.55 or later in the Model 430 programmer. 
 
 Magnet-DAQ is also a required prerequisite for the [Multi-Axis Operation](https://bitbucket.org/americanmagneticsinc/multi-axis-operation) open source application developed by AMI for control of AMI Maxes(tm) magnet systems.
 
+------
+
 ### Included Firmware Upgrade ###
 
-An integrated Firmware Upgrade Wizard is included in the application along with the latest Model 430 firmware versions 2.62 (legacy) and 3.12. Upon connection to a Model 430, the application will present the Firmware Upgrade Wizard as appropriate, or on demand via the "Upgrade" toolbar icon.
+**ALERT!**  AMI has discovered that Qt 6 removed FTP support from the networking components that only exhibits as an error at runtime. Therefore, the *Firmware Upgrade Wizard* will always fail with the "unknown protocol" error in the Windows and macOS versions (the Linux version was not moved to Qt 6). Please see the recommended procedure, especially on Windows, to update to Magnet-DAQ version 1.10 by visiting the [Issue Tracker discussion](https://bitbucket.org/americanmagneticsinc/magnet-daq/issues/7/firmware-upgrade-wizard-fails-with-unknown). (Hint, you will need to explicitly uninstall v1.09 of Magnet-DAQ before installing the new release.)
 
-**NOTE:** The latest firmware includes optional communication on Ethernet port 7185 without the "Welcome" message. This is of importance to customers using VISA and LabVIEW to develop "stateless" communication drivers, and in fact the latest [AMI Drivers for LabVIEW](https://bitbucket.org/americanmagneticsinc/ami-drivers) require port 7185.
+An integrated Firmware Upgrade Wizard is included in the application along with the latest Model 430 firmware versions 2.65 (legacy) and 3.15. Upon connection to a Model 430, the application will present the Firmware Upgrade Wizard as appropriate, or on demand via the "Upgrade" toolbar icon.
+
+**NOTE:** The latest firmware releases include optional communication on Ethernet port 7185 without the "Welcome" message. This is of importance to customers using VISA and LabVIEW to develop "stateless" communication drivers, and in fact the latest [AMI Drivers for LabVIEW](https://bitbucket.org/americanmagneticsinc/ami-drivers) require port 7185.
+
+------
 
 ### New Table Feature
 
-Version 1.08 and later introduces a Table tab with a list of target fields that can be optionally auto-stepped by the application. Also included is an option to execute an external application or Python script at each target, as well as automatically enter and exit persistence at each target. These features are intended to allow the customer to use the Magnet-DAQ application for automated data acquisition or other experimental procedures that *repeat* at various field points. An example Python script is included in the Help.
+Starting with version 1.08, a Table tab was added supporting a list of target fields that can be optionally auto-stepped by the application. Also included is an option to execute an external application or Python script *at each target*, as well as automatically entering and exiting persistence. These features are intended to allow the customer to use the Magnet-DAQ application for automated data acquisition or other experimental procedures that *repeat* at various field points. An example Python script is included in the Help.
 
 ![table](https://bitbucket.org/americanmagneticsinc/magnet-daq/raw/fd38e070b36eef59ecea22f000a22da181c272f8/help/images/screenshot4.png)
 
+
+
 ## User Manual Updates? ##
+
+**ALERT!**  Firmware release version 2.65/3.15 has a companion manual update (Rev 10, August 2021) that also corrects several errors in the prior manuals.
 
 Updated Model 430 and Power Supply System manuals are available to document the new features in the latest Model 430 firmware:
 
-* [Generic Model 430 Manual including High-Stability Option and 3-Axis Systems (Rev 9)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/mn-430-rev9.pdf)
-
-* [AMI 4-Quadrant Power Supply Systems including High-Stability Option and 3-Axis Systems (Rev 9)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/mn-4QPS-rev9.pdf)
-
-* [AMI Bipolar (2-Quadrant) Power Supply Systems (Rev 9)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/mn-Bipolar-rev9.pdf)
+* [Generic Model 430 Manual including High-Stability Option and 3-Axis Systems (Rev 10)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/mn-430-rev10.pdf)
+* [AMI 4-Quadrant Power Supply Systems including High-Stability Option and 3-Axis Systems (Rev 9)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/mn-4QPS-rev9.pdf) [will be updated soon]
+* [AMI Bipolar (2-Quadrant) Power Supply Systems (Rev 9)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/mn-Bipolar-rev9.pdf) [will be updated soon]
 
 ## How do I install? ##
 
@@ -57,7 +65,7 @@ Please note that this is not *required* since binary distributions are provided 
 
 
 * __Dependencies__
-	* Requires [Qt 5.15 or later open-source distribution](https://www.qt.io/download-open-source/). The Windows and macOS releases have moved to Qt 6 for binary distribution, however the Linux version is still Qt 5.15 to support Ubuntu 18.
+	* Requires [Qt 5.15 or later open-source distribution](https://www.qt.io/download-open-source/). Qt 6 is not yet recommended due the removal of FTP support needed for the integrated *Firmware Upgrade Wizard*, although the code will all compile on Qt 6.
 	* Uses the [QtXlsxWriter library](https://github.com/dbzhang800/QtXlsxWriter) built as a DLL for the Windows version.
 	* Linux and macOS versions use the files from the [QXlsx project](https://github.com/QtExcel/QXlsx) and include the source directly in the project. Note this library links to private Qt API which may break in future Qt releases.
 	* The help file was written using [Help & Manual 7.5.4](https://www.helpandmanual.com/). Reproduction of the Help output included in the binaries requires a license for Help & Manual.
