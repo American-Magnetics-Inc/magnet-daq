@@ -14,9 +14,9 @@ Magnet-DAQ is also a required prerequisite for the [Multi-Axis Operation](https:
 
 ### Included Firmware Upgrade ###
 
-**ALERT!**  AMI has discovered that Qt 6 removed FTP support from the networking components that only exhibits as an error at runtime. Therefore, the *Firmware Upgrade Wizard* will always fail with the "unknown protocol" error in the Windows and macOS versions (the Linux version was not moved to Qt 6). Please see the recommended procedure, especially on Windows, to update to Magnet-DAQ version 1.10 by visiting the [Issue Tracker discussion](https://bitbucket.org/americanmagneticsinc/magnet-daq/issues/7/firmware-upgrade-wizard-fails-with-unknown). (Hint, you will need to explicitly uninstall v1.09 of Magnet-DAQ before installing the new release.)
+**ALERT!**  AMI has discovered the *Firmware Upgrade Wizard* will always fail with the "unknown protocol" error in the Windows x64 and macOS versions (the Linux and Win32 versions are not affected). Please see the recommended procedure, especially on Windows, to update to Magnet-DAQ version 1.10 by visiting the [Issue Tracker discussion](https://bitbucket.org/americanmagneticsinc/magnet-daq/issues/7/firmware-upgrade-wizard-fails-with-unknown). (Hint, you will need to explicitly uninstall v1.09 of Magnet-DAQ before installing the new release.)
 
-An integrated Firmware Upgrade Wizard is included in the application along with the latest Model 430 firmware versions 2.65 (legacy) and 3.15. Upon connection to a Model 430, the application will present the Firmware Upgrade Wizard as appropriate, or on demand via the "Upgrade" toolbar icon.
+An integrated Firmware Upgrade Wizard is included in Magnet-DAQ along with the latest Model 430 firmware versions 2.65 (legacy) and 3.15. Upon connection to a Model 430, the application will present the Firmware Upgrade Wizard as appropriate, or on demand via the "Upgrade" toolbar icon.
 
 **NOTE:** The latest firmware releases include optional communication on Ethernet port 7185 without the "Welcome" message. This is of importance to customers using VISA and LabVIEW to develop "stateless" communication drivers, and in fact the latest [AMI Drivers for LabVIEW](https://bitbucket.org/americanmagneticsinc/ami-drivers) require port 7185.
 
@@ -37,8 +37,8 @@ Starting with version 1.08, a Table tab was added supporting a list of target fi
 Updated Model 430 and Power Supply System manuals are available to document the new features in the latest Model 430 firmware:
 
 * [Generic Model 430 Manual including High-Stability Option and 3-Axis Systems (Rev 10)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/mn-430-rev10.pdf)
-* [AMI 4-Quadrant Power Supply Systems including High-Stability Option and 3-Axis Systems (Rev 9)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/mn-4QPS-rev9.pdf) [will be updated soon]
-* [AMI Bipolar (2-Quadrant) Power Supply Systems (Rev 9)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/mn-Bipolar-rev9.pdf) [will be updated soon]
+* [AMI 4-Quadrant Power Supply Systems including High-Stability Option and 3-Axis Systems (Rev 10)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/mn-4QPS-rev10.pdf)
+* [AMI Bipolar (2-Quadrant) Power Supply Systems (Rev 10)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/mn-Bipolar-rev10.pdf)
 
 ## How do I install? ##
 
