@@ -103,7 +103,7 @@
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <QtInstall>msvc_2019_64_6.0</QtInstall>
+    <QtInstall>msvc_2019_64_6.2</QtInstall>
     <QtModules>concurrent;core;gui;network;opengl;printsupport;widgets</QtModules>
     <QtHeaderSearchPath>include/QCustomPlot</QtHeaderSearchPath>
     <QtLibrarySearchPath>lib</QtLibrarySearchPath>
@@ -115,7 +115,7 @@
     <QtLibrarySearchPath>lib</QtLibrarySearchPath>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <QtInstall>msvc_2019_64_6.0</QtInstall>
+    <QtInstall>msvc2019_64</QtInstall>
     <QtModules>concurrent;core;gui;network;opengl;printsupport;widgets</QtModules>
     <QtHeaderSearchPath>include/QCustomPlot</QtHeaderSearchPath>
     <QtLibrarySearchPath>lib</QtLibrarySearchPath>
@@ -156,7 +156,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;$(QTDIR)\lib\qcustomplot.lib;$(QTDIR)\lib\Qt6Gui.lib;$(QTDIR)\lib\Qt6Core.lib;$(QTDIR)\lib\Qt6EntryPoint.lib;shell32.lib;QtXlsxWriter.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;$(QTDIR)\lib\qcustomplot.lib;shell32.lib;QtXlsxWriter.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>qcustomplot\release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
@@ -284,7 +284,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;$(QTDIR)\lib\qcustomplotd.lib;$(QTDIR)\lib\Qt6Guid.lib;$(QTDIR)\lib\Qt6Cored.lib;$(QTDIR)\lib\Qt6EntryPointd.lib;shell32.lib;$(QTDIR)\lib\QtXlsxWriterd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;$(QTDIR)\lib\qcustomplotd.lib;shell32.lib;$(QTDIR)\lib\QtXlsxWriterd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>qcustomplot\release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>

@@ -24,7 +24,7 @@
   </property>
   <property name="font">
    <font>
-    <family>.SF NS</family>
+    <family>.AppleSystemUIFont</family>
     <pointsize>13</pointsize>
    </font>
   </property>
@@ -128,7 +128,7 @@
            <widget class="QLabel" name="fieldAtTargetLEDLabel">
             <property name="font">
              <font>
-              <family>.SF NS</family>
+              <family>.AppleSystemUIFont</family>
               <pointsize>13</pointsize>
              </font>
             </property>
@@ -157,7 +157,7 @@
            <widget class="QLabel" name="persistentLEDLabel">
             <property name="font">
              <font>
-              <family>.SF NS</family>
+              <family>.AppleSystemUIFont</family>
               <pointsize>13</pointsize>
              </font>
             </property>
@@ -186,7 +186,7 @@
            <widget class="QLabel" name="energizedLEDLabel">
             <property name="font">
              <font>
-              <family>.SF NS</family>
+              <family>.AppleSystemUIFont</family>
               <pointsize>13</pointsize>
              </font>
             </property>
@@ -215,7 +215,7 @@
            <widget class="QLabel" name="quenchLabel">
             <property name="font">
              <font>
-              <family>.SF NS</family>
+              <family>.AppleSystemUIFont</family>
               <pointsize>13</pointsize>
              </font>
             </property>
@@ -483,7 +483,7 @@
              <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Bubbledot Fine Positive','.SF NS'; font-size:14pt; font-weight:400; font-style:normal;&quot; bgcolor=&quot;#000000&quot;&gt;
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Bubbledot Fine Positive','.AppleSystemUIFont'; font-size:14pt; font-weight:400; font-style:normal;&quot; bgcolor=&quot;#000000&quot;&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Bubbledot Fine Positive';&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="acceptRichText">
@@ -495,7 +495,7 @@ p, li { white-space: pre-wrap; }
            <widget class="QLabel" name="droppedConnectionLabel">
             <property name="font">
              <font>
-              <family>.SF NS</family>
+              <family>.AppleSystemUIFont</family>
               <pointsize>10</pointsize>
              </font>
             </property>
@@ -518,6 +518,12 @@ p, li { white-space: pre-wrap; }
     </item>
     <item>
      <widget class="QTabWidget" name="mainTabWidget">
+      <property name="font">
+       <font>
+        <family>.AppleSystemUIFont</family>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
       <property name="autoFillBackground">
        <bool>false</bool>
       </property>
@@ -1951,6 +1957,12 @@ p, li { white-space: pre-wrap; }
            </property>
            <item row="1" column="4">
             <widget class="QToolButton" name="appLocationButton">
+             <property name="font">
+              <font>
+               <family>.AppleSystemUIFont</family>
+               <pointsize>11</pointsize>
+              </font>
+             </property>
              <property name="toolTip">
               <string>Browse for location...</string>
              </property>
@@ -1961,6 +1973,12 @@ p, li { white-space: pre-wrap; }
            </item>
            <item row="5" column="4">
             <widget class="QToolButton" name="pythonLocationButton">
+             <property name="font">
+              <font>
+               <family>.AppleSystemUIFont</family>
+               <pointsize>11</pointsize>
+              </font>
+             </property>
              <property name="toolTip">
               <string>Browse for Python location...</string>
              </property>
@@ -1971,6 +1989,12 @@ p, li { white-space: pre-wrap; }
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="appLocationLabel">
+             <property name="font">
+              <font>
+               <family>.AppleSystemUIFont</family>
+               <pointsize>11</pointsize>
+              </font>
+             </property>
              <property name="text">
               <string>App/Script path :</string>
              </property>
@@ -1997,6 +2021,12 @@ p, li { white-space: pre-wrap; }
            </item>
            <item row="3" column="2">
             <widget class="QLabel" name="appStartLabel2">
+             <property name="font">
+              <font>
+               <family>.AppleSystemUIFont</family>
+               <pointsize>11</pointsize>
+              </font>
+             </property>
              <property name="text">
               <string>seconds remaining in Hold Time</string>
              </property>
@@ -2004,6 +2034,12 @@ p, li { white-space: pre-wrap; }
            </item>
            <item row="3" column="0">
             <widget class="QLabel" name="appStartLabel1">
+             <property name="font">
+              <font>
+               <family>.AppleSystemUIFont</family>
+               <pointsize>11</pointsize>
+              </font>
+             </property>
              <property name="text">
               <string>Start with</string>
              </property>
@@ -2014,6 +2050,12 @@ p, li { white-space: pre-wrap; }
            </item>
            <item row="5" column="0">
             <widget class="QLabel" name="pythonPathLabel">
+             <property name="font">
+              <font>
+               <family>.AppleSystemUIFont</family>
+               <pointsize>11</pointsize>
+              </font>
+             </property>
              <property name="text">
               <string>Python path :</string>
              </property>
@@ -2024,6 +2066,12 @@ p, li { white-space: pre-wrap; }
            </item>
            <item row="4" column="1" colspan="4">
             <widget class="QCheckBox" name="pythonCheckBox">
+             <property name="font">
+              <font>
+               <family>.AppleSystemUIFont</family>
+               <pointsize>11</pointsize>
+              </font>
+             </property>
              <property name="text">
               <string>Python script (if checked, enter path below)</string>
              </property>
@@ -2037,6 +2085,12 @@ p, li { white-space: pre-wrap; }
                <height>20</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <family>.AppleSystemUIFont</family>
+               <pointsize>11</pointsize>
+              </font>
+             </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
@@ -2044,6 +2098,12 @@ p, li { white-space: pre-wrap; }
            </item>
            <item row="2" column="0">
             <widget class="QLabel" name="appArgsLabel">
+             <property name="font">
+              <font>
+               <family>.AppleSystemUIFont</family>
+               <pointsize>11</pointsize>
+              </font>
+             </property>
              <property name="text">
               <string>Arguments :</string>
              </property>
@@ -2073,6 +2133,12 @@ p, li { white-space: pre-wrap; }
                <height>20</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <family>.AppleSystemUIFont</family>
+               <pointsize>11</pointsize>
+              </font>
+             </property>
             </widget>
            </item>
            <item row="5" column="1" colspan="3">
@@ -2083,6 +2149,12 @@ p, li { white-space: pre-wrap; }
                <height>21</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <family>.AppleSystemUIFont</family>
+               <pointsize>11</pointsize>
+              </font>
+             </property>
             </widget>
            </item>
            <item row="2" column="1" colspan="4">
@@ -2092,6 +2164,12 @@ p, li { white-space: pre-wrap; }
                <width>0</width>
                <height>20</height>
               </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>.AppleSystemUIFont</family>
+               <pointsize>11</pointsize>
+              </font>
              </property>
             </widget>
            </item>
@@ -2124,8 +2202,8 @@ p, li { white-space: pre-wrap; }
          <widget class="QTableWidgetWithCopyPaste" name="tableWidget">
           <property name="font">
            <font>
-            <family>.SF NS</family>
-            <pointsize>13</pointsize>
+            <family>.AppleSystemUIFont</family>
+            <pointsize>12</pointsize>
             <weight>50</weight>
             <bold>false</bold>
            </font>
@@ -2440,6 +2518,13 @@ p, li { white-space: pre-wrap; }
             <height>16777215</height>
            </size>
           </property>
+          <property name="font">
+           <font>
+            <family>.AppleSystemUIFont</family>
+            <pointsize>12</pointsize>
+            <kerning>true</kerning>
+           </font>
+          </property>
           <property name="frameShape">
            <enum>QFrame::NoFrame</enum>
           </property>
@@ -2451,7 +2536,7 @@ p, li { white-space: pre-wrap; }
           </property>
           <layout class="QVBoxLayout" name="tableControlLayout">
            <property name="spacing">
-            <number>16</number>
+            <number>26</number>
            </property>
            <property name="leftMargin">
             <number>0</number>
@@ -2528,8 +2613,9 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="font">
               <font>
-               <family>.SF NS</family>
-               <pointsize>13</pointsize>
+               <family>.AppleSystemUIFont</family>
+               <pointsize>12</pointsize>
+               <kerning>true</kerning>
               </font>
              </property>
              <property name="title">
@@ -2546,8 +2632,9 @@ p, li { white-space: pre-wrap; }
                <widget class="QLabel" name="endIndexLabel">
                 <property name="font">
                  <font>
-                  <family>.SF NS</family>
+                  <family>.AppleSystemUIFont</family>
                   <pointsize>11</pointsize>
+                  <kerning>true</kerning>
                  </font>
                 </property>
                 <property name="text">
@@ -2562,8 +2649,9 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="font">
                  <font>
-                  <family>.SF NS</family>
+                  <family>.AppleSystemUIFont</family>
                   <pointsize>11</pointsize>
+                  <kerning>true</kerning>
                  </font>
                 </property>
                 <property name="text">
@@ -2581,8 +2669,9 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="font">
                  <font>
-                  <family>.SF NS</family>
+                  <family>.AppleSystemUIFont</family>
                   <pointsize>11</pointsize>
+                  <kerning>true</kerning>
                  </font>
                 </property>
                </widget>
@@ -2594,8 +2683,9 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="font">
                  <font>
-                  <family>.SF NS</family>
+                  <family>.AppleSystemUIFont</family>
                   <pointsize>9</pointsize>
+                  <kerning>true</kerning>
                  </font>
                 </property>
                 <property name="text">
@@ -2610,8 +2700,9 @@ p, li { white-space: pre-wrap; }
                <widget class="QPushButton" name="autostepStartButton">
                 <property name="font">
                  <font>
-                  <family>.SF NS</family>
+                  <family>.AppleSystemUIFont</family>
                   <pointsize>11</pointsize>
+                  <kerning>true</kerning>
                  </font>
                 </property>
                 <property name="text">
@@ -2626,8 +2717,9 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="font">
                  <font>
-                  <family>.SF NS</family>
+                  <family>.AppleSystemUIFont</family>
                   <pointsize>11</pointsize>
+                  <kerning>true</kerning>
                  </font>
                 </property>
                 <property name="text">
@@ -2648,8 +2740,9 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <property name="font">
                  <font>
-                  <family>.SF NS</family>
+                  <family>.AppleSystemUIFont</family>
                   <pointsize>11</pointsize>
+                  <kerning>true</kerning>
                  </font>
                 </property>
                </widget>
@@ -2658,8 +2751,9 @@ p, li { white-space: pre-wrap; }
                <widget class="QLabel" name="startIndexLabel">
                 <property name="font">
                  <font>
-                  <family>.SF NS</family>
+                  <family>.AppleSystemUIFont</family>
                   <pointsize>11</pointsize>
+                  <kerning>true</kerning>
                  </font>
                 </property>
                 <property name="text">
@@ -3264,7 +3358,7 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>539</width>
+             <width>508</width>
              <height>273</height>
             </rect>
            </property>
@@ -3465,8 +3559,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>539</width>
-             <height>364</height>
+             <width>505</width>
+             <height>363</height>
             </rect>
            </property>
            <attribute name="label">
@@ -3741,7 +3835,7 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>655</width>
+             <width>611</width>
              <height>467</height>
             </rect>
            </property>
@@ -5173,8 +5267,8 @@ p, li { white-space: pre-wrap; }
           </property>
           <property name="font">
            <font>
-            <family>Lucida Console</family>
-            <pointsize>9</pointsize>
+            <family>.AppleSystemUIFontMonospaced</family>
+            <pointsize>12</pointsize>
            </font>
           </property>
          </widget>
@@ -5190,7 +5284,7 @@ p, li { white-space: pre-wrap; }
          <widget class="QPlainTextEdit" name="rampdownEventTextEdit">
           <property name="font">
            <font>
-            <family>Lucida Console</family>
+            <family>.AppleSystemUIFontMonospaced</family>
             <pointsize>13</pointsize>
            </font>
           </property>
@@ -5235,8 +5329,8 @@ p, li { white-space: pre-wrap; }
           </property>
           <property name="font">
            <font>
-            <family>Lucida Console</family>
-            <pointsize>9</pointsize>
+            <family>.AppleSystemUIFontMonospaced</family>
+            <pointsize>12</pointsize>
            </font>
           </property>
          </widget>
@@ -5252,7 +5346,7 @@ p, li { white-space: pre-wrap; }
          <widget class="QPlainTextEdit" name="quenchEventTextEdit">
           <property name="font">
            <font>
-            <family>Lucida Console</family>
+            <family>.AppleSystemUIFontMonospaced</family>
             <pointsize>13</pointsize>
            </font>
           </property>
@@ -5367,7 +5461,7 @@ p, li { white-space: pre-wrap; }
           </property>
           <property name="font">
            <font>
-            <family>Lucida Console</family>
+            <family>.AppleSystemUIFontMonospaced</family>
             <pointsize>13</pointsize>
            </font>
           </property>
@@ -5424,7 +5518,7 @@ p, li { white-space: pre-wrap; }
    <property name="font">
     <font>
      <family>.SF NS</family>
-     <pointsize>13</pointsize>
+     <pointsize>12</pointsize>
     </font>
    </property>
    <property name="toolButtonStyle">
@@ -5454,7 +5548,7 @@ p, li { white-space: pre-wrap; }
    <property name="minimumSize">
     <size>
      <width>248</width>
-     <height>576</height>
+     <height>678</height>
     </size>
    </property>
    <property name="maximumSize">
@@ -5465,8 +5559,8 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="font">
     <font>
-     <family>.SF NS</family>
-     <pointsize>13</pointsize>
+     <family>.AppleSystemUIFont</family>
+     <pointsize>12</pointsize>
     </font>
    </property>
    <property name="allowedAreas">
@@ -5548,7 +5642,7 @@ p, li { white-space: pre-wrap; }
          <widget class="QLabel" name="serialNumLabel">
           <property name="font">
            <font>
-            <family>.SF NS</family>
+            <family>.AppleSystemUIFont</family>
             <pointsize>11</pointsize>
            </font>
           </property>
@@ -5567,7 +5661,7 @@ p, li { white-space: pre-wrap; }
           </property>
           <property name="font">
            <font>
-            <family>.SF NS</family>
+            <family>.AppleSystemUIFont</family>
             <pointsize>11</pointsize>
            </font>
           </property>
@@ -5625,8 +5719,8 @@ p, li { white-space: pre-wrap; }
       <widget class="QTableWidget" name="devicesTableWidget">
        <property name="font">
         <font>
-         <family>.SF NS</family>
-         <pointsize>9</pointsize>
+         <family>.AppleSystemUIFont</family>
+         <pointsize>11</pointsize>
          <weight>50</weight>
          <bold>false</bold>
         </font>
@@ -5636,6 +5730,9 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="horizontalScrollBarPolicy">
         <enum>Qt::ScrollBarAsNeeded</enum>
+       </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QAbstractScrollArea::AdjustToContents</enum>
        </property>
        <property name="selectionMode">
         <enum>QAbstractItemView::SingleSelection</enum>
@@ -5739,7 +5836,7 @@ p, li { white-space: pre-wrap; }
          <widget class="QRadioButton" name="noProxyRadioButton">
           <property name="font">
            <font>
-            <family>.SF NS</family>
+            <family>.AppleSystemUIFont</family>
             <pointsize>11</pointsize>
            </font>
           </property>
@@ -5755,7 +5852,7 @@ p, li { white-space: pre-wrap; }
          <widget class="QRadioButton" name="systemProxyRadioButton">
           <property name="font">
            <font>
-            <family>.SF NS</family>
+            <family>.AppleSystemUIFont</family>
             <pointsize>11</pointsize>
            </font>
           </property>
@@ -5847,7 +5944,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="font">
     <font>
-     <family>.SF NS</family>
+     <family>.AppleSystemUIFont</family>
      <pointsize>13</pointsize>
     </font>
    </property>
@@ -6707,14 +6804,14 @@ p, li { white-space: pre-wrap; }
   <widget class="QDockWidget" name="plotDockWidget">
    <property name="minimumSize">
     <size>
-     <width>221</width>
+     <width>228</width>
      <height>673</height>
     </size>
    </property>
    <property name="font">
     <font>
-     <family>.SF NS</family>
-     <pointsize>13</pointsize>
+     <family>.AppleSystemUIFont</family>
+     <pointsize>12</pointsize>
     </font>
    </property>
    <property name="allowedAreas">
@@ -6729,7 +6826,7 @@ p, li { white-space: pre-wrap; }
    <widget class="QWidget" name="plotDockWidgetContents">
     <layout class="QVBoxLayout" name="plotDockWidgetLayout">
      <property name="spacing">
-      <number>12</number>
+      <number>26</number>
      </property>
      <item>
       <widget class="QGroupBox" name="axesLimitGroupBox">
@@ -6945,7 +7042,7 @@ p, li { white-space: pre-wrap; }
        </property>
        <layout class="QVBoxLayout" name="plotSelectionsLayout">
         <property name="spacing">
-         <number>7</number>
+         <number>9</number>
         </property>
         <property name="topMargin">
          <number>7</number>
@@ -6970,6 +7067,13 @@ p, li { white-space: pre-wrap; }
           </property>
           <property name="checked">
            <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="referenceCheckBox">
+          <property name="text">
+           <string>Show Reference Current (A)</string>
           </property>
          </widget>
         </item>
@@ -7168,15 +7272,15 @@ p, li { white-space: pre-wrap; }
    <header>qtablewidgetwithcopypaste.h</header>
   </customwidget>
   <customwidget>
-   <class>QCustomPlot</class>
-   <extends>QWidget</extends>
-   <header>qcustomplot.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>KLed</class>
    <extends>QWidget</extends>
    <header>qled.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QCustomPlot</class>
+   <extends>QWidget</extends>
+   <header>qcustomplot.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

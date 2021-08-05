@@ -43,7 +43,6 @@ void magnetdaq::restorePlotSettings(QSettings *settings)
 //---------------------------------------------------------------------------
 void magnetdaq::initPlot(void)
 {
-	//ui.plotWidget->setOpenGl(false);
 	ui.plotWidget->setLocale(QLocale(QLocale::English, QLocale::UnitedStates)); // period as decimal separator and comma as thousand separator
 	ui.plotWidget->legend->setVisible(true);
 	QFont legendFont = font();  // start out with MainWindow's font
@@ -94,6 +93,7 @@ void magnetdaq::initPlot(void)
 	{
 		QPen pen = QPen(Qt::darkGreen);
 		pen.setWidthF(1.0);
+		pen.setStyle(Qt::SolidLine);
 		ui.plotWidget->graph(MAGNET_FIELD_GRAPH)->setPen(pen);
 	}
 
@@ -113,6 +113,7 @@ void magnetdaq::initPlot(void)
 	{
 		QPen pen = QPen(Qt::red);
 		pen.setWidthF(1.0);
+		pen.setStyle(Qt::SolidLine);
 		ui.plotWidget->graph(MAGNET_VOLTAGE_GRAPH)->setPen(pen);
 	}
 
@@ -124,6 +125,16 @@ void magnetdaq::initPlot(void)
 		pen.setWidthF(1.0);
 		pen.setStyle(Qt::DashLine);
 		ui.plotWidget->graph(SUPPLY_VOLTAGE_GRAPH)->setPen(pen);
+	}
+
+	// ramp reference graph #5 (if supported by firmware)
+	ui.plotWidget->addGraph(timeAxis, currentAxis);
+	ui.plotWidget->graph(RAMP_REFERENCE_GRAPH)->setName("Reference Current");
+	{
+		QPen pen = QPen(Qt::black);
+		pen.setWidthF(1.0);
+		pen.setStyle(Qt::SolidLine);
+		ui.plotWidget->graph(RAMP_REFERENCE_GRAPH)->setPen(pen);
 	}
 
 	// set default scale
@@ -187,6 +198,9 @@ void magnetdaq::initPlot(void)
 		innerlayout->addWidget(autoscrollButton);
 		ui.plotWidget->setLayout(innerlayout);
 	}
+
+	// sync legend
+	syncPlotLegend();
 
 	connect(autoscrollButton, SIGNAL(clicked(bool)), this, SLOT(toggleAutoscrollButton(bool)));
 
@@ -283,7 +297,7 @@ void magnetdaq::setCurrentAxisLabel(void)
 		tempStrField = mainPlotYTitleField + " (T)";
 
 	// build label
-	if (ui.magnetFieldRadioButton->isChecked() && ui.supplyCurrentCheckBox->isChecked())
+	if (ui.magnetFieldRadioButton->isChecked() && (ui.supplyCurrentCheckBox->isChecked() || ui.referenceCheckBox->isChecked()))
 		mainPlotYTitle = tempStrField + ", " + tempStrCurrent;
 	else if (ui.magnetFieldRadioButton->isChecked())
 		mainPlotYTitle = tempStrField;
@@ -334,6 +348,9 @@ void magnetdaq::addDataPoint(qint64 time, double magField, double magCurrent, do
 
 	if (ui.supplyVoltageCheckBox->isChecked())
 		ui.plotWidget->graph(SUPPLY_VOLTAGE_GRAPH)->addData(timebase, supVoltage);
+
+	if (ui.referenceCheckBox->isChecked() && supports_AMITRG())
+		ui.plotWidget->graph(RAMP_REFERENCE_GRAPH)->addData(timebase, refCurrent);
 
 	if (logFile)
 	{
@@ -567,6 +584,7 @@ void magnetdaq::currentAxisSelectionChanged(bool checked)
 	}
 
 	setCurrentAxisLabel();
+	syncPlotLegend();
 	ui.plotWidget->replot();
 }
 
@@ -580,6 +598,7 @@ void magnetdaq::magnetVoltageSelectionChanged(bool checked)
 			ui.plotWidget->graph(MAGNET_VOLTAGE_GRAPH)->data()->clear();	// clear it
 	}
 
+	syncPlotLegend();
 	ui.plotWidget->replot();
 }
 
@@ -595,6 +614,7 @@ void magnetdaq::supplyCurrentSelectionChanged(bool checked)
 	}
 
 	setCurrentAxisLabel();
+	syncPlotLegend();
 	ui.plotWidget->replot();
 }
 
@@ -608,6 +628,22 @@ void magnetdaq::supplyVoltageSelectionChanged(bool checked)
 			ui.plotWidget->graph(SUPPLY_VOLTAGE_GRAPH)->data()->clear();	// clear it
 	}
 
+	syncPlotLegend();
+	ui.plotWidget->replot();
+}
+
+//---------------------------------------------------------------------------
+void magnetdaq::referenceSelectionChanged(bool checked)
+{
+	if (ui.referenceCheckBox->isChecked())
+	{
+		// does supply voltage already have a history?
+		if (!ui.plotWidget->graph(RAMP_REFERENCE_GRAPH)->data()->isEmpty())
+			ui.plotWidget->graph(RAMP_REFERENCE_GRAPH)->data()->clear();	// clear it
+	}
+
+	setCurrentAxisLabel();
+	syncPlotLegend();
 	ui.plotWidget->replot();
 }
 
@@ -712,6 +748,78 @@ void magnetdaq::axisLabelDoubleClick(QCPAxis *axis, QCPAxis::SelectablePart part
 }
 
 //---------------------------------------------------------------------------
+void magnetdaq::syncPlotLegend()
+{
+	QCPLegend* legend = ui.plotWidget->legend;
+
+	if (ui.magnetFieldRadioButton->isChecked())
+	{
+		// add legend entry for magnet field
+		if (!legend->hasItemWithPlottable(ui.plotWidget->graph(MAGNET_FIELD_GRAPH)))
+			ui.plotWidget->graph(MAGNET_FIELD_GRAPH)->addToLegend();
+
+		// remove legend entry for magnet current
+		if (legend->hasItemWithPlottable(ui.plotWidget->graph(MAGNET_CURRENT_GRAPH)))
+			legend->removeItem(legend->itemWithPlottable(ui.plotWidget->graph(MAGNET_CURRENT_GRAPH)));
+	}
+	
+	if (ui.magnetCurrentRadioButton->isChecked())
+	{
+		// add legend entry for magnet field
+		if (!legend->hasItemWithPlottable(ui.plotWidget->graph(MAGNET_CURRENT_GRAPH)))
+			ui.plotWidget->graph(MAGNET_CURRENT_GRAPH)->addToLegend();
+
+		// remove legend entry for magnet current
+		if (legend->hasItemWithPlottable(ui.plotWidget->graph(MAGNET_FIELD_GRAPH)))
+			legend->removeItem(legend->itemWithPlottable(ui.plotWidget->graph(MAGNET_FIELD_GRAPH)));
+	}
+
+	if (ui.referenceCheckBox->isChecked())
+	{
+		if (!legend->hasItemWithPlottable(ui.plotWidget->graph(RAMP_REFERENCE_GRAPH)))
+			ui.plotWidget->graph(RAMP_REFERENCE_GRAPH)->addToLegend();
+	}
+	else
+	{
+		if (legend->hasItemWithPlottable(ui.plotWidget->graph(RAMP_REFERENCE_GRAPH)))
+			legend->removeItem(legend->itemWithPlottable(ui.plotWidget->graph(RAMP_REFERENCE_GRAPH)));
+	}
+
+	if (ui.magnetVoltageCheckBox->isChecked())
+	{
+		if (!legend->hasItemWithPlottable(ui.plotWidget->graph(MAGNET_VOLTAGE_GRAPH)))
+			ui.plotWidget->graph(MAGNET_VOLTAGE_GRAPH)->addToLegend();
+	}
+	else
+	{
+		if (legend->hasItemWithPlottable(ui.plotWidget->graph(MAGNET_VOLTAGE_GRAPH)))
+			legend->removeItem(legend->itemWithPlottable(ui.plotWidget->graph(MAGNET_VOLTAGE_GRAPH)));
+	}
+
+	if (ui.supplyCurrentCheckBox->isChecked())
+	{
+		if (!legend->hasItemWithPlottable(ui.plotWidget->graph(SUPPLY_CURRENT_GRAPH)))
+			ui.plotWidget->graph(SUPPLY_CURRENT_GRAPH)->addToLegend();
+	}
+	else
+	{
+		if (legend->hasItemWithPlottable(ui.plotWidget->graph(SUPPLY_CURRENT_GRAPH)))
+			legend->removeItem(legend->itemWithPlottable(ui.plotWidget->graph(SUPPLY_CURRENT_GRAPH)));
+	}
+
+	if (ui.supplyVoltageCheckBox->isChecked())
+	{
+		if (!legend->hasItemWithPlottable(ui.plotWidget->graph(SUPPLY_VOLTAGE_GRAPH)))
+			ui.plotWidget->graph(SUPPLY_VOLTAGE_GRAPH)->addToLegend();
+	}
+	else
+	{
+		if (legend->hasItemWithPlottable(ui.plotWidget->graph(SUPPLY_VOLTAGE_GRAPH)))
+			legend->removeItem(legend->itemWithPlottable(ui.plotWidget->graph(SUPPLY_VOLTAGE_GRAPH)));
+	}
+}
+
+//---------------------------------------------------------------------------
 void magnetdaq::legendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item)
 {
 	// Rename a graph by double clicking on its legend item
@@ -720,28 +828,31 @@ void magnetdaq::legendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item
 	{
 		QCPPlottableLegendItem *plItem = qobject_cast<QCPPlottableLegendItem*>(item);
 
-		bool ok;
-		QSettings settings;
-
-		QInputDialog dlg(this);
-		dlg.setInputMode(QInputDialog::TextInput);
-		dlg.setWindowTitle("Set Graph Name");
-		dlg.setLabelText("New graph name:");
-		dlg.setTextValue(plItem->plottable()->name());
-
-		// save/restore different geometry for different DPI screens
-		QScreen* screen = QApplication::primaryScreen();
-		QString dpiStr = QString::number(screen->logicalDotsPerInch());
-		dlg.restoreGeometry(settings.value(axisStr + "LabelDialog/Geometry/" + dpiStr).toByteArray());
-		ok = dlg.exec();
-
-		if (ok)
+		if (plItem->plottable()->name() != "Reference Current")
 		{
-			plItem->plottable()->setName(dlg.textValue());
-			ui.plotWidget->replot();
-		}
+			bool ok;
+			QSettings settings;
 
-		settings.setValue(axisStr + "LabelDialog/Geometry/" + dpiStr, dlg.saveGeometry());
+			QInputDialog dlg(this);
+			dlg.setInputMode(QInputDialog::TextInput);
+			dlg.setWindowTitle("Set Graph Name");
+			dlg.setLabelText("New graph name:");
+			dlg.setTextValue(plItem->plottable()->name());
+
+			// save/restore different geometry for different DPI screens
+			QScreen* screen = QApplication::primaryScreen();
+			QString dpiStr = QString::number(screen->logicalDotsPerInch());
+			dlg.restoreGeometry(settings.value(axisStr + "LabelDialog/Geometry/" + dpiStr).toByteArray());
+			ok = dlg.exec();
+
+			if (ok)
+			{
+				plItem->plottable()->setName(dlg.textValue());
+				ui.plotWidget->replot();
+			}
+
+			settings.setValue(axisStr + "LabelDialog/Geometry/" + dpiStr, dlg.saveGeometry());
+		}
 	}
 }
 
@@ -779,10 +890,13 @@ void magnetdaq::selectionChanged()
 	{
 		QCPGraph *graph = ui.plotWidget->graph(i);
 		QCPPlottableLegendItem *item = ui.plotWidget->legend->itemWithPlottable(graph);
-		if (item->selected() || graph->selected())
+		if (item)
 		{
-			item->setSelected(true);
-			graph->setSelection(QCPDataSelection(graph->data()->dataRange()));
+			if (item->selected() || graph->selected())
+			{
+				item->setSelected(true);
+				graph->setSelection(QCPDataSelection(graph->data()->dataRange()));
+			}
 		}
 	}
 }

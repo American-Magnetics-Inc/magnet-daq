@@ -22,6 +22,10 @@ void magnetdaq::refreshRampdownList(void)
 		else
 		{
 			rampdownSummaries.clear();
+
+			// clear widgets for no events
+			ui.rampdownListWidget->clear();
+			ui.rampdownEventTextEdit->clear();
 		}
 	}
 }
@@ -71,6 +75,12 @@ void magnetdaq::syncRampdownEvents(QString str)
 		ui.rampdownListWidget->addItems(titles);
 		ui.rampdownListWidget->setCurrentRow(0);
 	}
+	else
+	{
+		// clear widgets for no response
+		ui.rampdownListWidget->clear();
+		ui.rampdownEventTextEdit->clear();
+	}
 
 	QApplication::restoreOverrideCursor();
 }
@@ -98,6 +108,10 @@ void magnetdaq::refreshQuenchList(void)
 		else
 		{
 			quenchSummaries.clear();
+
+			// clear widgets for no events
+			ui.quenchListWidget->clear();
+			ui.quenchEventTextEdit->clear();
 		}
 	}
 }
@@ -146,6 +160,12 @@ void magnetdaq::syncQuenchEvents(QString str)
 		ui.quenchListWidget->clear();
 		ui.quenchListWidget->addItems(titles);
 		ui.quenchListWidget->setCurrentRow(0);
+	}
+	else
+	{
+		// clear widgets for no response
+		ui.quenchListWidget->clear();
+		ui.quenchEventTextEdit->clear();
 	}
 
 	QApplication::restoreOverrideCursor();

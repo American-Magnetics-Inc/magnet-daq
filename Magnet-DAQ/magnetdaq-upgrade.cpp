@@ -21,9 +21,9 @@ const double requiredLegacyFirmwareId = 2.55;
 const double requiredFirmwareId = 3.05;
 
 // firmware versions included in Resource file (update these values when new version is included)
-const double legacyFirmwareId = 2.62;
+const double legacyFirmwareId = 2.65;
 const QString legacyFirmwareSuffix = "";
-const double firmwareId = 3.12;
+const double firmwareId = 3.15;
 const QString firmwareSuffix = "";
 
 //---------------------------------------------------------------------------
@@ -42,6 +42,28 @@ bool magnetdaq::checkFirmwareVersion(void)
 	else
 	{
 		if (version >= requiredFirmwareId)
+			return true;
+	}
+
+	return false;
+}
+
+//---------------------------------------------------------------------------
+//	Returns "true" firmware is >= 2.64 or 3.14, "false" otherwise.
+//---------------------------------------------------------------------------
+bool magnetdaq::supports_AMITRG(void)
+{
+	double version = model430.firmwareVersion();
+	bool isLegacy = model430.firmwareVersion() < 3.00 ? true : false;
+
+	if (isLegacy)
+	{
+		if (version >= 2.64)
+			return true;
+	}
+	else
+	{
+		if (version >= 3.14)
 			return true;
 	}
 

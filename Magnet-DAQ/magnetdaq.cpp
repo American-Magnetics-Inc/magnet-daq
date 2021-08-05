@@ -59,37 +59,6 @@ magnetdaq::magnetdaq(QWidget *parent)
 	ui.displayFrame->setStyleSheet("border: 0;");
 
 #elif defined(Q_OS_MACOS)
-	// Mac base font scaling is different than Linux and Windows
-	// use ~ 96/72 = 1.333 factor for upscaling every font size
-	// we must do this everywhere a font size is specified
-	QGuiApplication::setFont(QFont(".SF NS Text", 13));
-	QFont::insertSubstitution("Segoe UI", ".SF NS Text");
-	QFont::insertSubstitution("Lucida Console", "Monaco");
-
-	// these font sizes seem to be somehow "frozen" in the ui file
-	// replace them here in code so we don't have to have a Mac-specific ui file
-	this->setFont(QFont(".SF NS Text", 13));
-	ui.setupDockWidget->setFont(QFont(".SF NS Text", 13));
-	ui.plotDockWidget->setFont(QFont(".SF NS Text", 13));
-	ui.keypadDockWidget->setFont(QFont(".SF NS Text", 13));
-	ui.centralWidget->setFont(QFont(".SF NS Text", 13));
-	ui.devicesTableWidget->setFont(QFont(".SF NS Text", 13));
-	ui.plotSelectionsLayout->setSpacing(8);
-	ui.quenchListWidget->setFont(QFont("Monaco", 13));
-	ui.quenchEventTextEdit->setFont(QFont("Monaco", 13));
-	ui.settingsTextEdit->setFont(QFont("Monaco", 13));
-	ui.rampdownListWidget->setFont(QFont("Monaco", 13));
-	ui.rampdownEventTextEdit->setFont(QFont("Monaco", 13));
-	ui.fieldAtTargetLEDLabel->setFont(QFont(".SF NS Text", 13));
-	ui.persistentLEDLabel->setFont(QFont(".SF NS Text", 13));
-	ui.energizedLEDLabel->setFont(QFont(".SF NS Text", 13));
-	ui.quenchLabel->setFont(QFont(".SF NS Text", 13));
-	ui.persistSwitchControlButton->setFont(QFont(".SF NS Text", 13));
-	ui.targetFieldSetpointButton->setFont(QFont(".SF NS Text", 13));
-	ui.rampPauseButton->setFont(QFont(".SF NS Text", 13));
-	ui.serialNumLabel->setFont(QFont(".SF NS Text", 11));
-	ui.serialNumEdit->setFont(QFont(".SF NS Text", 11));
-
 	// remove unsightly frame outlines
 	ui.keypadFrame->setStyleSheet("border: 0;");
 	ui.displayFrame->setStyleSheet("border: 0;");
@@ -383,6 +352,7 @@ magnetdaq::magnetdaq(QWidget *parent)
 	connect(ui.magnetVoltageCheckBox, SIGNAL(toggled(bool)), this, SLOT(magnetVoltageSelectionChanged(bool)));
 	connect(ui.supplyCurrentCheckBox, SIGNAL(toggled(bool)), this, SLOT(supplyCurrentSelectionChanged(bool)));
 	connect(ui.supplyVoltageCheckBox, SIGNAL(toggled(bool)), this, SLOT(supplyVoltageSelectionChanged(bool)));
+	connect(ui.referenceCheckBox, SIGNAL(toggled(bool)), this, SLOT(referenceSelectionChanged(bool)));
 	connect(ui.logfileButton, SIGNAL(clicked(bool)), this, SLOT(chooseLogfile(bool)));
 	connect(ui.persistSwitchControlButton, SIGNAL(clicked()), this, SLOT(persistentSwitchButtonClicked()));
 	connect(ui.targetFieldSetpointButton, SIGNAL(clicked()), this, SLOT(targetSetpointButtonClicked()));
@@ -637,7 +607,7 @@ void magnetdaq::actionRun(void)
 
 		plotCount = 0;
 		// clear data
-		for (int i = 0; i < 5; i++)
+		for (int i = 0; i < 6; i++)
 			ui.plotWidget->graph(i)->data()->clear();
 		ui.plotWidget->replot();
 
@@ -785,11 +755,23 @@ void magnetdaq::actionRun(void)
 				if (ui.autoscrollXCheckBox->isChecked())
 					timeAxis->setRange(ui.xminEdit->text().toDouble(), ui.xmaxEdit->text().toDouble());
 
+				// enable/disable ramp reference current plot option
+				if (supports_AMITRG())
+				{
+					ui.referenceCheckBox->setEnabled(true);
+				}
+				else
+				{
+					ui.referenceCheckBox->setEnabled(false);
+					ui.referenceCheckBox->setChecked(false);
+				}
+
 				plotTimer->start();
 
 				// enable table functions
 				ui.manualControlGroupBox->setEnabled(true);
 				ui.autoStepGroupBox->setEnabled(true);
+				syncTableUnits();
 
 				statusConnectState->setStyleSheet("color: green; font: bold");
 				statusConnectState->setText("Connected to " + ui.ipAddressEdit->text());

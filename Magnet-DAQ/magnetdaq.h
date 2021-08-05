@@ -5,7 +5,13 @@
 #include <QLabel>
 #include "ui_magnetdaq.h"
 #include "errorhistorydlg.h"
+
+#if defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
+#include "qcustomplot.h"
+#else
 #include "qcp.h"
+#endif
+
 #include "socket.h"
 #include "model430.h"
 #include "parser.h"
@@ -42,6 +48,7 @@ constexpr auto MAGNET_FIELD_GRAPH = 1;
 constexpr auto SUPPLY_CURRENT_GRAPH = 2;
 constexpr auto MAGNET_VOLTAGE_GRAPH = 3;
 constexpr auto SUPPLY_VOLTAGE_GRAPH = 4;
+constexpr auto RAMP_REFERENCE_GRAPH = 5;
 
 //---------------------------------------------------------------------------
 class magnetdaq : public QMainWindow
@@ -119,8 +126,10 @@ private slots:
 	void magnetVoltageSelectionChanged(bool checked);
 	void supplyCurrentSelectionChanged(bool checked);
 	void supplyVoltageSelectionChanged(bool checked);
+	void referenceSelectionChanged(bool checked);
 	void titleDoubleClick(QMouseEvent* event);
 	void axisLabelDoubleClick(QCPAxis* axis, QCPAxis::SelectablePart part);
+	void syncPlotLegend();
 	void legendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item);
 	void selectionChanged();
 	void mousePress();
