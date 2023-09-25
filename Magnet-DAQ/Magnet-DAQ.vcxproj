@@ -46,7 +46,7 @@
     <PrimaryOutput>Magnet-DAQ</PrimaryOutput>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <OutputDirectory>..\x64\Release\</OutputDirectory>
     <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
     <CharacterSet>NotSet</CharacterSet>
@@ -101,29 +101,33 @@
     <TargetName>Magnet-DAQ</TargetName>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <QtInstall>msvc_2019_64_6.2</QtInstall>
-    <QtModules>concurrent;core;gui;network;opengl;printsupport;widgets</QtModules>
-    <QtHeaderSearchPath>include/QCustomPlot</QtHeaderSearchPath>
+    <QtInstall>msvc2019_64</QtInstall>
+    <QtModules>concurrent;core;gui;gui-private;network;opengl;printsupport;widgets</QtModules>
+    <QtHeaderSearchPath>
+    </QtHeaderSearchPath>
     <QtLibrarySearchPath>lib</QtLibrarySearchPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="QtSettings">
-    <QtInstall>msvc_2019_64_6.0</QtInstall>
-    <QtModules>concurrent;core;gui;network;opengl;printsupport;widgets</QtModules>
+    <QtInstall>msvc2019</QtInstall>
+    <QtModules>concurrent;core;gui;gui-private;network;opengl;printsupport;widgets</QtModules>
     <QtHeaderSearchPath>include/QCustomPlot</QtHeaderSearchPath>
     <QtLibrarySearchPath>lib</QtLibrarySearchPath>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <QtInstall>msvc2019_64</QtInstall>
-    <QtModules>concurrent;core;gui;network;opengl;printsupport;widgets</QtModules>
-    <QtHeaderSearchPath>include/QCustomPlot</QtHeaderSearchPath>
+    <QtModules>concurrent;core;gui;gui-private;network;opengl;printsupport;widgets</QtModules>
+    <QtHeaderSearchPath>
+    </QtHeaderSearchPath>
     <QtLibrarySearchPath>lib</QtLibrarySearchPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="QtSettings">
     <QtInstall>msvc2019</QtInstall>
-    <QtModules>concurrent;core;gui;network;opengl;printsupport;widgets</QtModules>
-    <QtHeaderSearchPath>include/QCustomPlot</QtHeaderSearchPath>
+    <QtModules>concurrent;core;gui;gui-private;network;opengl;printsupport;widgets</QtModules>
+    <QtHeaderSearchPath>
+    </QtHeaderSearchPath>
     <QtLibrarySearchPath>lib</QtLibrarySearchPath>
   </PropertyGroup>
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
@@ -131,15 +135,15 @@
   </ImportGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;release;/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -permissive- -Zc:__cplusplus -Zc:externConstexpr -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;release;/include;$(QtDIR)\include\QCustomPlot;./header;$(QtDIR)\include\QtGui\$(QTVERSION)\QtGui;$(QtDIR)\include\QtCore\$(QTVERSION);$(QtDIR)\include\QtGui\$(QTVERSION);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/Zc:rvalueCast /Zc:inline /Zc:strictStrings /Zc:throwingNew /permissive- /Zc:__cplusplus /Zc:externConstexpr /w34100 /w34189 /w44996 /w44456 /w44457 /w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>release\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
       <DebugInformationFormat>None</DebugInformationFormat>
       <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
       <ForcedIncludeFiles>stdafx.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <ObjectFileName>release\</ObjectFileName>
       <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -154,10 +158,11 @@
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <WarningLevel>Level3</WarningLevel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;$(QTDIR)\lib\qcustomplot.lib;shell32.lib;QtXlsxWriter.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>qcustomplot\release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;$(QTDIR)\lib\qcustomplot.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -185,6 +190,8 @@
       <DynamicSource>output</DynamicSource>
       <QtMocDir>$(Configuration)</QtMocDir>
       <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </QtMoc>
     <QtRcc>
       <InitFuncName>magnetdaq</InitFuncName>
@@ -196,7 +203,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;release;/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;release;/include;$(QtDIR)\include\QCustomPlot;./header;$(QtDIR)\include\QtGui\$(QTVERSION)\QtGui;$(QtDIR)\include\QtCore\$(QTVERSION);$(QtDIR)\include\QtGui\$(QTVERSION);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:__cplusplus -Zc:externConstexpr -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>release\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -221,8 +228,8 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;$(QTDIR)\lib\qcustomplot.lib;shell32.lib;QtXlsxWriter.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>qcustomplot\release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;$(QTDIR)\lib\qcustomplot.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -261,14 +268,13 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;debug;/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -permissive- -Zc:__cplusplus -Zc:externConstexpr -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;debug;/include;$(QtDIR)\include\QCustomPlot;./header;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/Zc:rvalueCast /Zc:inline /Zc:strictStrings /Zc:throwingNew /permissive- /Zc:__cplusplus /Zc:externConstexpr /w34100 /w34189 /w44996 /w44456 /w44457 /w44458 /D DEBUG %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>debug\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
-      <ForcedIncludeFiles>stdafx.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ObjectFileName>debug\</ObjectFileName>
       <Optimization>Disabled</Optimization>
@@ -282,10 +288,12 @@
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <WarningLevel>Level3</WarningLevel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;$(QTDIR)\lib\qcustomplotd.lib;shell32.lib;$(QTDIR)\lib\QtXlsxWriterd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>qcustomplot\release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;$(QTDIR)\lib\qcustomplotd.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -294,6 +302,7 @@
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <SubSystem>Windows</SubSystem>
       <SuppressStartupBanner>true</SuppressStartupBanner>
+      <EntryPointSymbol>MyEntryPoint</EntryPointSymbol>
     </Link>
     <Midl>
       <DefaultCharType>Unsigned</DefaultCharType>
@@ -399,6 +408,39 @@
     <ClCompile Include="qled.cpp" />
     <ClCompile Include="qtablewidgetwithcopypaste.cpp" />
     <ClCompile Include="socket.cpp" />
+    <ClCompile Include="source\xlsxabstractooxmlfile.cpp" />
+    <ClCompile Include="source\xlsxabstractsheet.cpp" />
+    <ClCompile Include="source\xlsxcell.cpp" />
+    <ClCompile Include="source\xlsxcellformula.cpp" />
+    <ClCompile Include="source\xlsxcelllocation.cpp" />
+    <ClCompile Include="source\xlsxcellrange.cpp" />
+    <ClCompile Include="source\xlsxcellreference.cpp" />
+    <ClCompile Include="source\xlsxchart.cpp" />
+    <ClCompile Include="source\xlsxchartsheet.cpp" />
+    <ClCompile Include="source\xlsxcolor.cpp" />
+    <ClCompile Include="source\xlsxconditionalformatting.cpp" />
+    <ClCompile Include="source\xlsxcontenttypes.cpp" />
+    <ClCompile Include="source\xlsxdatavalidation.cpp" />
+    <ClCompile Include="source\xlsxdatetype.cpp" />
+    <ClCompile Include="source\xlsxdocpropsapp.cpp" />
+    <ClCompile Include="source\xlsxdocpropscore.cpp" />
+    <ClCompile Include="source\xlsxdocument.cpp" />
+    <ClCompile Include="source\xlsxdrawing.cpp" />
+    <ClCompile Include="source\xlsxdrawinganchor.cpp" />
+    <ClCompile Include="source\xlsxformat.cpp" />
+    <ClCompile Include="source\xlsxmediafile.cpp" />
+    <ClCompile Include="source\xlsxnumformatparser.cpp" />
+    <ClCompile Include="source\xlsxrelationships.cpp" />
+    <ClCompile Include="source\xlsxrichstring.cpp" />
+    <ClCompile Include="source\xlsxsharedstrings.cpp" />
+    <ClCompile Include="source\xlsxsimpleooxmlfile.cpp" />
+    <ClCompile Include="source\xlsxstyles.cpp" />
+    <ClCompile Include="source\xlsxtheme.cpp" />
+    <ClCompile Include="source\xlsxutility.cpp" />
+    <ClCompile Include="source\xlsxworkbook.cpp" />
+    <ClCompile Include="source\xlsxworksheet.cpp" />
+    <ClCompile Include="source\xlsxzipreader.cpp" />
+    <ClCompile Include="source\xlsxzipwriter.cpp" />
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -414,6 +456,24 @@
     </QtMoc>
     <QtMoc Include="parser.h">
     </QtMoc>
+    <ClInclude Include="header\xlsxabstractooxmlfile.h" />
+    <ClInclude Include="header\xlsxabstractsheet.h" />
+    <ClInclude Include="header\xlsxcell.h" />
+    <ClInclude Include="header\xlsxcellformula.h" />
+    <ClInclude Include="header\xlsxcelllocation.h" />
+    <ClInclude Include="header\xlsxcellrange.h" />
+    <ClInclude Include="header\xlsxcellreference.h" />
+    <ClInclude Include="header\xlsxchart.h" />
+    <ClInclude Include="header\xlsxchartsheet.h" />
+    <ClInclude Include="header\xlsxconditionalformatting.h" />
+    <ClInclude Include="header\xlsxdatavalidation.h" />
+    <ClInclude Include="header\xlsxdatetype.h" />
+    <QtMoc Include="header\xlsxdocument.h" />
+    <ClInclude Include="header\xlsxformat.h" />
+    <ClInclude Include="header\xlsxglobal.h" />
+    <ClInclude Include="header\xlsxrichstring.h" />
+    <ClInclude Include="header\xlsxworkbook.h" />
+    <ClInclude Include="header\xlsxworksheet.h" />
     <ClInclude Include="property.hpp" />
     <QtMoc Include="qled.h">
     </QtMoc>
@@ -585,7 +645,7 @@ echo #include "stdafx.h"&gt;&gt;stdafx.h.cpp</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">release\moc_predefs.h;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">release\moc_predefs.h;%(Outputs)</Outputs>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </CustomBuild>
     <ClCompile Include="stdafx.h.cpp">
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(NOINHERIT)</ForcedIncludeFiles>
@@ -604,6 +664,11 @@ echo #include "stdafx.h"&gt;&gt;stdafx.h.cpp</Command>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="magnetdaq.qrc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <AdditionalCppOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/permissive- /Zc:__cplusplus</AdditionalCppOptions>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <AdditionalCppOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/permissive- /Zc:__cplusplus</AdditionalCppOptions>
     </QtRcc>
   </ItemGroup>
   <ItemGroup>

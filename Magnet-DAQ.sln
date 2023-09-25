@@ -1,12 +1,14 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31129.286
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33530.505
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Magnet-DAQ", "Magnet-DAQ\Magnet-DAQ.vcxproj", "{E4550AD4-5BFC-4F38-8EDE-677E3E701C3F}"
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "MagnetDAQ-Setup", "MagnetDAQ-Setup\MagnetDAQ-Setup.vdproj", "{21DF96DF-DBCD-4C28-BA27-AC5812DA3887}"
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "MagnetDAQ-Setup-Win32", "MagnetDAQ-Setup-Win32\MagnetDAQ-Setup-Win32.vdproj", "{B29BCE47-8071-46B1-AFFD-A1290A598023}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "MagnetDAQ-Setup-Qt5-x64", "MagnetDAQ-Setup-Qt5-x64\MagnetDAQ-Setup-Qt5-x64.vdproj", "{91A4C0CF-FF1A-4AA9-A5AA-507B438ADB4E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -48,12 +50,18 @@ Global
 		{B29BCE47-8071-46B1-AFFD-A1290A598023}.Release|x64.ActiveCfg = Release
 		{B29BCE47-8071-46B1-AFFD-A1290A598023}.Release|x86.ActiveCfg = Release
 		{B29BCE47-8071-46B1-AFFD-A1290A598023}.Release|x86.Build.0 = Release
+		{91A4C0CF-FF1A-4AA9-A5AA-507B438ADB4E}.Debug|Win32.ActiveCfg = Debug
+		{91A4C0CF-FF1A-4AA9-A5AA-507B438ADB4E}.Debug|x64.ActiveCfg = Debug
+		{91A4C0CF-FF1A-4AA9-A5AA-507B438ADB4E}.Debug|x86.ActiveCfg = Debug
+		{91A4C0CF-FF1A-4AA9-A5AA-507B438ADB4E}.Release|Win32.ActiveCfg = Release
+		{91A4C0CF-FF1A-4AA9-A5AA-507B438ADB4E}.Release|x64.ActiveCfg = Release
+		{91A4C0CF-FF1A-4AA9-A5AA-507B438ADB4E}.Release|x86.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		Qt5Version = 5.1.1
 		SolutionGuid = {A9335770-1C13-4AE6-AD3A-A82CC072CA4C}
+		Qt5Version = 5.1.1
 	EndGlobalSection
 EndGlobal

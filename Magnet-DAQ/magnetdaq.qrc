@@ -48,9 +48,6 @@
         <file>Resources/Key-left@2x.png</file>
         <file>Resources/Key-right.png</file>
         <file>Resources/Key-right@2x.png</file>
-        <file>Resources/BFN____.otf</file>
-        <file>Resources/BFP____.otf</file>
-        <file>Resources/WINGDNG3.TTF</file>
         <file>Resources/settings.png</file>
         <file>Resources/settings@2x.png</file>
         <file>Resources/appicon.png</file>
@@ -94,5 +91,8 @@
         <file>Resources/show_more.png</file>
         <file>Resources/pswitch.png</file>
         <file>Resources/pswitch@2x.png</file>
+        <file>Resources/ARM/Model430.exe</file>
+        <file>Resources/AMIBubbledotFinePositive.otf</file>
+        <file>Resources/AMIBubbledotFinePositive.ttf</file>
     </qresource>
 </RCC>

@@ -1,5 +1,5 @@
-/* This file is part of the KDE libraries
-Copyright (C) 1998 J�rg Habenicht (j.habenicht@europemail.com)
+﻿/* This file is part of the KDE libraries
+Copyright (C) 1998 Jörg Habenicht (j.habenicht@europemail.com)
 Copyright (C) 2010 Christoph Feck <cfeck@kde.org>
 
 This library is free software; you can redistribute it and/or
@@ -242,9 +242,9 @@ void KLed::paintEvent(QPaintEvent *)
 	image.fill(0);
 
 	QRadialGradient fillGradient(center, smallestSize / 2.0, QPointF(center.x(), size.height() / 3.0));
-	const QColor fillColor = d->state != Off ? d->color : d->color.dark(d->darkFactor);
-	fillGradient.setColorAt(0.0, fillColor.light(250));
-	fillGradient.setColorAt(0.5, fillColor.light(130));
+	const QColor fillColor = d->state != Off ? d->color : d->color.darker(d->darkFactor);
+	fillGradient.setColorAt(0.0, fillColor.lighter(250));
+	fillGradient.setColorAt(0.5, fillColor.lighter(130));
 	fillGradient.setColorAt(1.0, fillColor);
 
 	QConicalGradient borderGradient(center, d->look == Sunken ? 90 : -90);

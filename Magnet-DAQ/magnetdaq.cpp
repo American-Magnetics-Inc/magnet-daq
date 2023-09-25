@@ -23,10 +23,10 @@ magnetdaq::magnetdaq(QWidget *parent)
 	: QMainWindow(parent)
 {
 	// add application-specific fonts
-	QFontDatabase::addApplicationFont(":/magnetdaq/Resources/BFN____.otf");	// family: Bubbledot Fine Negative
-	QFontDatabase::addApplicationFont(":/magnetdaq/Resources/BFP____.otf");	// family: Bubbledot Fine Positive
-#if !defined(Q_OS_MACOS)
-	QFontDatabase::addApplicationFont(":/magnetdaq/Resources/WINGDNG3.TTF");	// family: Wingdings 3
+#if defined(Q_OS_WIN)
+	QFontDatabase::addApplicationFont(":/magnetdaq/Resources/AMIBubbledotFinePositive.ttf");	// family: AMI's custom Bubbledot Fine Positive
+#else
+	QFontDatabase::addApplicationFont(":/magnetdaq/Resources/AMIBubbledotFinePositive.otf");	// family: AMI's custom Bubbledot Fine Positive
 #endif
 	qRegisterMetaType<QueryState>("QueryState");
 
@@ -36,6 +36,12 @@ magnetdaq::magnetdaq(QWidget *parent)
 	ui.setupDockWidget->hide();
 	ui.plotDockWidget->hide();
 	ui.keypadDockWidget->hide();
+
+	// some hidden page items
+	ui.sampleQuenchEnableLabel->setVisible(false);
+	ui.sampleQuenchEnableComboBox->setVisible(false);
+	ui.sampleQuenchLimitLabel->setVisible(false);
+	ui.sampleQuenchLimitSpinBox->setVisible(false);
 
 	this->setWindowTitle(QCoreApplication::applicationName() + " - v" + QCoreApplication::applicationVersion() + "   (AMI Model 430 Remote Control)");
 	ui.voltageLimitLabel->setText("<html>Voltage Limit (&plusmn;V) :</html>");
@@ -67,6 +73,13 @@ magnetdaq::magnetdaq(QWidget *parent)
 	QGuiApplication::setFont(QFont("Segoe UI", 9));
 	this->setStyleSheet("QMainWindow::separator {background: rgb(200, 200, 200); width: 1px; height: 1px;} QTabBar {font-family: Arial; font-weight: bold; font-size: 8pt};");
 	ui.mainTabWidget->tabBar()->setStyleSheet("font-family: \"Segoe UI\"; font-size: 9pt");
+
+	// for some reason these font selections won't stick in UI editor
+	ui.rampdownListWidget->setFont(QFont("Lucida Console", 10));
+	ui.rampdownEventTextEdit->setFont(QFont("Lucida Console", 9));
+	ui.quenchListWidget->setFont(QFont("Lucida Console", 10));
+	ui.quenchEventTextEdit->setFont(QFont("Lucida Console", 9));
+	ui.settingsTextEdit->setFont(QFont("Lucida Console", 9));
 #endif
 
 	/************************************************************
@@ -87,9 +100,12 @@ magnetdaq::magnetdaq(QWidget *parent)
 	************************************************************/
 
 	// init states
-	parserErrorStatusIsActive = false;
-	errorStatusIsActive = false;
-	parser = NULL;	// stdin parser
+	parserErrorStatusIsActive.store(false);
+	errorStatusIsActive.store(false);
+	parser = nullptr;	// stdin parser
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+	ftp = nullptr;
+#endif
 	isXAxis = false;
 	isYAxis = false;
 	isZAxis = false;
@@ -229,11 +245,11 @@ magnetdaq::magnetdaq(QWidget *parent)
 	ui.setupDockWidget->setContextMenuPolicy(Qt::PreventContextMenu);
 
 	// init members and ui state
-	socket = NULL;
-	telnet = NULL;
+	socket = nullptr;
+	telnet = nullptr;
 	lastPath = "";
-	logFile = NULL;
-	upgradeWizard = NULL;
+	logFile = nullptr;
+	upgradeWizard = nullptr;
 	errorCode = NO_ERROR;
 	errorstackDlg = nullptr;
 	ui.actionRun->setEnabled(true);
@@ -406,6 +422,8 @@ magnetdaq::magnetdaq(QWidget *parent)
 	connect(ui.stabilityResistorCheckBox, SIGNAL(toggled(bool)), this, SLOT(checkBoxValueChanged(bool)));
 	connect(ui.switchTransitionComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(menuValueChanged(int)));
 	connect(ui.quenchEnableComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(menuValueChanged(int)));
+	connect(ui.sampleQuenchEnableComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(menuValueChanged(int)));
+	connect(ui.sampleQuenchLimitSpinBox, SIGNAL(valueChanged(int)), this, SLOT(sampleQuenchLimitChanged(int)));
 	connect(ui.quenchSensitivityComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(menuValueChanged(int)));
 	connect(ui.externRampdownComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(menuValueChanged(int)));
 	connect(ui.protectionModeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(menuValueChanged(int)));
@@ -466,13 +484,21 @@ magnetdaq::~magnetdaq()
 	if (plotTimer)
 	{
 		delete plotTimer;
-		plotTimer = NULL;
+		plotTimer = nullptr;
 	}
+
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+	if (ftp)
+	{
+		delete ftp;
+		ftp = nullptr;
+	}
+#endif
 
 	if (upgradeWizard)
 	{
 		delete upgradeWizard;
-		upgradeWizard = NULL;
+		upgradeWizard = nullptr;
 	}
 
 	// save window position and state
@@ -618,6 +644,10 @@ void magnetdaq::actionRun(void)
 		// check for required firmware update
 		if (checkFirmwareVersion())
 		{
+			// set for *ETE 151 if *AMITRG not supported
+			if (!supports_AMITRG())
+				socket->sendCommand("*ETE 151\r\n");
+
 			// connect the socket data ready signal to the plot
 			connect(socket, SIGNAL(nextDataPoint(qint64, double, double, double, double, double, double, quint8, quint8)),
 				this, SLOT(addDataPoint(qint64, double, double, double, double, double, double, quint8, quint8)));
@@ -766,6 +796,16 @@ void magnetdaq::actionRun(void)
 					ui.referenceCheckBox->setChecked(false);
 				}
 
+				// support higher data rate if version 4.0 or higher due to new CPU (isARM)
+#if defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
+				// placeholder
+#else
+				// Windows seems to give preference to the user interface updates at the
+				// expense of slowing the plotTimer data collection rate, so we set the update
+				// rate to a higher value and let the interface dictate the actual achieved rate.
+				if (isARM() && !parseInput)
+					plotTimer->setInterval(100);	// 10 updates per second max rate on Windows
+#endif
 				plotTimer->start();
 
 				// enable table functions
@@ -832,10 +872,10 @@ void magnetdaq::actionRun(void)
 				statusConnectState->setStyleSheet("color: red; font: bold");
 				statusConnectState->setText("Failed to connect!");
 				socket->deleteLater();
-				socket = NULL;
+				socket = nullptr;
 
 				telnet->deleteLater();
-				telnet = NULL;
+				telnet = nullptr;
 			}
 		}
 		else
@@ -843,8 +883,8 @@ void magnetdaq::actionRun(void)
 			// firmware needs updating
 			progressDialog.close();
 			socket->deleteLater();
-			socket = NULL;
-			telnet = NULL;
+			socket = nullptr;
+			telnet = nullptr;
 
 			if (parseInput)	// cannot upgrade firmware when under remote control as upgrade process should not be interrupted
 			{
@@ -907,8 +947,8 @@ void magnetdaq::actionRun(void)
 		statusConnectState->setText("Failed to connect!");
 		ui.droppedConnectionLabel->setText("Emulated display/keypad not presently connected to a remote device.");
 		socket->deleteLater();
-		socket = NULL;
-		telnet = NULL;
+		socket = nullptr;
+		telnet = nullptr;
 	}
 }
 
@@ -919,7 +959,7 @@ void magnetdaq::actionStop(void)
 	if (parser)
 	{
 		parser->stop();
-		parser = NULL;
+		parser = nullptr;
 	}
 
 	// stop any active table auto-stepping
@@ -931,16 +971,16 @@ void magnetdaq::actionStop(void)
 	// close all 430 connections
 	if (socket)
 	{
-		model430.setSocket(NULL);
+		model430.setSocket(nullptr);
 		socket->deleteLater();
-		socket = NULL;
+		socket = nullptr;
 		setDeviceWindowTitle();
 	}
 
 	if (telnet)
 	{
 		telnet->deleteLater();
-		telnet = NULL;
+		telnet = nullptr;
 	}
 
 	if (logFile)
@@ -948,7 +988,7 @@ void magnetdaq::actionStop(void)
 		logFile->flush();
 		logFile->close();
 		delete logFile;
-		logFile = NULL;
+		logFile = nullptr;
 	}
 
 	ui.actionRun->setEnabled(true);
@@ -1061,7 +1101,7 @@ void magnetdaq::actionPrint(void)
 {
 #if defined(USE_QTPRINTER) || defined(USE_QTPRINTER_6)
 	// print main plot
-	QPrinter printer(QPrinterInfo::defaultPrinter()); // , QPrinter::ScreenResolution);
+	QPrinter printer(QPrinterInfo::defaultPrinter(), QPrinter::ScreenResolution);
 	QPrintPreviewDialog previewDialog(&printer, this);
 
 	if (ui.mainTabWidget->currentIndex() == PLOT_TAB)
@@ -1070,14 +1110,16 @@ void magnetdaq::actionPrint(void)
 		connect(&previewDialog, SIGNAL(paintRequested(QPrinter*)), SLOT(renderRampPlot(QPrinter*)));
 	else if (ui.mainTabWidget->currentIndex() == RAMPDOWN_TAB)
 		connect(&previewDialog, SIGNAL(paintRequested(QPrinter*)), SLOT(renderRampdownPlot(QPrinter*)));
+
 	previewDialog.exec();
+
 #endif
 }
 
 //---------------------------------------------------------------------------
 void magnetdaq::actionShowErrorDialog(void)
 {
-	if (errorstackDlg == NULL)
+	if (errorstackDlg == nullptr)
 	{
 		errorstackDlg = new errorhistorydlg(this);
 		errorstackDlg->restoreDlgGeometry(axisStr);
@@ -1201,7 +1243,7 @@ void magnetdaq::setStatusMsg(QString msg)
 	// always save the msg
 	lastStatusMiscString = msg;
 
-	if (!errorStatusIsActive && !parserErrorStatusIsActive)	// show it now!
+	if (!errorStatusIsActive.load() && !parserErrorStatusIsActive.load())	// show it now!
 		statusMisc->setText(msg);
 }
 
@@ -1230,9 +1272,9 @@ void magnetdaq::showErrorString(QString errMsg, bool highlight)
 {
 	QString err;
 
-	if (!errorStatusIsActive)
+	if (!errorStatusIsActive.load())
 	{
-		errorStatusIsActive = true;
+		errorStatusIsActive.store(true);
 		lastStatusMiscStyle = statusMisc->styleSheet();
 		lastStatusMiscString = statusMisc->text();
 	}
@@ -1254,9 +1296,9 @@ void magnetdaq::showErrorString(QString errMsg, bool highlight)
 //---------------------------------------------------------------------------
 void magnetdaq::parserErrorString(QString errMsg)
 {
-	if (!parserErrorStatusIsActive)
+	if (!parserErrorStatusIsActive.load())
 	{
-		parserErrorStatusIsActive = true;
+		parserErrorStatusIsActive.store(true);
 		lastStatusMiscStyle = statusMisc->styleSheet();
 		lastStatusMiscString = statusMisc->text();
 	}
@@ -1271,11 +1313,11 @@ void magnetdaq::parserErrorString(QString errMsg)
 //---------------------------------------------------------------------------
 void magnetdaq::errorStatusTimeout(void)
 {
-	if (errorStatusIsActive)
-		errorStatusIsActive = false;
+	if (errorStatusIsActive.load())
+		errorStatusIsActive.store(false);
 
-	if (parserErrorStatusIsActive)
-		parserErrorStatusIsActive = false;
+	if (parserErrorStatusIsActive.load())
+		parserErrorStatusIsActive.store(false);
 
 	statusMisc->setStyleSheet(lastStatusMiscStyle);
 	statusMisc->setText(lastStatusMiscString);	// restore normal messages
@@ -1348,19 +1390,18 @@ void magnetdaq::timeout(void)
 
 //---------------------------------------------------------------------------
 void magnetdaq::updateFrontPanel(QString displayString, bool shiftLED, bool fieldLED, bool persistentLED, bool energizedLED, bool quenchLED)
-{
+{	
 	// first format the displayString for HTML display
 	QString htmlDisplay = "<!DOCTYPE HTML PUBLIC \" -//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n";
 
 	htmlDisplay += "<html><head><meta name =\"qrichtext\" content=\"1\"/><style type=\"text/css\">p, li{white-space:pre-wrap;}\n";
 
 	// font scaling, 14pt is the base font size at 120 dpi
-	QScreen* screen = this->window()->windowHandle()->screen();
+	QScreen* screen = QGuiApplication::primaryScreen();
 	qreal dpi = screen->logicalDotsPerInch();
-	double font_size = 120.0 / dpi * 14.0;
+	double font_size = floor(120.0 / dpi * 14.0);	// truncate to whole number
 
-	htmlDisplay += "</style></head><body style =\"font-family:'Bubbledot Fine Positive'; font-size:" + QString::number(font_size, 'f', 1) + "pt; font-style:normal; \"bgcolor=\"#000000\">\n";
-
+	htmlDisplay += "</style></head><body style =\"font-family:'AMI Bubbledot Fine Positive'; font-size:" + QString::number(font_size, 'f', 0) + "pt; font-style:normal; \"bgcolor=\"#000000\">\n";
 	htmlDisplay += "<p style =\"color:#a2d1ff;\">";
 
 	// *********************************************
@@ -1384,80 +1425,11 @@ void magnetdaq::updateFrontPanel(QString displayString, bool shiftLED, bool fiel
 	// DEGREE address: 0x86
 	displayString.replace(QChar(0x86), "&deg;");
 
-	// *********************************************
-	// Platform/font specific code replacements for special characters
-
-#if defined(Q_OS_MACOS)	// Mac specific, uses the "Edit->Emoticons and Symbols" definitions for MacOS
-	font_size = 120.0 / dpi * 12.0;
-
-	// reverse "P" address: 0x80
-	displayString.replace(QChar(0x80), "<span style = \"font-family:'Bubbledot Fine Negative';font-size:" + QString::number(font_size, 'f', 1) + "pt;\">P</span>");
-
-	// "UP" address: 0x81
-	displayString.replace(QChar(0x81), "<span style=\"font-size:" + QString::number(font_size, 'f', 1) + "pt;\">" + QString("\u2191") + "</span>");
-
-	// "DOWN" address: 0x82
-	displayString.replace(QChar(0x82), "<span style=\"font-size:" + QString::number(font_size, 'f', 1) + "pt;\">" + QString("\u2193") + "</span>");
-
-	// "->" address: 0x83
-	displayString.replace(QChar(0x83), "<span style=\"font-size:" + QString::number(font_size, 'f', 1) + "pt;\">" + QString("\u261B") + "</span>");
-
-	// "<-" address: 0x84
-	displayString.replace(QChar(0x84), "<span style=\"font-size:" + QString::number(font_size, 'f', 1) + "pt;\">" + QString("\u261A") + "</span>");
-
-	// MENU pointer address: 0x85
-	displayString.replace(QChar(0x85), "<span style=\"font-size:" + QString::number(font_size, 'f', 1) + "pt;\">" + QString("\u25BA") + "</span>");
-
-	// ENCODER IN USE address: 0x87
-	displayString.replace(QChar(0x87), "<span style=\"font-size:" + QString::number(font_size, 'f', 1) + "pt;\">" + QString("\u21D5") + "</span>");
-
-	// reverse "V" address: 0x88
-	displayString.replace(QChar(0x88), "<span style=\"font-family:'Bubbledot Fine Negative';\">V</span>");
-
-	// inverse "C" address: 0x89
-	displayString.replace(QChar(0x89), "<span style=\"font-family:'Bubbledot Fine Negative';\">C</span>");
-
-	// inverse "T" address: 0x8A
-	displayString.replace(QChar(0x8A), "<span style=\"font-family:'Bubbledot Fine Negative';\">T</span>");
-
-#else	// Windows and Linux
-	font_size = 120.0 / dpi * 13.0;	// slightly smaller
-
-	// reverse "P" address: 0x80
-	displayString.replace(QChar(0x80), "<span style = \"font-family:'Bubbledot Fine Negative'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">P</span>");
-
-	// "UP" address: 0x81
-	displayString.replace(QChar(0x81), "<span style=\"font-family:'Wingdings 3'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">h</span>");
-
-	// "DOWN" address: 0x82
-	displayString.replace(QChar(0x82), "<span style=\"font-family:'Wingdings 3'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">i</span>");
-
-	// reverse "V" address: 0x88
-	displayString.replace(QChar(0x88), "<span style=\"font-family:'Bubbledot Fine Negative'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">V</span>");
-
-	// inverse "C" address: 0x89
-	displayString.replace(QChar(0x89), "<span style=\"font-family:'Bubbledot Fine Negative'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">C</span>");
-
-	// inverse "T" address: 0x8A
-	displayString.replace(QChar(0x8A), "<span style=\"font-family:'Bubbledot Fine Negative'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">T</span>");
-
-	font_size = 120.0 / dpi * 10.0;	// somewhat smaller
-
-	// "->" address: 0x83
-	displayString.replace(QChar(0x83), "<span style=\"font-family:'Wingdings 3'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">&#xE2;</span>");
-
-	// "<-" address: 0x84
-	displayString.replace(QChar(0x84), "<span style=\"font-family:'Wingdings 3'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">&#xE1;</span>");
-
-	// MENU pointer address: 0x85
-	displayString.replace(QChar(0x85), "<span style=\"font-family:'Wingdings 3'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">u</span>");
-
-	// ENCODER IN USE address: 0x87
-	displayString.replace(QChar(0x87), "<span style=\"font-family:'Wingdings 3'; font-size:" + QString::number(font_size, 'f', 1) + "pt;\">o</span>");
-#endif
-
 	// complete the displayString
-	htmlDisplay += displayString;
+	if (displayString.isEmpty())
+		htmlDisplay += " ";
+	else
+		htmlDisplay += displayString;
 	htmlDisplay += "</p></body></html>";
 
 	// update the display interface
@@ -1495,7 +1467,7 @@ void magnetdaq::updateFrontPanel(QString displayString, bool shiftLED, bool fiel
 	else
 		ui.quenchLED->setState(KLed::State::Off);
 
-	// set heater switch state if prior to firmware that supports heater state
+	// set heater switch state if prior to firmware that returns heater state with trigger
 	if (!supports_AMITRG())
 	{
 		if (displayString.contains("PSwitch Heater: ON"))
@@ -1514,7 +1486,7 @@ void magnetdaq::systemErrorNotification(void)
 
 	// try to get explanation of remote errors
 	if (socket)
-		socket->sendQuery("SYST:ERR?\r\n", SYSTEM_ERROR);
+		socket->sendQuery("SYST:ERR?\r\n", QueryState::SYSTEM_ERROR);
 }
 
 //---------------------------------------------------------------------------
@@ -1549,12 +1521,15 @@ void magnetdaq::displaySystemError(QString errMsg, QString errorSourceStr)
 		}
 		else
 		{
-			statusMisc->setStyleSheet("color: red; font: bold");
-			statusMisc->setText(errMsg.remove("\r\n") + "::" + errorSourceStr.remove("\r\n"));
-			qDebug() << errMsg.remove("\r\n") << "::" << errorSourceStr.remove("\r\n");	// send to log
+			if (!errMsg.isEmpty())
+			{
+				statusMisc->setStyleSheet("color: red; font: bold");
+				statusMisc->setText(errMsg.remove("\r\n") + "::" + errorSourceStr.remove("\r\n"));
+				qDebug() << errMsg.remove("\r\n") << "::" << errorSourceStr.remove("\r\n");	// send to log
 
-			postErrorRefresh();	// refresh currently displayed values, erasing any erroneous entry
-			QTimer::singleShot(3000, this, SLOT(clearMiscDisplay()));
+				postErrorRefresh();	// refresh currently displayed values, erasing any erroneous entry
+				QTimer::singleShot(3000, this, SLOT(clearMiscDisplay()));
+			}
 		}
 	}
 }
@@ -1827,6 +1802,13 @@ void magnetdaq::shortSampleModeChanged(bool isSampleMode)
 		ui.magInductanceLabel->setVisible(false);
 		ui.absorberComboBox->setVisible(false);
 		ui.absorberLabel->setVisible(false);
+		ui.sampleQuenchEnableLabel->setVisible(true);
+		ui.sampleQuenchEnableComboBox->setVisible(true);
+		ui.sampleQuenchLimitLabel->setVisible(true);
+		ui.sampleQuenchLimitSpinBox->setVisible(true);
+		ui.sampleQuenchLimitSpinBox->setEnabled(true);
+		ui.quenchEnableLabel->setVisible(false);
+		ui.quenchEnableComboBox->setVisible(false);
 		ui.quenchSensitivityComboBox->setVisible(false);
 		ui.quenchSensitivityLabel->setVisible(false);
 		ui.externRampdownComboBox->setVisible(false);
@@ -1860,6 +1842,15 @@ void magnetdaq::shortSampleModeChanged(bool isSampleMode)
 		ui.plotWidget->graph(MAGNET_VOLTAGE_GRAPH)->setName(mainLegend[MAGNET_VOLTAGE_GRAPH]);
 		ui.plotWidget->graph(SUPPLY_VOLTAGE_GRAPH)->setName(mainLegend[SUPPLY_VOLTAGE_GRAPH]);
 		ssPlotTitle->setText(mainPlotTitle);
+		setVoltageAxisLabel();
+
+		if (!(model430.firmwareVersion() > 3.15 || (model430.firmwareVersion() < 3.0 && model430.firmwareVersion() > 2.65)))
+		{
+			// fixed at 90 uV limit, not adjustable
+			model430.sampleQuenchLimit = 90;
+			ui.sampleQuenchLimitSpinBox->setValue(90);
+			ui.sampleQuenchLimitSpinBox->setEnabled(false);
+		}
 	}
 	else
 	{
@@ -1876,6 +1867,12 @@ void magnetdaq::shortSampleModeChanged(bool isSampleMode)
 		ui.magInductanceLabel->setVisible(true);
 		ui.absorberComboBox->setVisible(true);
 		ui.absorberLabel->setVisible(true);
+		ui.sampleQuenchEnableLabel->setVisible(false);
+		ui.sampleQuenchEnableComboBox->setVisible(false);
+		ui.sampleQuenchLimitLabel->setVisible(false);
+		ui.sampleQuenchLimitSpinBox->setVisible(false);
+		ui.quenchEnableLabel->setVisible(true);
+		ui.quenchEnableComboBox->setVisible(true);
 		ui.quenchSensitivityComboBox->setVisible(true);
 		ui.quenchSensitivityLabel->setVisible(true);
 		ui.externRampdownComboBox->setVisible(true);
@@ -1907,6 +1904,7 @@ void magnetdaq::shortSampleModeChanged(bool isSampleMode)
 		ui.plotWidget->graph(MAGNET_VOLTAGE_GRAPH)->setName(mainLegend[MAGNET_VOLTAGE_GRAPH]);
 		ui.plotWidget->graph(SUPPLY_VOLTAGE_GRAPH)->setName(mainLegend[SUPPLY_VOLTAGE_GRAPH]);
 		ssPlotTitle->setText(mainPlotTitle);
+		setVoltageAxisLabel();
 	}
 }
 

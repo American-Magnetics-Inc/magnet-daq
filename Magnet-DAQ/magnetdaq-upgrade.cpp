@@ -19,12 +19,15 @@ bool ReplyTimeout::timeoutOccurred = false;
 // required firmware version, never include a suffix!
 const double requiredLegacyFirmwareId = 2.55;
 const double requiredFirmwareId = 3.05;
+const double requiredARMFirmwareId = 4.00;
 
 // firmware versions included in Resource file (update these values when new version is included)
 const double legacyFirmwareId = 2.65;
 const QString legacyFirmwareSuffix = "";
 const double firmwareId = 3.15;
 const QString firmwareSuffix = "";
+const double ARMFirmwareId = 4.23;
+const QString ARMFirmwareSuffix = "";
 
 //---------------------------------------------------------------------------
 //	Returns "true" if acceptable, "false" if upgrade is required.
@@ -34,7 +37,12 @@ bool magnetdaq::checkFirmwareVersion(void)
 	double version = model430.firmwareVersion();
 	bool isLegacy = model430.firmwareVersion() < 3.00 ? true : false;
 
-	if (isLegacy)
+	if (isARM())
+	{
+		if (version >= requiredARMFirmwareId)
+			return true;
+	}
+	else if (isLegacy)
 	{
 		if (version >= requiredLegacyFirmwareId)
 			return true;
@@ -71,6 +79,14 @@ bool magnetdaq::supports_AMITRG(void)
 }
 
 //---------------------------------------------------------------------------
+//	Returns "true" if Model 430 has ARM-based CPU.
+//---------------------------------------------------------------------------
+bool magnetdaq::isARM(void)
+{
+	return (model430.firmwareVersion() < 4.00 ? false : true);
+}
+
+//---------------------------------------------------------------------------
 //	Returns "true" if upgrade is available, "false" if running latest.
 //---------------------------------------------------------------------------
 bool magnetdaq::checkAvailableFirmware(void)
@@ -82,7 +98,7 @@ bool magnetdaq::checkAvailableFirmware(void)
 	if (isLegacy)
 	{
 		if (model430.firmwareVersion() < 1.62)
-			return false;	// don't offer upgrade for firmware prior to v1.62
+			return false;	// Magnet-DAQ does not support upgrade for firmware prior to v1.62
 
 		if (version >= legacyFirmwareId)
 		{
@@ -91,6 +107,21 @@ bool magnetdaq::checkAvailableFirmware(void)
 				if (legacyFirmwareSuffix.isEmpty())
 					return false;
 				else if (legacyFirmwareSuffix > suffix)	// minor upgrade
+					return true;
+			}
+
+			return false;	// already running a later version
+		}
+	}
+	else if (isARM())
+	{
+		if (version >= ARMFirmwareId)
+		{
+			if (version == ARMFirmwareId)
+			{
+				if (ARMFirmwareSuffix.isEmpty())
+					return false;
+				else if (ARMFirmwareSuffix > suffix)	// minor upgrade
 					return true;
 			}
 
@@ -128,6 +159,13 @@ QString magnetdaq::formatFirmwareUpgradeStr(void)
 			version = QString::number(legacyFirmwareId, 'f', 2);
 		else
 			version = QString::number(legacyFirmwareId, 'f', 2) + " (" + legacyFirmwareSuffix + ")";
+	}
+	else if (isARM())
+	{
+		if (ARMFirmwareSuffix.isEmpty())
+			version = QString::number(ARMFirmwareId, 'f', 2);
+		else
+			version = QString::number(ARMFirmwareId, 'f', 2) + " (" + ARMFirmwareSuffix + ")";
 	}
 	else
 	{
@@ -238,19 +276,24 @@ void magnetdaq::upgradeWizardPageChanged(int pageId)
 		uploadURL.setUserName("model430admin");
 		uploadURL.setPassword("supermagnets");
 		uploadURL.setPort(21);
-		QNetworkRequest upload(uploadURL);
-		QNetworkAccessManager *uploadManager = new QNetworkAccessManager(this);
 
 		bool isLegacy = model430.firmwareVersion() < 3.00 ? true : false;
 		QString resourceId;
 
 		if (isLegacy)
 			resourceId = ":/magnetdaq/Resources/Legacy/Model430.exe";
+		else if (isARM())
+			resourceId = ":/magnetdaq/Resources/ARM/Model430.exe";
 		else
 			resourceId = ":/magnetdaq/Resources/Model430.exe";
 
 		QResource firmware(resourceId);
-		QByteArray firmwareBytes(reinterpret_cast< const char* >(firmware.data()), firmware.size());
+		QByteArray firmwareBytes(reinterpret_cast<const char*>(firmware.data()), firmware.size());
+
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
+		QNetworkRequest upload(uploadURL);
+		QNetworkAccessManager* uploadManager = new QNetworkAccessManager(this);
+		
 		connect(uploadManager, SIGNAL(finished(QNetworkReply *)), this, SLOT(finishedFirmwareUpload(QNetworkReply *)));
 		QNetworkReply *reply = uploadManager->put(upload, firmwareBytes);
 
@@ -260,6 +303,36 @@ void magnetdaq::upgradeWizardPageChanged(int pageId)
 		connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
 		//connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(errorDuringFirmwareUpload(QNetworkReply::NetworkError)));
 		loop.exec();
+#else
+		// Had to add this old QFtp module code herein because Qt6 removed FTP
+		// protocol support from QNetworkAccessManager. Questions to Qt support
+		// have indicated that they have no plans to restore it. Curiously, for
+		// version 4 to 5 transition, the QFtp component was discouraged in favor 
+		// of QNetworkAccessManager -- now they have reversed it in the 5 to 6 transition.
+
+		if (ftp)
+		{
+			delete ftp;
+			ftp = nullptr;
+		}
+
+		ftp = new QFtp(this);
+		connect(ftp, SIGNAL(commandFinished(int, bool)), this, SLOT(ftpCommandFinished(int, bool)));
+
+		// FYI: The QFtp module appears to pile all these commands in a queue
+		// and executes them after this method exits. So... checking status 
+		// within this method is a waste of time.
+		ftp->setTransferMode(QFtp::Active);
+		ftp->connectToHost(ui.ipAddressEdit->text(), 21U);
+		//ftp->connectToHost("192.168.1.38", 21U);	// force error debug
+		ftp->login("model430admin", "supermagnets");
+		ftp->cd("Upgrade");
+		ftp->put(firmwareBytes, "Model430.exe", QFtp::Binary);
+		
+		// set a timer for 30 seconds timeout
+		ftpTimeoutOccurred = false;
+		QTimer::singleShot(30000, this, SLOT(ftpTimeout()));
+#endif
 	}
 }
 
@@ -308,10 +381,71 @@ void magnetdaq::finishedFirmwareUpload(QNetworkReply *reply)
 	QApplication::restoreOverrideCursor();
 }
 
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+//---------------------------------------------------------------------------
+void magnetdaq::ftpTimeout(void)
+{
+	ftpTimeoutOccurred = true;
+
+	// if upgradeWizard is still active, indicate a timeout error
+	if (upgradeWizard)
+		ftpCommandFinished(0, false);
+}
+
+//---------------------------------------------------------------------------
+void magnetdaq::ftpCommandFinished(int command, bool error)
+{
+	// NOTE: The command return value was useless in QFtp distribution. Had
+	// to edit it to return the actual command that was executed. The error
+	// flag also seems not to work. ?? Therefore, I added a timeout flag to
+	// catch execution errors.
+	// Also, note that commands other than "Put" need to "fall through" this
+	// method without any actions if there is no error.
+
+	if (error)
+	{
+		finishedPage->setTitle("Finished");
+		upgradeWizard->button(QWizard::FinishButton)->setEnabled(true);
+
+		finishedPage->setTitle("Upgrade Failed");
+		finishedPageLabel->setText("Firmware upload to Model 430 at IP address " + ui.ipAddressEdit->text() +
+			" failed with network error: \"" + ftp->errorString() + "\"");
+		qDebug() << "Firmware upload failed to " + ui.ipAddressEdit->text() + " with error: " + ftp->errorString();
+
+		ftp->close();
+		QApplication::restoreOverrideCursor();
+	}
+	else if (ftpTimeoutOccurred)
+	{
+		finishedPage->setTitle("Finished");
+		upgradeWizard->button(QWizard::FinishButton)->setEnabled(true);
+
+		finishedPage->setTitle("Upgrade Failed");
+		finishedPageLabel->setText("Firmware upload to Model 430 at IP address " + ui.ipAddressEdit->text() + " failed due to network timeout.");
+		qDebug() << "Firmware upload failed to " + ui.ipAddressEdit->text() + " due to network timeout";
+
+		ftp->close();
+		QApplication::restoreOverrideCursor();
+	}
+	else if (command == QFtp::Command::Put)
+	{
+		finishedPage->setTitle("Finished");
+		upgradeWizard->button(QWizard::FinishButton)->setEnabled(true);
+
+		finishedPageLabel->setText("New firmware has been uploaded to the Model 430. Please Finish this wizard and cycle the Model 430 power.<br><br>"
+			"Observe the displayed message during Model 430 boot to verify the firmware has been upgraded to version " + formatFirmwareUpgradeStr() + ".");
+		qDebug() << "Successful firmware upload to " + ui.ipAddressEdit->text();
+
+		ftp->close();
+		QApplication::restoreOverrideCursor();
+	}
+}
+#endif
+
 //---------------------------------------------------------------------------
 void magnetdaq::showFirmwareUpgradeWizard(void)
 {
-	if (upgradeWizard == NULL)
+	if (upgradeWizard == nullptr)
 	{
 		upgradeWizard = new QWizard();
 #if defined(Q_OS_LINUX)
@@ -334,7 +468,8 @@ void magnetdaq::showFirmwareUpgradeWizard(void)
 //---------------------------------------------------------------------------
 void magnetdaq::wizardFinished(int result)
 {
-	upgradeWizard = NULL;
+	upgradeWizard = nullptr;
+	QApplication::restoreOverrideCursor();
 }
 
 //---------------------------------------------------------------------------

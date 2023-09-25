@@ -16,7 +16,7 @@ void magnetdaq::refreshRampdownList(void)
 		if (model430.rampdownEventsCount() > 0)
 		{
 			QApplication::setOverrideCursor(Qt::WaitCursor);
-			socket->sendExtendedQuery("RAMPDF?\r\n", RAMPDOWN_FILE, 10); // 10 second time limit on reply
+			socket->sendExtendedQuery("RAMPDF?\r\n", QueryState::RAMPDOWN_FILE, 10); // 10 second time limit on reply
 			QApplication::restoreOverrideCursor();
 		}
 		else
@@ -102,7 +102,7 @@ void magnetdaq::refreshQuenchList(void)
 		if (model430.quenchEventsCount() > 0)
 		{
 			QApplication::setOverrideCursor(Qt::WaitCursor);
-			socket->sendExtendedQuery("QUF?\r\n", QUENCH_FILE, 10); // 10 second time limit on reply
+			socket->sendExtendedQuery("QUF?\r\n", QueryState::QUENCH_FILE, 10); // 10 second time limit on reply
 			QApplication::restoreOverrideCursor();
 		}
 		else

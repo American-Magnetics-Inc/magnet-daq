@@ -9,13 +9,17 @@
 #if defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
 #include "qcustomplot.h"
 #else
-#include "qcp.h"
+#include <QCustomPlot/qcp.h>
 #endif
 
 #include "socket.h"
 #include "model430.h"
 #include "parser.h"
 #include "clickablelabel.h"
+
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+#include <QtFtp/QtFtp>
+#endif
 
 #define USE_QTPRINTER	// remove define to omit QPrinter code
 
@@ -34,13 +38,22 @@ enum MAIN_TABS
 	SUPPORT_TAB
 };
 
-typedef enum
+enum SETUP_TOOLBOX
+{
+	SUPPLY_PAGE = 0,
+	LOAD_PAGE,
+	SWITCH_PAGE,
+	PROTECTION_PAGE,
+	RAMP_PAGE	// hack for remote config changes
+};
+
+enum class TableError
 {
 	NO_TABLE_ERROR = 0,			// no error
 	NON_NUMERICAL_ENTRY,		// non-numerical parameter
 	EXCEEDS_CURRENT_LIMIT,		// current/field value exceeds magnet limit
 	COOLED_SWITCH				// cannot ramp to table target with cooled switch
-} TableError;
+};
 
 // main plot trace ids
 constexpr auto MAGNET_CURRENT_GRAPH = 0;
@@ -60,10 +73,12 @@ public:
 	~magnetdaq();
 	QString getAxisStr(void) { return axisStr; }
 	bool supports_AMITRG(void);
+	bool isARM(void);
 
 public slots:
 	void configurationChanged(QueryState state);
 	void shortSampleModeChanged(bool isSampleMode);
+	void remoteConfigurationChanged(int index);
 
 private slots:
 	void actionRun(void);
@@ -187,6 +202,7 @@ private slots:
 	void menuValueChanged(int index);
 	void textValueChanged(void);
 	void checkBoxValueChanged(bool checked);
+	void sampleQuenchLimitChanged(int value);
 	void rampSegmentCountChanged(int value);
 	void rampSegmentValueChanged(void);
 	void rampdownSegmentCountChanged(int value);
@@ -206,6 +222,10 @@ private slots:
 	void upgradeWizardPageChanged(int pageId);
 	void errorDuringFirmwareUpload(QNetworkReply::NetworkError code);
 	void finishedFirmwareUpload(QNetworkReply * reply);
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+	void ftpTimeout(void);
+	void ftpCommandFinished(int, bool error);
+#endif
 	void showFirmwareUpgradeWizard(void);
 	void wizardFinished(int result);
 
@@ -371,6 +391,10 @@ private:
 	QWizardPage * createIntroPage(void);
 	QWizardPage * createUploadPage(void);
 	QWizardPage * createConclusionPage(void);
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+	QFtp *ftp;	// needed for Qt6+
+	bool ftpTimeoutOccurred;
+#endif
 
 	// current/field table
 	QString tableFileName;

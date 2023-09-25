@@ -1,2 +1,2 @@
 #include <QtWidgets>
-#include "qcp.h"
+#include <QCustomPlot/qcp.h>

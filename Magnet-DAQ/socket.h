@@ -35,7 +35,7 @@ public slots:
 	void sendBlockingCommand(QString aStr);
 
 signals:
-	void nextDataPoint(qint64 time, double magField, double magCurrent, double magVoltage, double supCurrent, double supVoltage);
+	void nextDataPoint(qint64 time, double magField, double magCurrent, double magVoltage, double supCurrent, double supVoltage, double refCurrent, quint8 state, quint8 heater);
 	void updateFrontPanel(QString displayString, bool shiftLED, bool fieldLED, bool persistentLED, bool engergizedLED, bool quenchLED);
 	void systemError();
 	void fieldUnitsChanged();
@@ -57,7 +57,8 @@ private:
 	quint16 ipPort;
 	std::atomic<QueryState> queryState;
 	volatile bool cmdWritten;
-	double magnetField, magnetCurrent, magnetVoltage, supplyCurrent, supplyVoltage;
+	double magnetField, magnetCurrent, magnetVoltage, supplyCurrent, supplyVoltage, refCurrent;
+	quint8 state, heater;
 	bool unitConnected;
 	QQueue<QString> commandQueue;
 	QTimer commandTimer;

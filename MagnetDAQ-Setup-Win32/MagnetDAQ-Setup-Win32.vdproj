@@ -93,6 +93,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_0CC9EE7B5C124E9987A5DF091DCF4E54"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_0DA6266C200E448E964849B8A54E115F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -214,6 +220,12 @@
         "Entry"
         {
         "MsmKey" = "8:_2789221789814B0D8E676DDF38B315DD"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_28A9B7091E3E495298DA23A680863DE3"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -567,6 +579,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_601D86DFBE974F5B9633EB49C232D73A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_6047E045CB6D427C889678B305D05F85"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -682,12 +700,6 @@
         "Entry"
         {
         "MsmKey" = "8:_71C96DC865224C23A650A5D64F6EAE0F"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_720CC36C04864D968900B03BDCB64B85"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -934,6 +946,12 @@
         "Entry"
         {
         "MsmKey" = "8:_AAC8601ACC6444C8966051D901B3C30E"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_AAF7B04840D147DD9B72A90BEDF39F01"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1764,6 +1782,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0CC9EE7B5C124E9987A5DF091DCF4E54"
+            {
+            "SourcePath" = "8:..\\help\\HTML\\images\\special-args.png"
+            "TargetName" = "8:special-args.png"
+            "Tag" = "8:"
+            "Folder" = "8:_7653A9E32EC64C93B1B08E75F1B0A8D1"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0DA6266C200E448E964849B8A54E115F"
             {
             "SourcePath" = "8:..\\help\\HTML\\images\\support-tab.png"
@@ -2170,6 +2208,26 @@
             "TargetName" = "8:settings@2x.png"
             "Tag" = "8:"
             "Folder" = "8:_7653A9E32EC64C93B1B08E75F1B0A8D1"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_28A9B7091E3E495298DA23A680863DE3"
+            {
+            "SourcePath" = "8:..\\help\\HTML\\example-python-script-with-args.html"
+            "TargetName" = "8:example-python-script-with-args.html"
+            "Tag" = "8:"
+            "Folder" = "8:_6F2B864D183C4A99A174296602EB3E88"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3324,6 +3382,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_601D86DFBE974F5B9633EB49C232D73A"
+            {
+            "SourcePath" = "8:..\\help\\HTML\\jstopics\\example-python-script-with-args.js"
+            "TargetName" = "8:example-python-script-with-args.js"
+            "Tag" = "8:"
+            "Folder" = "8:_62462B37A33B4E18A6B964B72209D923"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6047E045CB6D427C889678B305D05F85"
             {
             "SourcePath" = "8:..\\help\\HTML\\images\\vector-control.png"
@@ -3710,26 +3788,6 @@
             "TargetName" = "8:setup@2x.png"
             "Tag" = "8:"
             "Folder" = "8:_7653A9E32EC64C93B1B08E75F1B0A8D1"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_720CC36C04864D968900B03BDCB64B85"
-            {
-            "SourcePath" = "8:..\\bin32\\QtXlsxWriter.dll"
-            "TargetName" = "8:QtXlsxWriter.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_74DED266078E4E36B2711E7814A38DD7"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4528,6 +4586,26 @@
             {
             "SourcePath" = "8:..\\help\\HTML\\images\\key-enter@2x.png"
             "TargetName" = "8:key-enter@2x.png"
+            "Tag" = "8:"
+            "Folder" = "8:_7653A9E32EC64C93B1B08E75F1B0A8D1"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AAF7B04840D147DD9B72A90BEDF39F01"
+            {
+            "SourcePath" = "8:..\\help\\HTML\\images\\keypad@2x.png"
+            "TargetName" = "8:keypad@2x.png"
             "Tag" = "8:"
             "Folder" = "8:_7653A9E32EC64C93B1B08E75F1B0A8D1"
             "Condition" = "8:"
@@ -6172,17 +6250,6 @@
                     }
                 }
             }
-            "{1525181F-901A-416C-8A58-119130FE478E}:_48A5EBE096E34F5F91575FAAF57CC061"
-            {
-            "Name" = "8:#1911"
-            "AlwaysCreate" = "11:FALSE"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Property" = "8:FontsFolder"
-                "Folders"
-                {
-                }
-            }
             "{1525181F-901A-416C-8A58-119130FE478E}:_64175E3353984C8089402DC324EF52A4"
             {
             "Name" = "8:#1916"
@@ -6354,15 +6421,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Magnet-DAQ"
-        "ProductCode" = "8:{FDE73113-916C-4C24-9B2A-1CC69A48447E}"
-        "PackageCode" = "8:{B2E4C029-3546-4793-A189-727423995049}"
+        "ProductCode" = "8:{F7CE8B22-E60F-43F9-83E6-5279AFF7345B}"
+        "PackageCode" = "8:{5465A387-C587-4035-8076-FB9FCD627607}"
         "UpgradeCode" = "8:{03C8B04A-93FE-4574-BA50-A6C3599A5CE1}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.09"
+        "ProductVersion" = "8:1.13"
         "Manufacturer" = "8:American Magnetics, Inc."
         "ARPHELPTELEPHONE" = "8:865 482-1056"
         "ARPHELPLINK" = "8:http://www.americanmagnetics.com/support-center/"
@@ -6370,7 +6437,7 @@
         "Subject" = "8:AMI Model 430 Remote Control app"
         "ARPCONTACT" = "8:American Magnetics, Inc."
         "Keywords" = "8:"
-        "ARPCOMMENTS" = "8:Magnet-DAQ v1.09"
+        "ARPCOMMENTS" = "8:Magnet-DAQ v1.13"
         "ARPURLINFOABOUT" = "8:http://www.americanmagnetics.com"
         "ARPPRODUCTICON" = "8:_F7B8AF449B154A99A93194495A39C513"
         "ARPIconIndex" = "3:0"
@@ -6928,7 +6995,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_9A956FDA982B411698EBB62E87A7352C"
             {
-            "SourcePath" = "8:..\\Release\\Magnet-DAQ.exe"
+            "SourcePath" = "8:..\\x64\\Release\\Magnet-DAQ.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_74DED266078E4E36B2711E7814A38DD7"

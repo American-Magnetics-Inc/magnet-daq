@@ -23,7 +23,7 @@ void magnetdaq::refreshSupportSettings(void)
 	if (socket)
 	{
 		QApplication::setOverrideCursor(Qt::WaitCursor);
-		socket->sendExtendedQuery("SETTINGS?\r\n", SETTINGS, 4); // 4 second time limit on reply
+		socket->sendExtendedQuery("SETTINGS?\r\n", QueryState::SETTINGS, 4); // 4 second time limit on reply
 		QApplication::restoreOverrideCursor();
 	}
 }

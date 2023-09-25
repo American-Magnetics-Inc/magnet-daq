@@ -1,14 +1,6 @@
 #include "stdafx.h"
 #include "magnetdaq.h"
 
-// some definitions for readability
-enum SETUP_TOOLBOX
-{
-	SUPPLY_PAGE = 0,
-	LOAD_PAGE,
-	SWITCH_PAGE,
-	PROTECTION_PAGE
-};
 
 // NOTE:
 // Used the QMetaObject::invokeMethod() function to get queued behavior
@@ -22,33 +14,47 @@ enum SETUP_TOOLBOX
 //---------------------------------------------------------------------------
 void magnetdaq::mainTabChanged(int index)
 {
-	if (ui.mainTabWidget->currentIndex() == CONFIG_TAB)
+	if (ui.mainTabWidget->currentIndex() == PLOT_TAB)
+	{
+		ui.actionPrint->setEnabled(true);
+	}
+	else if (ui.mainTabWidget->currentIndex() == CONFIG_TAB)
 	{
 		setupToolBoxChanged(ui.setupToolBox->currentIndex());
+		ui.actionPrint->setEnabled(false);
 	}
 	else if (ui.mainTabWidget->currentIndex() == RAMP_TAB)
 	{
 		QApplication::setOverrideCursor(Qt::WaitCursor);
 		QMetaObject::invokeMethod(&model430, "syncRampRates", Qt::QueuedConnection);
 		QMetaObject::invokeMethod(this, "syncRampRates", Qt::QueuedConnection);
+		ui.actionPrint->setEnabled(true);
 	}
 	else if (ui.mainTabWidget->currentIndex() == RAMPDOWN_TAB)
 	{
 		QApplication::setOverrideCursor(Qt::WaitCursor);
 		QMetaObject::invokeMethod(&model430, "syncRampdownSegmentValues", Qt::QueuedConnection);
 		QMetaObject::invokeMethod(this, "syncRampdownRates", Qt::QueuedConnection);
+		ui.actionPrint->setEnabled(true);
 	}
 	else if (ui.mainTabWidget->currentIndex() == RAMPDOWN_EVENTS_TAB)
 	{
 		refreshRampdownList();
+		ui.actionPrint->setEnabled(false);
 	}
 	else if (ui.mainTabWidget->currentIndex() == QUENCH_EVENTS_TAB)
 	{
 		refreshQuenchList();
+		ui.actionPrint->setEnabled(false);
 	}
 	else if (ui.mainTabWidget->currentIndex() == SUPPORT_TAB)
 	{
 		refreshSupportSettings();
+		ui.actionPrint->setEnabled(false);
+	}
+	else
+	{
+		ui.actionPrint->setEnabled(false);
 	}
 }
 
@@ -99,6 +105,27 @@ void magnetdaq::setupToolBoxChanged(int index)
 	{
 		QMetaObject::invokeMethod(&model430, "syncProtectionSetup", Qt::QueuedConnection);
 		QMetaObject::invokeMethod(this, "syncProtectionTab", Qt::QueuedConnection);
+	}
+}
+
+//---------------------------------------------------------------------------
+void magnetdaq::remoteConfigurationChanged(int index)
+{
+	// check if we are currently showing a page with info that changed
+	// if so, then call the appropriate functions to force update
+	// this notification feature was added to 430 firmware in 2.66/3.16/4.00+
+
+	if (ui.mainTabWidget->currentIndex() == CONFIG_TAB)
+	{
+		if (index == ui.setupToolBox->currentIndex())
+			setupToolBoxChanged(ui.setupToolBox->currentIndex());
+	}
+	else if (ui.mainTabWidget->currentIndex() == RAMP_TAB)
+	{
+		if (index == (int)RAMP_PAGE)
+		QApplication::setOverrideCursor(Qt::WaitCursor);
+		QMetaObject::invokeMethod(&model430, "syncRampRates", Qt::QueuedConnection);
+		QMetaObject::invokeMethod(this, "syncRampRates", Qt::QueuedConnection);
 	}
 }
 
@@ -160,6 +187,14 @@ void magnetdaq::menuValueChanged(int index)
 			{
 				socket->sendCommand("CONF:QU:DET " + QString::number(temp) + "\r\n");
 				model430.quenchDetection = temp;
+			}
+		}
+		else if (comboBox == ui.sampleQuenchEnableComboBox)
+		{
+			if (temp != model430.sampleQuenchDetection())
+			{
+				socket->sendCommand("CONF:QU:DET " + QString::number(temp) + "\r\n");
+				model430.sampleQuenchDetection = temp;
 			}
 		}
 		else if (comboBox == ui.quenchSensitivityComboBox)
@@ -409,7 +444,23 @@ void magnetdaq::checkBoxValueChanged(bool checked)
 				model430.stabilityResistor = temp;
 			}
 		}
+	}
+}
 
+//---------------------------------------------------------------------------
+void magnetdaq::sampleQuenchLimitChanged(int)
+{
+	if (socket && model430.shortSampleMode)
+	{
+		int temp;
+
+		temp = ui.sampleQuenchLimitSpinBox->value();
+
+		if (temp != model430.sampleQuenchLimit())
+		{
+			socket->sendCommand("CONF:QU:SAM " + QString::number(temp) + "\r\n");
+			model430.sampleQuenchLimit = temp;
+		}
 	}
 }
 
@@ -623,76 +674,82 @@ void magnetdaq::configurationChanged(QueryState state)
 		ui.opcGroupBox->setEnabled(false);
 
 	// SETUP Supply
-	if (state == SUPPLY_TYPE)
+	if (state == QueryState::CURRENT_RANGE)
+		ui.currentRangeComboBox->setCurrentIndex(model430.currentRange());
+	else if (state == QueryState::SUPPLY_TYPE)
 		ui.supplyListWidget->setCurrentRow(model430.powerSupplySelection());
-	else if (state == SUPPLY_MIN_VOLTAGE)
+	else if (state == QueryState::SUPPLY_MIN_VOLTAGE)
 		ui.minOutputVoltageEdit->setText(QString::number(model430.minSupplyVoltage(), 'f', 3));
-	else if (state == SUPPLY_MAX_VOLTAGE)
+	else if (state == QueryState::SUPPLY_MAX_VOLTAGE)
 		ui.maxOutputVoltageEdit->setText(QString::number(model430.maxSupplyVoltage(), 'f', 3));
-	else if (state == SUPPLY_MIN_CURRENT)
+	else if (state == QueryState::SUPPLY_MIN_CURRENT)
 		ui.minOutputCurrentEdit->setText(QString::number(model430.minSupplyCurrent(), 'f', 3));
-	else if (state == SUPPLY_MAX_CURRENT)
+	else if (state == QueryState::SUPPLY_MAX_CURRENT)
 		ui.maxOutputCurrentEdit->setText(QString::number(model430.maxSupplyCurrent(), 'f', 3));
-	else if (state == SUPPLY_VV_INPUT)
+	else if (state == QueryState::SUPPLY_VV_INPUT)
 		ui.voltageModeComboBox->setCurrentIndex(model430.inputVoltageRange());
 
 	// SETUP Load
-	else if (state == STABILITY_MODE)
+	else if (state == QueryState::STABILITY_MODE)
 		ui.stabilityModeComboBox->setCurrentIndex(model430.stabilityMode());
-	else if (state == STABILITY_SETTING)
+	else if (state == QueryState::STABILITY_SETTING)
 		ui.stabilitySettingEdit->setText(QString::number(model430.stabilitySetting(), 'f', 1));
-	else if (state == COIL_CONSTANT)
+	else if (state == QueryState::COIL_CONSTANT)
 		ui.coilConstantEdit->setText(QString::number(model430.coilConstant(), 'f', 6));
-	else if (state == INDUCTANCE)
+	else if (state == QueryState::INDUCTANCE)
 		ui.magInductanceEdit->setText(QString::number(model430.inductance(), 'f', 2));
-	else if (state == ABSORBER_PRESENT)
+	else if (state == QueryState::ABSORBER_PRESENT)
 		ui.absorberComboBox->setCurrentIndex((int)model430.absorberPresent());
 
 	// SETUP Switch
-	else if (state == SWITCH_INSTALLED)
+	else if (state == QueryState::SWITCH_INSTALLED)
 	{
 		ui.switchInstalledComboBox->setCurrentIndex((int)model430.switchInstalled());
 		switchSettingsEnable();
 	}
-	else if (state == STABILITY_RESISTOR)
+	else if (state == QueryState::STABILITY_RESISTOR)
 		ui.stabilityResistorCheckBox->setChecked(model430.stabilityResistor());
-	else if (state == SWITCH_CURRENT)
+	else if (state == QueryState::SWITCH_CURRENT)
 		ui.switchCurrentEdit->setText(QString::number(model430.switchCurrent(), 'f', 1));
-	else if (state == SWITCH_TRANSITION)
+	else if (state == QueryState::SWITCH_TRANSITION)
 		ui.switchTransitionComboBox->setCurrentIndex(model430.switchTransition());
-	else if (state == SWITCH_HEATED_TIME)
+	else if (state == QueryState::SWITCH_HEATED_TIME)
 		ui.switchHeatedTimeEdit->setText(QString::number(model430.switchHeatedTime()));
-	else if (state == SWITCH_COOLED_TIME)
+	else if (state == QueryState::SWITCH_COOLED_TIME)
 		ui.switchCooledTimeEdit->setText(QString::number(model430.switchCooledTime()));
-	else if (state == PS_RAMP_RATE)
+	else if (state == QueryState::PS_RAMP_RATE)
 		ui.switchCooledRampRateEdit->setText(QString::number(model430.cooledSwitchRampRate(), 'f', 1));
-	else if (state == SWITCH_COOLING_GAIN)
+	else if (state == QueryState::SWITCH_COOLING_GAIN)
 		ui.switchCoolingGainEdit->setText(QString::number(model430.switchCoolingGain(), 'f', 1));
 
 	// SETUP Protection
-	else if (state == CURRENT_LIMIT)
+	else if (state == QueryState::CURRENT_LIMIT)
 		ui.currentLimitEdit->setText(QString::number(model430.currentLimit(), 'f', 3));
-	else if (state == QUENCH_ENABLE)
+	else if (state == QueryState::QUENCH_ENABLE)
 		ui.quenchEnableComboBox->setCurrentIndex(model430.quenchDetection());
-	else if (state == QUENCH_SENSITIVITY)
+	else if (state == QueryState::SAMPLE_QUENCH_ENABLE)
+		ui.sampleQuenchEnableComboBox->setCurrentIndex((int)model430.sampleQuenchDetection());
+	else if (state == QueryState::SAMPLE_QUENCH_LIMIT)
+		ui.sampleQuenchLimitSpinBox->setValue(model430.sampleQuenchLimit());
+	else if (state == QueryState::QUENCH_SENSITIVITY)
 		ui.quenchSensitivityComboBox->setCurrentIndex(model430.quenchSensitivity() - 1);
-	else if (state == EXT_RAMPDOWN)
+	else if (state == QueryState::EXT_RAMPDOWN)
 		ui.externRampdownComboBox->setCurrentIndex((int)model430.extRampdownEnabled());
-	else if (state == PROTECTION_MODE)
+	else if (state == QueryState::PROTECTION_MODE)
 		ui.protectionModeComboBox->setCurrentIndex(model430.protectionMode());
-	else if (state == IC_SLOPE)
+	else if (state == QueryState::IC_SLOPE)
 		ui.icSlopeEdit->setText(QString::number(model430.IcSlope(), 'f', 3));
-	else if (state == IC_OFFSET)
+	else if (state == QueryState::IC_OFFSET)
 		ui.icOffsetEdit->setText(QString::number(model430.IcOffset(), 'f', 3));
-	else if (state == TMAX)
+	else if (state == QueryState::TMAX)
 		ui.tmaxEdit->setText(QString::number(model430.Tmax(), 'f', 3));
-	else if (state == TSCALE)
+	else if (state == QueryState::TSCALE)
 		ui.tscaleEdit->setText(QString::number(model430.Tscale(), 'f', 3));
-	else if (state == TOFFSET)
+	else if (state == QueryState::TOFFSET)
 		ui.toffsetEdit->setText(QString::number(model430.Toffset(), 'f', 3));
 
 	// Ramp Tab
-	else if (state == TARGET_CURRENT)
+	else if (state == QueryState::TARGET_CURRENT)
 	{
 		if (ui.rampUnitsComboBox->currentIndex() == 0)
 			ui.targetSetpointEdit->setText(QString::number(model430.targetCurrent(), 'g', 10));
@@ -701,7 +758,7 @@ void magnetdaq::configurationChanged(QueryState state)
 		if (ui.mainTabWidget->currentIndex() == RAMP_TAB)
 			QMetaObject::invokeMethod(this, "syncRampPlot", Qt::QueuedConnection);
 	}
-	else if (state == TARGET_FIELD)
+	else if (state == QueryState::TARGET_FIELD)
 	{
 		if (ui.rampUnitsComboBox->currentIndex() == 1)
 			ui.targetSetpointEdit->setText(QString::number(model430.targetField(), 'g', 10));
@@ -710,11 +767,11 @@ void magnetdaq::configurationChanged(QueryState state)
 		if (ui.mainTabWidget->currentIndex() == RAMP_TAB)
 			QMetaObject::invokeMethod(this, "syncRampPlot", Qt::QueuedConnection);
 	}
-	else if (state == VOLTAGE_LIMIT)
+	else if (state == QueryState::VOLTAGE_LIMIT)
 	{
 		ui.voltageLimitEdit->setText(QString::number(model430.voltageLimit(), 'f', 3));
 	}
-	else if (state == RAMP_SEGMENTS || state == RAMP_TIMEBASE || state == RAMP_RATE_CURRENT || state == RAMP_RATE_FIELD)
+	else if (state == QueryState::RAMP_SEGMENTS || state == QueryState::RAMP_TIMEBASE || state == QueryState::RAMP_RATE_CURRENT || state == QueryState::RAMP_RATE_FIELD)
 	{
 		// if a ramping tab is visible, update the contents
 		if (ui.mainTabWidget->currentIndex() == RAMP_TAB)
@@ -723,7 +780,7 @@ void magnetdaq::configurationChanged(QueryState state)
 			QMetaObject::invokeMethod(this, "syncRampRates", Qt::QueuedConnection);
 		}
 	}
-	else if (state == FIELD_UNITS)
+	else if (state == QueryState::FIELD_UNITS)
 	{
 		this->writeLogHeader();
 		this->setCurrentAxisLabel();
@@ -759,16 +816,16 @@ void magnetdaq::configurationChanged(QueryState state)
 	}
 
 	// Rampdown
-	else if (state == RAMPDOWN_SEGMENTS)
+	else if (state == QueryState::RAMPDOWN_SEGMENTS)
 	{
 		QMetaObject::invokeMethod(&model430, "syncRampdownSegmentValues", Qt::QueuedConnection);
 		QMetaObject::invokeMethod(this, "syncRampdownRates", Qt::QueuedConnection);
 	}
-	else if (state == RAMPDOWN_CURRENT)
+	else if (state == QueryState::RAMPDOWN_CURRENT)
 	{
 		QMetaObject::invokeMethod(this, "syncRampdownRates", Qt::QueuedConnection);
 	}
-	else if (state == RAMPDOWN_FIELD)
+	else if (state == QueryState::RAMPDOWN_FIELD)
 	{
 		QMetaObject::invokeMethod(this, "syncRampdownRates", Qt::QueuedConnection);
 	}
@@ -789,6 +846,7 @@ void magnetdaq::syncDisplay(void)
 //---------------------------------------------------------------------------
 void magnetdaq::syncSupplyTab(void)
 {
+	ui.currentRangeComboBox->setCurrentIndex(model430.currentRange());
 	ui.supplyListWidget->setCurrentRow(model430.powerSupplySelection());
 	ui.minOutputVoltageEdit->setText(QString::number(model430.minSupplyVoltage(), 'f', 3));
 	ui.maxOutputVoltageEdit->setText(QString::number(model430.maxSupplyVoltage(), 'f', 3));
@@ -875,6 +933,8 @@ void magnetdaq::syncProtectionTab(void)
 {
 	ui.currentLimitEdit->setText(QString::number(model430.currentLimit(), 'f', 3));
 	ui.quenchEnableComboBox->setCurrentIndex(model430.quenchDetection());
+	ui.sampleQuenchEnableComboBox->setCurrentIndex((int)model430.sampleQuenchDetection());
+	ui.sampleQuenchLimitSpinBox->setValue(model430.sampleQuenchLimit());
 	ui.quenchSensitivityComboBox->setCurrentIndex(model430.quenchSensitivity() - 1);
 	ui.protectionModeComboBox->setCurrentIndex(model430.protectionMode());
 	ui.externRampdownComboBox->setCurrentIndex((int)model430.extRampdownEnabled());
@@ -909,6 +969,9 @@ void magnetdaq::syncRampRates(void)
 	// enable/disable ramp rate fields per segment count
 	for (int i = 0; i < model430.rampRateSegments(); i++)
 	{
+		if (i < 0 || i > 9)
+			continue;
+
 		rampSegLabels[i]->setEnabled(true);
 		rampSegMinLimits[i]->setEnabled(true);
 		rampSegMaxLimits[i]->setEnabled(true);
@@ -917,6 +980,9 @@ void magnetdaq::syncRampRates(void)
 
 	for (int i = model430.rampRateSegments(); i < 10; i++)
 	{
+		if (i < 0 || i > 9)
+			continue;
+
 		rampSegLabels[i]->setEnabled(false);
 		rampSegMinLimits[i]->setEnabled(false);
 		rampSegMaxLimits[i]->setEnabled(false);
@@ -939,6 +1005,9 @@ void magnetdaq::syncRampRates(void)
 
 		for (int i = 0; i < model430.rampRateSegments(); i++)
 		{
+			if (i < 0 || i > 9)
+				continue;
+
 			if (i > 0)
 				rampSegMinLimits[i]->setText("<html>&plusmn;" + QString::number(model430.currentRampLimits[i - 1](), 'f', 1) + " A to &plusmn;</html>");
 
@@ -948,6 +1017,9 @@ void magnetdaq::syncRampRates(void)
 
 		for (int i = model430.rampRateSegments(); i < 10; i++)
 		{
+			if (i < 0 || i > 9)
+				continue;
+
 			rampSegMinLimits[i]->clear();
 			rampSegMaxLimits[i]->clear();
 			rampSegValues[i]->clear();
@@ -987,6 +1059,9 @@ void magnetdaq::syncRampRates(void)
 
 		for (int i = 0; i < model430.rampRateSegments(); i++)
 		{
+			if (i < 0 || i > 9)
+				continue;
+
 			if (i > 0)
 				rampSegMinLimits[i]->setText("<html>&plusmn;" + QString::number(model430.fieldRampLimits[i - 1](), 'f', 1) + unitsStr + " &plusmn;</html>");
 
@@ -996,6 +1071,9 @@ void magnetdaq::syncRampRates(void)
 
 		for (int i = model430.rampRateSegments(); i < 10; i++)
 		{
+			if (i < 0 || i > 9)
+				continue;
+
 			rampSegMinLimits[i]->clear();
 			rampSegMaxLimits[i]->clear();
 			rampSegValues[i]->clear();
@@ -1015,6 +1093,9 @@ void magnetdaq::syncRampdownRates(void)
 	// enable/disable ramp rate fields per segment count
 	for (int i = 0; i < model430.rampdownSegments(); i++)
 	{
+		if (i < 0 || i > 9)
+			continue;
+
 		rampdownSegLabels[i]->setEnabled(true);
 		rampdownSegMinLimits[i]->setEnabled(true);
 		rampdownSegMaxLimits[i]->setEnabled(true);
@@ -1023,6 +1104,9 @@ void magnetdaq::syncRampdownRates(void)
 
 	for (int i = model430.rampdownSegments(); i < 10; i++)
 	{
+		if (i < 0 || i > 9)
+			continue;
+
 		rampdownSegLabels[i]->setEnabled(false);
 		rampdownSegMinLimits[i]->setEnabled(false);
 		rampdownSegMaxLimits[i]->setEnabled(false);
@@ -1043,6 +1127,9 @@ void magnetdaq::syncRampdownRates(void)
 
 		for (int i = 0; i < model430.rampdownSegments(); i++)
 		{
+			if (i < 0 || i > 9)
+				continue;
+
 			if (i > 0)
 				rampdownSegMinLimits[i]->setText("<html>&plusmn;" + QString::number(model430.currentRampdownLimits[i - 1](), 'f', 1) + " A to &plusmn;</html>");
 
@@ -1052,6 +1139,9 @@ void magnetdaq::syncRampdownRates(void)
 
 		for (int i = model430.rampdownSegments(); i < 10; i++)
 		{
+			if (i < 0 || i > 9)
+				continue;
+
 			rampdownSegMinLimits[i]->clear();
 			rampdownSegMaxLimits[i]->clear();
 			rampdownSegValues[i]->clear();
@@ -1087,6 +1177,9 @@ void magnetdaq::syncRampdownRates(void)
 
 		for (int i = 0; i < model430.rampdownSegments(); i++)
 		{
+			if (i < 0 || i > 9)
+				continue;
+
 			if (i > 0)
 				rampdownSegMinLimits[i]->setText("<html>&plusmn;" + QString::number(model430.fieldRampdownLimits[i - 1](), 'f', 1) + unitsStr + " &plusmn;</html>");
 
@@ -1096,6 +1189,9 @@ void magnetdaq::syncRampdownRates(void)
 
 		for (int i = model430.rampdownSegments(); i < 10; i++)
 		{
+			if (i < 0 || i > 9)
+				continue;
+
 			rampdownSegMinLimits[i]->clear();
 			rampdownSegMaxLimits[i]->clear();
 			rampdownSegValues[i]->clear();
@@ -1115,7 +1211,7 @@ void magnetdaq::inductanceSenseButtonClicked(void)
 		statusMisc->setText("Inductance measurement blocks comm; observe front panel...");
 		QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 
-		socket->sendExtendedQuery("IND:SENSE?\r\n", SENSE_INDUCTANCE, 10); // 10 second time limit on reply
+		socket->sendExtendedQuery("IND:SENSE?\r\n", QueryState::SENSE_INDUCTANCE, 10); // 10 second time limit on reply
 		QApplication::restoreOverrideCursor();
 		clearMiscDisplay();
 	}
@@ -1131,7 +1227,7 @@ void magnetdaq::switchCurrentDetectionButtonClicked(void)
 		statusMisc->setText("Switch current detection blocks comm; observe front panel...");
 		QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 
-		socket->sendExtendedQuery("PS:AUTOD?\r\n", AUTODETECT_SWITCH_CURRENT, 10); // 10 second time limit on reply
+		socket->sendExtendedQuery("PS:AUTOD?\r\n", QueryState::AUTODETECT_SWITCH_CURRENT, 10); // 10 second time limit on reply
 		QApplication::restoreOverrideCursor();
 		clearMiscDisplay();
 	}

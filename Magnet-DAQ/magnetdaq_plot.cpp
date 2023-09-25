@@ -312,7 +312,11 @@ void magnetdaq::setCurrentAxisLabel(void)
 //---------------------------------------------------------------------------
 void magnetdaq::setVoltageAxisLabel(void)
 {
-	voltageAxis->setLabel(mainPlotY2Title + " (V)");
+	if (model430.shortSampleMode)
+		voltageAxis->setLabel(mainPlotY2Title + " (uV,V)");
+	else
+		voltageAxis->setLabel(mainPlotY2Title + " (V)");
+
 	voltageAxis->setLabelPadding(14);
 }
 
@@ -322,7 +326,7 @@ void magnetdaq::addDataPoint(qint64 time, double magField, double magCurrent, do
 	double timebase = (double)(time - startTime) / 1000.0;
 
 	// save current data to model430 object
-	model430.setCurrentData(time, magField, magCurrent, magVoltage, supCurrent, supVoltage);
+	model430.setCurrentData(time, magField, magCurrent, magVoltage, supCurrent, supVoltage, refCurrent);
 
 	if (supports_AMITRG())
 		model430.switchHeaterState = (bool)heater;

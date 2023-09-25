@@ -70,7 +70,7 @@ enum errorDefs
 	UNKNOWN_FORMAT
 };
 
-enum QueryState
+enum class QueryState
 {
 	// initial state
 	WELCOME_STRING = 0,
@@ -82,6 +82,7 @@ enum QueryState
 	VOLTAGE_LIMIT,
 
 	// setup
+	CURRENT_RANGE,
 	SUPPLY_TYPE,
 	SUPPLY_MIN_VOLTAGE,
 	SUPPLY_MAX_VOLTAGE,
@@ -104,6 +105,8 @@ enum QueryState
 	SWITCH_COOLING_GAIN,
 	QUENCH_ENABLE,
 	QUENCH_SENSITIVITY,
+	SAMPLE_QUENCH_ENABLE,
+	SAMPLE_QUENCH_LIMIT,
 	EXT_RAMPDOWN,
 	PROTECTION_MODE,
 	IC_SLOPE,
@@ -149,6 +152,7 @@ enum QueryState
 
 	// trigger
 	TRG_SAMPLE,
+	AMI_TRG_SAMPLE, /* custom AMI private trigger */
 
 	// switch state
 	SWITCH_HTR_STATE,
@@ -157,7 +161,7 @@ enum QueryState
 	IDLE_STATE
 };
 
-enum State
+enum class State
 {
 	RAMPING = 1,
 	HOLDING,
@@ -189,7 +193,7 @@ public:
 	void setRampdownFile(QString str);
 	void setQuenchFile(QString str);
 	void setSettings(QString str);
-	void setCurrentData(qint64 time, double magField, double magCurrent, double magVoltage, double supCurrent, double supVoltage);
+	void setCurrentData(qint64 time, double magField, double magCurrent, double magVoltage, double supCurrent, double supVoltage, double refCurrent);
 	void setIpName(QString str) { ipName = str; }
 	QString getIpName(void) { return ipName; }
 
@@ -204,6 +208,7 @@ public:
 	double supplyCurrent;
 	double supplyVoltage;
 	double quenchCurrent;
+	double referenceCurrent;
 
 	Property<double> firmwareVersion;
 	Property<QString> serialNumber;
@@ -216,11 +221,12 @@ public:
 #if defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
 	Property<unsigned char> statusByte;
 #else
-	Property<byte> statusByte;
+	Property<unsigned char> statusByte;
 #endif
 	Property<int> errorCode;
 
 	// SETUP -> Supply
+	Property<int> currentRange;
 	Property<int> powerSupplySelection;
 	Property<double> minSupplyVoltage;
 	Property<double> maxSupplyVoltage;
@@ -249,6 +255,8 @@ public:
 
 	// SETUP -> Protection
 	Property<int> quenchDetection;
+	Property<bool> sampleQuenchDetection;
+	Property<int> sampleQuenchLimit;
 	Property<int> quenchSensitivity;
 	Property<int> protectionMode;
 	Property<double> IcSlope;

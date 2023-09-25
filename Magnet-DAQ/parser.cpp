@@ -103,6 +103,9 @@ const char _INST[] = "INST";
 const char _INSTALLED[] = "INSTALLED";
 const char _PERS[] = "PERS";
 const char _PERSISTENT[] = "PERSISTENT";
+const char _REF[] = "REF";
+const char _REFERENCE[] = "REFERENCE";
+
 
 //---------------------------------------------------------------------------
 // Incoming data type tests and conversions
@@ -247,15 +250,15 @@ bool isValue(const char* buf)
 Parser::Parser(QObject *parent)
 	: QObject(parent)
 {
-	stopParsing = false;
-	model430 = NULL;
-	_parent = NULL;
+	stopParsing.store(false);
+	model430 = nullptr;
+	_parent = nullptr;
 }
 
 //---------------------------------------------------------------------------
 Parser::~Parser()
 {
-	stopParsing = true;
+	stopParsing.store(true);
 	qDebug("Magnet-DAQ stdin Parser End");
 }
 
@@ -269,7 +272,7 @@ void Parser::stop(void)
 	// reconnect is ignored because it is consumed by the blocking getline()
 	// still running in the previous thread -- after this consumption, the
 	// old thread immediately exits and everything proceeds normally.
-	stopParsing = true;
+	stopParsing.store(true);
 }
 
 //---------------------------------------------------------------------------
@@ -277,7 +280,7 @@ void Parser::stop(void)
 // Start processing data.
 void Parser::process(void)
 {
-	if (model430 == NULL)
+	if (model430 == nullptr)
 	{
 		qDebug("Magnet-DAQ parser aborted; no data source specified");
 	}
@@ -286,7 +289,7 @@ void Parser::process(void)
 		// connect send command slot
 		connect(this, SIGNAL(sendBlockingCommand(QString)), model430->getSocket(), SLOT(sendBlockingCommand(QString)));
 		connect(this, SIGNAL(configurationChanged(QueryState)), _parent, SLOT(configurationChanged(QueryState)));
-		stopParsing = false;
+		stopParsing.store(false);
 
 		// allocate resources and start parsing
 		qDebug("Magnet-DAQ stdin Parser Start");
@@ -297,7 +300,7 @@ void Parser::process(void)
 		fd_set read_fds;
         int sfd=STDIN_FILENO, result;
 #endif
-		while (!stopParsing)
+		while (!stopParsing.load())
 		{
 			input[0] = '\0';
 			output[0] = '\0';
@@ -308,20 +311,20 @@ void Parser::process(void)
 			//within the loop since select modifies the sets.
 			// MM@AMI: I have no idea why this is required to get stdin to work
 			FD_ZERO(&read_fds);
-            FD_SET(sfd, &read_fds);
+			FD_SET(sfd, &read_fds);
 
 			result = select(sfd + 1, &read_fds, NULL, NULL, NULL);
 
 			if (result == -1 && errno != EINTR)
 			{
-                qDebug("Magnet-DAQ parser aborted; error in select()");
+				qDebug("Magnet-DAQ parser aborted; error in select()");
 				std::cerr << "Error in select: " << strerror(errno) << "\n";
 				break;
 			}
 			else if (result == -1 && errno == EINTR)
 			{
 				//we've received an interrupt - handle this
-                qDebug("Magnet-DAQ parser aborted; received unknown interrupt");
+				qDebug("Magnet-DAQ parser aborted; received unknown interrupt");
 				break;
 			}
 			else
@@ -333,6 +336,13 @@ void Parser::process(void)
 			}
 #else
 			std::cin.getline(input, sizeof(input));	// this blocks until input
+
+			// had to add the following in Qt6/C++17/Win11 as getline() is no longer blocking
+			if (input[0] == NULL)
+			{
+				Sleep(10);	// throttle checks of NULL input
+				continue;
+			}
 #endif
 
 #ifdef DEBUG
@@ -673,7 +683,7 @@ void Parser::parseInput(char *commbuf, char* outputBuffer)
 
 //---------------------------------------------------------------------------
 // tests  CURRent:TARGet?, CURRent:MAGnet?, CURRent:SUPPly?
-//        CURRent:LIMit?,  COILconst?
+//        CURRent:LIMit?, CURRent:REFerence?,  COILconst?
 //---------------------------------------------------------------------------
 void Parser::parse_query_C(char* word, char* outputBuffer)
 {
@@ -711,6 +721,13 @@ void Parser::parse_query_C(char* word, char* outputBuffer)
 		else if (strcmp(word, _TARG) == 0 || strcmp(word, _TARGET) == 0)
 		{
 			sprintf(outputBuffer, "%0.10g\n", model430->targetCurrent());
+			std::cout.write(outputBuffer, strlen(outputBuffer));
+		}
+
+		// CURRent:REFerence?
+		else if (strcmp(word, _REF) == 0 || strcmp(word, _REFERENCE) == 0)
+		{
+			sprintf(outputBuffer, "%0.10g\n", model430->referenceCurrent);
 			std::cout.write(outputBuffer, strlen(outputBuffer));
 		}
 
@@ -1080,7 +1097,7 @@ void Parser::parse_query_S(char* word, char* outputBuffer)
 
 				if (word == NULL)
 				{
-					sprintf(outputBuffer, "%d\n", errorStack.count());
+					sprintf(outputBuffer, "%d\n", (int)errorStack.count());
 					std::cout.write(outputBuffer, strlen(outputBuffer));
 				}
 			}
@@ -1231,8 +1248,6 @@ void Parser::parse_configure(const char* word, char *outputBuffer)
 //---------------------------------------------------------------------------
 void Parser::parse_configure_C(const char* word, char *outputBuffer)
 {
-	bool saveBBRAM = false;
-
 	if (strcmp(word, _CURR) == 0 || strcmp(word, _CURRENT) == 0)
 	{
 		word = strtok(NULL, SEPARATOR);		// get next token
@@ -1636,7 +1651,7 @@ void Parser::parse_configure_R(const char* word, char *outputBuffer)
 							if (isValue(value))
 							{
 								emit sendBlockingCommand(inputStr + "\r\n");
-								emit configurationChanged(RAMP_RATE_FIELD);
+								emit configurationChanged(QueryState::RAMP_RATE_FIELD);
 							}
 							else
 							{
@@ -1719,7 +1734,7 @@ void Parser::parse_configure_R(const char* word, char *outputBuffer)
 							if (isValue(value))
 							{
 								emit sendBlockingCommand(inputStr + "\r\n");
-								emit configurationChanged(RAMP_RATE_CURRENT);
+								emit configurationChanged(QueryState::RAMP_RATE_CURRENT);
 							}
 							else
 							{

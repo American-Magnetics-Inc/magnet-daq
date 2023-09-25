@@ -6,9 +6,7 @@
 // on Linux and macOS we include the Qxlsx source in the ./header and ./source folders
 #include "header/xlsxdocument.h"
 #else
-// right now keep using the library form of QtXlsxWriter on Windows due to issues with
-// linking Qxlsx to private API, and using pre-compiled headers in VS2017
-#include <QtXlsxWriter/xlsxdocument.h>
+#include <xlsxdocument.h>
 #endif
 
 //---------------------------------------------------------------------------
@@ -29,6 +27,21 @@ bool haveExecuted = false;
 
 // flag that indicates when the table is loading to temporarily suspend time calcs
 bool tableIsLoading = false;
+
+//---------------------------------------------------------------------------
+// Utility function
+//---------------------------------------------------------------------------
+double avoidSignedZeroOutput(double number, int precision)
+{
+	if ((number < 0.0) && (-log10(fabs(number)) > precision))
+	{
+		return 0.0;
+	}
+	else
+	{
+		return number;
+	}
+}
 
 
 //---------------------------------------------------------------------------
@@ -430,6 +443,7 @@ void magnetdaq::tableSelectionChanged(void)
 void magnetdaq::tableAddRowAbove(void)
 {
 	int newRow = -1;
+	tableIsLoading = true;
 
 	// find selected vector
 	QList<QTableWidgetItem *> list = ui.tableWidget->selectedItems();
@@ -453,14 +467,19 @@ void magnetdaq::tableAddRowAbove(void)
 	{
 		initNewRow(newRow);
 		updatePresentTableSelection(newRow, false);
+
+		tableIsLoading = false;
 		tableSelectionChanged();
 	}
+
+	tableIsLoading = false;
 }
 
 //---------------------------------------------------------------------------
 void magnetdaq::tableAddRowBelow(void)
 {
 	int newRow = -1;
+	tableIsLoading = true;
 
 	// find selected vector
 	QList<QTableWidgetItem *> list = ui.tableWidget->selectedItems();
@@ -484,8 +503,12 @@ void magnetdaq::tableAddRowBelow(void)
 	{
 		initNewRow(newRow);
 		updatePresentTableSelection(newRow, false);
+
+		tableIsLoading = false;
 		tableSelectionChanged();
 	}
+
+	tableIsLoading = false;
 }
 
 //---------------------------------------------------------------------------
@@ -644,7 +667,7 @@ void magnetdaq::saveReport(QString reportFileName)
 		QXlsx::Document xlsx;
 		QString limitsUnitsStr;
 		QString rateUnitsStr;
-        QString pm(QChar(0x00B1));	// plus minus character
+		QString pm(const QChar(0x00B1));	// plus minus character
 
 		// save filename path
 		settings.setValue("LastReportPath", reportFileName);
@@ -787,7 +810,7 @@ void magnetdaq::goToSelectedTableEntry(void)
 		{
 			socket->getState();
 
-			if (model430.state() < QUENCH || model430.state() == AT_ZERO || model430.state() == ZEROING)
+			if (model430.state() < State::QUENCH || model430.state() == State::AT_ZERO || model430.state() == State::ZEROING)
 			{
 				// find selected table row
 				QList<QTableWidgetItem *> list = ui.tableWidget->selectedItems();
@@ -822,7 +845,7 @@ void magnetdaq::goToNextTableEntry(void)
 		{
 			socket->getState();
 
-			if (model430.state() < QUENCH || model430.state() == AT_ZERO || model430.state() == ZEROING)
+			if (model430.state() < State::QUENCH || model430.state() == State::AT_ZERO || model430.state() == State::ZEROING)
 			{
 				// find selected row
 				QList<QTableWidgetItem *> list = ui.tableWidget->selectedItems();
@@ -867,14 +890,14 @@ TableError magnetdaq::checkNextTarget(double target, QString label)
 	if (tableUnits == KG || tableUnits == TESLA)
 		checkValue = fabs(target / model430.coilConstant());
 
-	if (checkValue > model430.currentLimit())
+	if (fabs(checkValue) > model430.currentLimit())
 	{
 		showErrorString(label + " exceeds Current Limit!", true);
 		QApplication::beep();
-		return EXCEEDS_CURRENT_LIMIT;
+		return TableError::EXCEEDS_CURRENT_LIMIT;
 	}
 
-	return NO_TABLE_ERROR;
+	return TableError::NO_TABLE_ERROR;
 }
 
 //---------------------------------------------------------------------------
@@ -891,6 +914,9 @@ void magnetdaq::sendNextTarget(double target)
 		// send down command
 		socket->sendCommand("CONF:CURR:TARG " + QString::number(target, 'g', 10) + "\r\n");
 		model430.targetCurrent = target;
+
+		// also update the field value (bug: LMM 10/26/22)
+		model430.targetField = target * model430.coilConstant();
 	}
 	else
 	{
@@ -900,6 +926,9 @@ void magnetdaq::sendNextTarget(double target)
 
 		socket->sendCommand("CONF:FIELD:TARG " + QString::number(target, 'g', 10) + "\r\n");
 		model430.targetField = target;
+
+		// also update the current value (bug: LMM 10/26/22)
+		model430.targetCurrent = targetValue;
 	}
 
 	// ask to ramp to target
@@ -931,7 +960,7 @@ int magnetdaq::calculateRampingTime(double target, double currentValue)
 		{
 			for (int i = 0; i < model430.rampRateSegments(); i++)
 			{
-				if (fabs(model430.currentRampLimits[i]()) >= fabs(current))
+				if ((fabs(model430.currentRampLimits[i]()) >= fabs(current)) || i == (model430.rampRateSegments() - 1))
 				{
 					if (increasing)	// positive current direction
 					{
@@ -999,7 +1028,7 @@ void magnetdaq::manualCtrlTimerTick(void)
 			socket->getState();
 	}
 
-	if (model430.state() != PAUSED)
+	if (model430.state() != State::PAUSED)
 		remainingTime--;	// subtract one second
 
 #ifdef DEBUG
@@ -1008,7 +1037,7 @@ void magnetdaq::manualCtrlTimerTick(void)
 #endif
 
 	// handle quench event
-	if (model430.state() == QUENCH)
+	if (model430.state() == State::QUENCH)
 	{
 		quenchPassCnt++;
 
@@ -1036,7 +1065,7 @@ void magnetdaq::manualCtrlTimerTick(void)
 	}
 
 	// check for manual control action
-	else if (!(model430.state() == PAUSED || model430.state() == RAMPING || model430.state() == HOLDING))
+	else if (!(model430.state() == State::PAUSED || model430.state() == State::RAMPING || model430.state() == State::HOLDING))
 	{
 		abortTableTarget();
 	}
@@ -1079,7 +1108,7 @@ void magnetdaq::manualCtrlTimerTick(void)
 				setStatusMsg(tempStr);
 			}
 
-			if (model430.state() == HOLDING)
+			if (model430.state() == State::HOLDING)
 			{
 				// at target, stop timer
 				manualCtrlTimer->stop();
@@ -1208,7 +1237,7 @@ bool magnetdaq::goToTableSelection(int rowIndex, bool makeTarget)
 		if (ok)
 		{
 			// attempt to go to target current/field
-			if ((tableError = checkNextTarget(temp, "Table Row #" + QString::number(rowIndex + 1))) == NO_TABLE_ERROR)
+			if ((tableError = checkNextTarget(temp, "Table Row #" + QString::number(rowIndex + 1))) == TableError::NO_TABLE_ERROR)
 			{
 				if (makeTarget)
 				{
@@ -1238,7 +1267,7 @@ bool magnetdaq::goToTableSelection(int rowIndex, bool makeTarget)
 		}
 		else
 		{
-			tableError = NON_NUMERICAL_ENTRY;
+			tableError = TableError::NON_NUMERICAL_ENTRY;
 			showErrorString("Table Row #" + QString::number(rowIndex + 1) + " has non-numerical entry", true);	// error annunciation
 			abortAutostep("Auto-Stepping aborted due to an error with Table Row #" + QString::number(rowIndex + 1));
 		}
@@ -1288,7 +1317,7 @@ void magnetdaq::calculateAutostepRemainingTime(int startIndex, int endIndex)
 	{
 		goToTableSelection(i, false);	// check for errors
 
-		if (!tableError)
+		if (tableError == TableError::NO_TABLE_ERROR)
 		{
 			bool ok;
 			double temp = 0;
@@ -1353,13 +1382,13 @@ void magnetdaq::startAutostep(void)
 		{
 			socket->getState();
 
-			if (model430.state() < QUENCH || model430.state() == AT_ZERO || model430.state() == ZEROING)
+			if (model430.state() < State::QUENCH || model430.state() == State::AT_ZERO || model430.state() == State::ZEROING)
 			{
 				autostepStartIndex = ui.startIndexEdit->text().toInt();
 				autostepEndIndex = ui.endIndexEdit->text().toInt();
 				autostepRangeChanged();
 
-				if (tableError == NO_TABLE_ERROR)
+				if (tableError == TableError::NO_TABLE_ERROR)
 				{
 					if (autostepStartIndex < 1 || autostepStartIndex > ui.tableWidget->rowCount())
 					{
@@ -1403,6 +1432,7 @@ void magnetdaq::startAutostep(void)
 
 						elapsedTimerTicks = 0;
 						autostepTimer->start();
+						ui.autoStepGroupBox->setTitle("Auto-Stepping (Active)");
 
 						// begin with first vector
 						presentTableValue = autostepStartIndex - 1;
@@ -1440,8 +1470,9 @@ void magnetdaq::abortAutostep(QString errorString)
 	{
 		manualCtrlTimer->stop();	// this displays ramp timing for each step
 		autostepTimer->stop();
+		ui.autoStepGroupBox->setTitle("Auto-Stepping");
 
-		while (errorStatusIsActive)	// show any error condition first
+		while (errorStatusIsActive.load())	// show any error condition first
 		{
 			QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 #if defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
@@ -1467,12 +1498,13 @@ void magnetdaq::abortAutostep(QString errorString)
 //---------------------------------------------------------------------------
 void magnetdaq::stopAutostep(void)
 {
-	if (manualCtrlTimer->isActive() && model430.state() != QUENCH)
+	if (manualCtrlTimer->isActive() && model430.state() != State::QUENCH)
 		manualCtrlTimer->stop();
 
 	if (autostepTimer->isActive())
 	{
 		autostepTimer->stop();
+		ui.autoStepGroupBox->setTitle("Auto-Stepping");
 		lastStatusMiscString.clear();
 		setStatusMsg("Auto-Stepping aborted via Stop button!");
 		enableTableControls();
@@ -1482,7 +1514,7 @@ void magnetdaq::stopAutostep(void)
 		haveExecuted = false;
 
 		// PAUSE Model 430
-		if (model430.state() < QUENCH || model430.state() == AT_ZERO || model430.state() == ZEROING)
+		if (model430.state() < State::QUENCH || model430.state() == State::AT_ZERO || model430.state() == State::ZEROING)
 			socket->sendCommand("PAUSE\r\n");
 	}
 }
@@ -1500,8 +1532,8 @@ void magnetdaq::autostepTimerTick(void)
 		displayAutostepRemainingTime();
 	}
 
-	if (!manualCtrlTimer->isActive() && ((model430.state() == HOLDING) ||
-		(model430.switchInstalled() && model430.state() == PAUSED)))
+	if (!manualCtrlTimer->isActive() && ((model430.state() == State::HOLDING) ||
+		(model430.switchInstalled() && model430.state() == State::PAUSED)))
 	{
 		// if a switch is installed, check to see if we want to enter persistent mode
 		if (model430.switchInstalled())
@@ -1620,6 +1652,7 @@ void magnetdaq::autostepTimerTick(void)
 						lastStatusMiscString = "Auto-Step Completed @ Table Row #" + QString::number(presentTableValue + 1);
 						setStatusMsg(lastStatusMiscString);
 						autostepTimer->stop();
+						ui.autoStepGroupBox->setTitle("Auto-Stepping");
 						enableTableControls();
 						tableSelectionChanged();
 						doAutosaveReport(false);
@@ -1628,8 +1661,8 @@ void magnetdaq::autostepTimerTick(void)
 				}
 				else
 				{
-					if (!errorStatusIsActive && ((model430.state() == HOLDING) ||
-						(model430.switchInstalled() && model430.state() == PAUSED)))
+					if (!errorStatusIsActive.load() && ((model430.state() == State::HOLDING) ||
+						(model430.switchInstalled() && model430.state() == State::PAUSED)))
 					{
 						if (model430.switchInstalled())
 						{
@@ -1652,6 +1685,7 @@ void magnetdaq::autostepTimerTick(void)
 			else
 			{
 				autostepTimer->stop();
+				ui.autoStepGroupBox->setTitle("Auto-Stepping");
 				lastStatusMiscString.clear();
 				setStatusMsg("Auto-Stepping aborted due to unknown dwell time in Table Row #" + QString::number(presentTableValue + 1));
 				enableTableControls();
@@ -1660,14 +1694,14 @@ void magnetdaq::autostepTimerTick(void)
 			}
 		}
 	}
-	else if (model430.state() == SWITCH_COOLING || model430.state() == SWITCH_HEATING)
+	else if (model430.state() == State::SWITCH_COOLING || model430.state() == State::SWITCH_HEATING)
 	{
-		if (model430.state() == SWITCH_HEATING)
+		if (model430.state() == State::SWITCH_HEATING)
 		{
 			lastStatusMiscString = "Exiting persistence, wait for switch heating cycle to complete...";
 			setStatusMsg(lastStatusMiscString);
 		}
-		else if (model430.state() == SWITCH_COOLING)
+		else if (model430.state() == State::SWITCH_COOLING)
 		{
 			lastStatusMiscString = "Entering persistence, wait for switch cooling cycle to complete...";
 			setStatusMsg(lastStatusMiscString);
@@ -1682,7 +1716,7 @@ void magnetdaq::abortManualCtrl(QString errorString)
 	{
 		manualCtrlTimer->stop();	// this displays ramp timing for each step
 
-		while (errorStatusIsActive)	// show any error condition first
+		while (errorStatusIsActive.load())	// show any error condition first
 		{
 			QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 #if defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
@@ -1854,6 +1888,7 @@ void magnetdaq::executeNowClick(void)
 //---------------------------------------------------------------------------
 void magnetdaq::executeApp(void)
 {
+	int precision = 10;
 	QString program = ui.appLocationEdit->text();
 	QString args = ui.appArgsEdit->text();
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
@@ -1861,6 +1896,28 @@ void magnetdaq::executeApp(void)
 #else
 	QStringList arguments = args.split(" ", Qt::SkipEmptyParts);
 #endif
+
+	if (model430.fieldUnits == TESLA)
+		precision = 11;
+
+	// loop through argument list and replace "special" variables with present value
+	for (int i = 0; i < arguments.count(); i++)
+	{
+		QString testString = arguments[i].toUpper();
+
+		if (testString == "%CURR:MAG%" || testString == "$CURR:MAG")
+			arguments[i] = QString::number(avoidSignedZeroOutput(model430.magnetField, precision), 'g', precision);
+		else if (testString == "%CURR:REF%" || testString == "$CURR:REF")
+			arguments[i] = QString::number(avoidSignedZeroOutput(model430.referenceCurrent, precision), 'g', precision);
+		else if (testString == "%FIELD:MAG%" || testString == "$FIELD:MAG")
+			arguments[i] = QString::number(avoidSignedZeroOutput(model430.magnetField, precision), 'g', precision);
+		else if (testString == "%TARG:CURR%" || testString == "$TARG:CURR")
+			arguments[i] = QString::number(avoidSignedZeroOutput(model430.targetCurrent(), precision), 'g', precision);
+		else if (testString == "%TARG:FIELD%" || testString == "$TARG:FIELD")
+			arguments[i] = QString::number(avoidSignedZeroOutput(model430.targetField(), precision), 'g', precision);
+		else if (testString == "%IPADDR%" || testString == "$IPADDR")
+			arguments[i] = ui.ipAddressEdit->text();
+	}
 
 	// if a python script, use python path for executable
 	if (ui.pythonCheckBox->isChecked())
@@ -1887,6 +1944,14 @@ void magnetdaq::executeApp(void)
 //---------------------------------------------------------------------------
 void magnetdaq::finishedApp(int exitCode, QProcess::ExitStatus exitStatus)
 {
+	if (socket)
+	{
+		if (!socket->isConnected())
+			return;
+	}
+	else
+		return;
+
 	QString output = process->readAllStandardOutput();
 
 	// strip cr/lf
@@ -1906,6 +1971,7 @@ void magnetdaq::finishedApp(int exitCode, QProcess::ExitStatus exitStatus)
 		{
 			manualCtrlTimer->stop();	// this displays ramp timing for each step
 			autostepTimer->stop();
+			ui.autoStepGroupBox->setTitle("Auto-Stepping");
 
 			pinErrorString("Auto-stepping aborted: " + output, true);
 			lastStatusMiscString.clear();

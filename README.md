@@ -6,25 +6,23 @@
 
 This repository is the source code and binary distribution point for the Magnet-DAQ application for comprehensive remote control of the AMI Model 430 Programmer.
 
-**The current application version is 1.10.** An integrated Help file is included that you may preview in PDF format [here](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/Magnet-DAQ-Help.pdf). The Magnet-DAQ application *requires* firmware version 2.55 or later in the Model 430 programmer. 
+**The current application version is 1.13.** An integrated Help file is included that you may preview in PDF format [here](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/Magnet-DAQ-Help.pdf). The Magnet-DAQ application *requires* firmware version 2.55 or later in the Model 430 programmer. 
 
 Magnet-DAQ is also a required prerequisite for the [Multi-Axis Operation](https://bitbucket.org/americanmagneticsinc/multi-axis-operation) open source application developed by AMI for control of AMI Maxes(tm) magnet systems.
 
 ------
 
-### Included Firmware Upgrade ###
+### Included Legacy Firmware Upgrades ###
 
-**ALERT!**  AMI has discovered the *Firmware Upgrade Wizard* will always fail with the "unknown protocol" error in the Windows x64 and macOS versions (the Linux and Win32 versions are not affected). Please see the recommended procedure, especially on Windows, to update to Magnet-DAQ version 1.10 by visiting the [Issue Tracker discussion](https://bitbucket.org/americanmagneticsinc/magnet-daq/issues/7/firmware-upgrade-wizard-fails-with-unknown). (Hint, you will need to explicitly uninstall v1.09 of Magnet-DAQ before installing the new release.)
-
-An integrated Firmware Upgrade Wizard is included in Magnet-DAQ along with the latest Model 430 firmware versions 2.65 (legacy) and 3.15. Upon connection to a Model 430, the application will present the Firmware Upgrade Wizard as appropriate, or on demand via the "Upgrade" toolbar icon.
+An integrated Firmware Upgrade Wizard is included in Magnet-DAQ along with the latest Model 430 firmware legacy versions 2.65 and 3.15. Upon connection to a Model 430, the application will present the Firmware Upgrade Wizard as appropriate, or on demand via the "Upgrade" toolbar icon.
 
 **NOTE:** The latest firmware releases include optional communication on Ethernet port 7185 without the "Welcome" message. This is of importance to customers using VISA and LabVIEW to develop "stateless" communication drivers, and in fact the latest [AMI Drivers for LabVIEW](https://bitbucket.org/americanmagneticsinc/ami-drivers) require port 7185.
 
 ------
 
-### New Table Feature
+### New Table Feature in Magnet-DAQ
 
-Starting with version 1.08, a Table tab was added supporting a list of target fields that can be optionally auto-stepped by the application. Also included is an option to execute an external application or Python script *at each target*, as well as automatically entering and exiting persistence. These features are intended to allow the customer to use the Magnet-DAQ application for automated data acquisition or other experimental procedures that *repeat* at various field points. An example Python script is included in the Help.
+Starting with Magnet-DAQ version 1.08, a Table tab was added supporting a list of target fields that can be optionally auto-stepped by the application. Also included is an option to execute an external application or Python script *at each target*, as well as automatically entering and exiting persistence. These features are intended to allow the customer to use the Magnet-DAQ application for automated data acquisition or other experimental procedures that *repeat* at various field points. Example Python scripts are included in the Help. Check the Help for more information about the new "special variables" in the latest version that allow passing of selected magnet states to external apps/scripts as command line arguments.
 
 ![table](https://bitbucket.org/americanmagneticsinc/magnet-daq/raw/fd38e070b36eef59ecea22f000a22da181c272f8/help/images/screenshot4.png)
 
@@ -32,9 +30,11 @@ Starting with version 1.08, a Table tab was added supporting a list of target fi
 
 ## User Manual Updates? ##
 
-**ALERT!**  Firmware release version 2.65/3.15 has a companion manual update (Rev 10, August 2021) that also corrects several errors in the prior manuals.
+**ALERT!**  The newest Model 430 hardware revision and firmware release version 4.23 has a companion manual update (Rev 11, Sept 2023).
 
-Updated Model 430 and Power Supply System manuals are available to document the new features in the latest Model 430 firmware:
+* [Generic Model 430 Manual including High-Stability Option and 3-Axis Systems (Rev 11)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/mn-430-rev11.pdf)
+
+The Rev 10 Model 430 and Power Supply System manuals for legacy firmware versions 2.65/3.15 are still available:
 
 * [Generic Model 430 Manual including High-Stability Option and 3-Axis Systems (Rev 10)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/mn-430-rev10.pdf)
 * [AMI 4-Quadrant Power Supply Systems including High-Stability Option and 3-Axis Systems (Rev 10)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/mn-4QPS-rev10.pdf)
@@ -45,11 +45,11 @@ Updated Model 430 and Power Supply System manuals are available to document the 
 Pre-compiled, ready-to-use binaries are available in the Downloads section of this repository:
 
 * [Installer for 64-bit Microsoft Windows 7 or later](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/MagnetDAQ-Setup.msi) - Simply download and run the installer.
-
 * [Installer for 32-bit Microsoft Windows 7 or later](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/MagnetDAQ-Setup-Win32.msi)
 
-* [Executable for 64-bit Linux (Ubuntu 18.04 or later recommended)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/Magnet-DAQ.tar.gz) - See the README file in the download for the instructions for deploying on Ubuntu.
+The Linux and Mac binary versions are still at v1.10, but will be updated ASAP:
 
+* [Executable for 64-bit Linux (Ubuntu 18.04 or later recommended)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/Magnet-DAQ.tar.gz) - See the README file in the download for the instructions for deploying on Ubuntu.
 * [Application for 64-bit Apple macOS (Sierra or later recommended)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/Magnet-DAQ.dmg) - Download and copy the Magnet-DAQ.app folder to your desired location.
 
 ## How do I compile the source to produce my own binary? ##
@@ -65,14 +65,14 @@ Please note that this is not *required* since binary distributions are provided 
 
 
 * __Dependencies__
-	* Requires [Qt 5.15 or later open-source distribution](https://www.qt.io/download-open-source/). Qt 6 is not yet recommended due the removal of FTP support needed for the integrated *Firmware Upgrade Wizard*, although the code will all compile on Qt 6.
-	* Uses the [QtXlsxWriter library](https://github.com/dbzhang800/QtXlsxWriter) built as a DLL for the Windows version.
-	* Linux and macOS versions use the files from the [QXlsx project](https://github.com/QtExcel/QXlsx) and include the source directly in the project. Note this library links to private Qt API which may break in future Qt releases.
+	* Requires [Qt 5.15 or later open-source distribution](https://www.qt.io/download-open-source/). Qt 6 is not yet recommended due the removal of FTP support needed for the integrated *Firmware Upgrade Wizard*, although the code *should* all compile on Qt 6.
+	* Uses the [QCustom Plot](https://www.qcustomplot.com/) v2.1.1 built as a static library for the Windows version. Include the source code files qcustomplot.cpp and qcustomplot.h in the project if the static library is not available.
+	* Files from the [QXlsx project](https://github.com/QtExcel/QXlsx) are included as source directly in the project. Note this library links to private Qt API which may break in future Qt releases.
 	* The help file was written using [Help & Manual 7.5.4](https://www.helpandmanual.com/). Reproduction of the Help output included in the binaries requires a license for Help & Manual.
 
 
 * __Deployment hints for your own compilations__
-	* *For Windows*: The MagnetDAQ-Setup folder contains a setup project for producing a Windows installer. This requires the [Visual Studio Installer](https://marketplace.visualstudio.com/items?itemName=VisualStudioClient.MicrosoftVisualStudio2017InstallerProjects) extension. A bin folder is referenced by the installer where you should place the Qt runtime binaries and plugins for packaging by the installer.
+	* *For Windows*: The MagnetDAQ-Setup-Qt5-x64 and MagnetDAQ-Setup-Win32 folders contain setup projects for producing a Windows installer. This requires the [Visual Studio Installer](https://marketplace.visualstudio.com/items?itemName=VisualStudioClient.MicrosoftVisualStudio2017InstallerProjects) extension. A bin-qt5-x64 and bin32 folder is referenced by the installer where you should place the Qt runtime binaries and plugins for packaging by the installer.
 	* *For Linux:* See the README file in the binary download (see above) for the instructions for deploying on Ubuntu. Other versions of Linux may require a different procedure.
 	* Linux high-DPI display support functions flawlessly in KDE Plasma (not surprising since KDE is Qt-based). The application may exhibit various unaddressed issues with high-DPI display in other desktop managers such as Unity and Gnome, as does the general desktop environment for those desktop managers at present.
 	* *For Mac*: Simply copy the .app folder to the desired location. In order to include the Qt runtime libraries in any app bundle you compile yourself, you should use the [Mac Deployment Tool](https://doc.qt.io/qt-6/macos-deployment.html). The macOS "dark mode" is supported.
