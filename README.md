@@ -47,10 +47,8 @@ Pre-compiled, ready-to-use binaries are available in the Downloads section of th
 * [Installer for 64-bit Microsoft Windows 7 or later](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/MagnetDAQ-Setup.msi) - Simply download and run the installer.
 * [Installer for 32-bit Microsoft Windows 7 or later](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/MagnetDAQ-Setup-Win32.msi)
 
-The Linux and Mac binary versions are still at v1.10, but will be updated ASAP:
-
 * [Executable for 64-bit Linux (Ubuntu 18.04 or later recommended)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/Magnet-DAQ.tar.gz) - See the README file in the download for the instructions for deploying on Ubuntu.
-* [Application for 64-bit Apple macOS (Sierra or later recommended)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/Magnet-DAQ.dmg) - Download and copy the Magnet-DAQ.app folder to your desired location.
+* [Application for 64-bit Apple macOS (High Sierra or later recommended)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/Magnet-DAQ.dmg) - Download and copy the Magnet-DAQ.app folder to your desired location (Applications folder recommended). Enabling execution via Gatekeeper may be required.
 
 ## How do I compile the source to produce my own binary? ##
 
@@ -75,7 +73,7 @@ Please note that this is not *required* since binary distributions are provided 
 	* *For Windows*: The MagnetDAQ-Setup-Qt5-x64 and MagnetDAQ-Setup-Win32 folders contain setup projects for producing a Windows installer. This requires the [Visual Studio Installer](https://marketplace.visualstudio.com/items?itemName=VisualStudioClient.MicrosoftVisualStudio2017InstallerProjects) extension. A bin-qt5-x64 and bin32 folder is referenced by the installer where you should place the Qt runtime binaries and plugins for packaging by the installer.
 	* *For Linux:* See the README file in the binary download (see above) for the instructions for deploying on Ubuntu. Other versions of Linux may require a different procedure.
 	* Linux high-DPI display support functions flawlessly in KDE Plasma (not surprising since KDE is Qt-based). The application may exhibit various unaddressed issues with high-DPI display in other desktop managers such as Unity and Gnome, as does the general desktop environment for those desktop managers at present.
-	* *For Mac*: Simply copy the .app folder to the desired location. In order to include the Qt runtime libraries in any app bundle you compile yourself, you should use the [Mac Deployment Tool](https://doc.qt.io/qt-6/macos-deployment.html). The macOS "dark mode" is supported.
+	* *For Mac*: Simply copy the .app folder to the desired location. In order to include the Qt runtime libraries in any app bundle you compile yourself, you should use the [Mac Deployment Tool](https://doc.qt.io/qt-6/macos-deployment.html). The macOS "dark mode" is supported. Note that UI files may require enlarging all font sizes by a factor of ~1.4.
 
 ## License ##
 

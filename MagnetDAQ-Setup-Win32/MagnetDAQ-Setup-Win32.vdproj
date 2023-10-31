@@ -6422,7 +6422,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Magnet-DAQ"
         "ProductCode" = "8:{F7CE8B22-E60F-43F9-83E6-5279AFF7345B}"
-        "PackageCode" = "8:{5465A387-C587-4035-8076-FB9FCD627607}"
+        "PackageCode" = "8:{016E4656-D2E5-460F-BC76-6FBC68910344}"
         "UpgradeCode" = "8:{03C8B04A-93FE-4574-BA50-A6C3599A5CE1}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -6437,7 +6437,7 @@
         "Subject" = "8:AMI Model 430 Remote Control app"
         "ARPCONTACT" = "8:American Magnetics, Inc."
         "Keywords" = "8:"
-        "ARPCOMMENTS" = "8:Magnet-DAQ v1.13"
+        "ARPCOMMENTS" = "8:Magnet-DAQ v1.13 (Win32)"
         "ARPURLINFOABOUT" = "8:http://www.americanmagnetics.com"
         "ARPPRODUCTICON" = "8:_F7B8AF449B154A99A93194495A39C513"
         "ARPIconIndex" = "3:0"
@@ -6995,7 +6995,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_9A956FDA982B411698EBB62E87A7352C"
             {
-            "SourcePath" = "8:..\\x64\\Release\\Magnet-DAQ.exe"
+            "SourcePath" = "8:..\\Win32\\Release\\Magnet-DAQ.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_74DED266078E4E36B2711E7814A38DD7"
