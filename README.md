@@ -30,14 +30,12 @@ Starting with Magnet-DAQ version 1.08, a Table tab was added supporting a list o
 
 ## User Manual Updates? ##
 
-**ALERT!**  The newest Model 430 hardware revision and firmware release version 4.23 has a companion manual update (Rev 11, Sept 2023).
+**ALERT!**  The newest Model 430 hardware revision and firmware releases has a companion manual update (Rev 12, March 2024). Legacy Model 430 hardware is also covered in this new manual release.
 
-* [Generic Model 430 Manual including High-Stability Option and 3-Axis Systems (Rev 11)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/mn-430-rev11.pdf)
+* [Model 430 Manual and 4-Quadrant Power Supply Systems including Multi-Axis Systems (Rev 12)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/mn-430-rev12.pdf)
 
-The Rev 10 Model 430 and Power Supply System manuals for legacy firmware versions 2.65/3.15 are still available:
+The Rev 10 Bipolar Power Supply System manual for legacy bipolar systems is still available:
 
-* [Generic Model 430 Manual including High-Stability Option and 3-Axis Systems (Rev 10)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/mn-430-rev10.pdf)
-* [AMI 4-Quadrant Power Supply Systems including High-Stability Option and 3-Axis Systems (Rev 10)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/mn-4QPS-rev10.pdf)
 * [AMI Bipolar (2-Quadrant) Power Supply Systems (Rev 10)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/mn-Bipolar-rev10.pdf)
 
 ## How do I install? ##
