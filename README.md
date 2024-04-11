@@ -6,15 +6,15 @@
 
 This repository is the source code and binary distribution point for the Magnet-DAQ application for comprehensive remote control of the AMI Model 430 Programmer.
 
-**The current application version is 1.13.** An integrated Help file is included that you may preview in PDF format [here](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/Magnet-DAQ-Help.pdf). The Magnet-DAQ application *requires* firmware version 2.55 or later in the Model 430 programmer. 
+**The current application version is 1.15.** An integrated Help file is included that you may preview in PDF format [here](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/Magnet-DAQ-Help.pdf). The Magnet-DAQ application *requires* firmware version 2.55 or later in the Model 430 programmer. 
 
 Magnet-DAQ is also a required prerequisite for the [Multi-Axis Operation](https://bitbucket.org/americanmagneticsinc/multi-axis-operation) open source application developed by AMI for control of AMI Maxes(tm) magnet systems.
 
 ------
 
-### Included Legacy Firmware Upgrades ###
+### Included Firmware Upgrades ###
 
-An integrated Firmware Upgrade Wizard is included in Magnet-DAQ along with the latest Model 430 firmware legacy versions 2.65 and 3.15. Upon connection to a Model 430, the application will present the Firmware Upgrade Wizard as appropriate, or on demand via the "Upgrade" toolbar icon.
+An integrated Firmware Upgrade Wizard for Model 430 firmware version 4.26 is included in Magnet-DAQ, along with the latest Model 430 firmware *legacy* versions 2.76 and 3.26. Upon connection to a Model 430, the application will present the Firmware Upgrade Wizard as appropriate for your hardware, or on demand via the "Upgrade" toolbar icon. Magnet-DAQ is the recommended channel for obtaining and installing Model 430 firmware upgrades from AMI.
 
 **NOTE:** The latest firmware releases include optional communication on Ethernet port 7185 without the "Welcome" message. This is of importance to customers using VISA and LabVIEW to develop "stateless" communication drivers, and in fact the latest [AMI Drivers for LabVIEW](https://bitbucket.org/americanmagneticsinc/ami-drivers) require port 7185.
 
@@ -30,11 +30,11 @@ Starting with Magnet-DAQ version 1.08, a Table tab was added supporting a list o
 
 ## User Manual Updates? ##
 
-**ALERT!**  The newest Model 430 hardware revision and firmware releases has a companion manual update (Rev 12, March 2024). Legacy Model 430 hardware is also covered in this new manual release.
+**ALERT!**  The newest Model 430 hardware revision and firmware releases (both most recent *and* legacy) has a companion manual update (Rev 12, March 2024). Legacy Model 430 hardware is still covered in this new manual release.
 
 * [Model 430 Manual and 4-Quadrant Power Supply Systems including Multi-Axis Systems (Rev 12)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/mn-430-rev12.pdf)
 
-The Rev 10 Bipolar Power Supply System manual for legacy bipolar systems is still available:
+The Rev 10 Bipolar Power Supply System manual for legacy bipolar *systems* is still available:
 
 * [AMI Bipolar (2-Quadrant) Power Supply Systems (Rev 10)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/mn-Bipolar-rev10.pdf)
 
@@ -42,11 +42,15 @@ The Rev 10 Bipolar Power Supply System manual for legacy bipolar systems is stil
 
 Pre-compiled, ready-to-use binaries are available in the Downloads section of this repository:
 
-* [Installer for 64-bit Microsoft Windows 7 or later](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/MagnetDAQ-Setup.msi) - Simply download and run the installer.
-* [Installer for 32-bit Microsoft Windows 7 or later](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/MagnetDAQ-Setup-Win32.msi)
+[Installer for 64-bit Microsoft Windows 7 or later](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/MagnetDAQ-Setup.msi) - Simply download and run the installer.
 
-* [Executable for 64-bit Linux (Ubuntu 18.04 or later recommended)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/Magnet-DAQ.tar.gz) - See the README file in the download for the instructions for deploying on Ubuntu.
-* [Application for 64-bit Apple macOS (High Sierra or later recommended)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/Magnet-DAQ.dmg) - Download and copy the Magnet-DAQ.app folder to your desired location (Applications folder recommended). Enabling execution via Gatekeeper may be required.
+[Installer for 32-bit Microsoft Windows 7 or later](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/MagnetDAQ-Setup-Win32.msi)
+
+The downloads for Linux and macOS versions are still version 1.13, but will be updated ASAP:
+
+[Executable for 64-bit Linux (Ubuntu 18.04 or later recommended)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/Magnet-DAQ.tar.gz) - See the README file in the download for the instructions for deploying on Ubuntu.
+
+[Application for 64-bit Apple macOS (High Sierra or later recommended)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/Magnet-DAQ.dmg) - Download and copy the Magnet-DAQ.app folder to your desired location (Applications folder recommended). Enabling execution via Gatekeeper may be required.
 
 ## How do I compile the source to produce my own binary? ##
 

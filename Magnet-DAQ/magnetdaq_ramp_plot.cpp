@@ -1,6 +1,18 @@
 #include "stdafx.h"
 #include "magnetdaq.h"
 
+#if defined(Q_OS_MACOS)
+QFont rampTitleFont(".SF NS Text", 15, QFont::Bold);
+#else
+QFont rampTitleFont("Segoe UI", 10, QFont::Bold);
+#endif
+
+#if defined(Q_OS_MACOS)
+QFont rampAxesFont(".SF NS Text", 13, QFont::Normal);
+#else
+QFont rampAxesFont("Segoe UI", 9, QFont::Normal);
+#endif
+
 //---------------------------------------------------------------------------
 // Contains methods related to the ramp rate (in magnet voltage) vs.
 // current/field plot. Broken out from magnetdaq.cpp for ease of editing.
@@ -21,6 +33,8 @@ void magnetdaq::initRampPlot(void)
 	// synchronize the left and right margins of the top and bottom axis rects:
 	QCPMarginGroup *marginGroup = new QCPMarginGroup(ui.rampPlotWidget);
 	ui.rampPlotWidget->axisRect()->setMarginGroup(QCP::msLeft | QCP::msRight, marginGroup);
+	ui.rampPlotWidget->axisRect()->setAutoMargins(QCP::msAll);
+	ui.rampPlotWidget->axisRect()->setMinimumMargins(QMargins(0, 0, 0, 0));
 
 	// make bottom and top axes, and left and right, sync:
 	connect(ui.rampPlotWidget->xAxis, SIGNAL(rangeChanged(QCPRange)), ui.rampPlotWidget->xAxis2, SLOT(setRange(QCPRange)));
@@ -48,6 +62,7 @@ void magnetdaq::initRampPlot(void)
 		ui.rampPlotWidget->graph()->setBrush(color);
 		ui.rampPlotWidget->graph()->setPen(pen);
 		//ui.rampPlotWidget->graph()->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, 4));
+		ui.rampPlotWidget->graph()->selectionDecorator()->setPen(QPen(Qt::darkMagenta, 2));
 	}
 
 	// add graph for target point display
@@ -69,30 +84,18 @@ void magnetdaq::initRampPlot(void)
 	ui.rampPlotWidget->yAxis->setRange(-10, +10);
 
 	// set labels
-#if defined(Q_OS_MACOS)
-	QFont titleFont(".SF NS Text", 15, QFont::Bold);
-#else
-	QFont titleFont("Segoe UI", 10, QFont::Bold);
-#endif
-
 	ui.rampPlotWidget->plotLayout()->insertRow(0);
-	rampPlotTitle = new QCPTextElement(ui.rampPlotWidget, "Charge Voltage vs. Current/Field", titleFont);
+	rampPlotTitle = new QCPTextElement(ui.rampPlotWidget, "Charge Voltage vs. Current/Field", rampTitleFont);
 	ui.rampPlotWidget->plotLayout()->addElement(0, 0, rampPlotTitle);
 	ui.rampPlotWidget->plotLayout()->elementAt(0)->setMaximumSize(16777215, 26);
 	ui.rampPlotWidget->plotLayout()->elementAt(0)->setMinimumSize(200, 26);
 	ui.rampPlotWidget->plotLayout()->elementAt(1)->setMaximumSize(16777215, 16777215);
 
-#if defined(Q_OS_MACOS)
-	QFont axesFont(".SF NS Text", 13, QFont::Normal);
-#else
-	QFont axesFont("Segoe UI", 9, QFont::Normal);
-#endif
-
-	rampCurrentAxis->setLabelFont(axesFont);
+	rampCurrentAxis->setLabelFont(rampAxesFont);
 	rampCurrentAxis->grid()->setSubGridVisible(true);
 	setRampPlotCurrentAxisLabel();
 
-	rampVoltageAxis->setLabelFont(axesFont);
+	rampVoltageAxis->setLabelFont(rampAxesFont);
 	rampVoltageAxis->grid()->setSubGridVisible(true);
 	rampVoltageAxis->setLabel("Charge Voltage (V)");
 
@@ -248,6 +251,38 @@ void magnetdaq::renderRampPlot(QPrinter *printer)
 	QPageSize pageSize(QPageSize::Letter);
 	QPageLayout pageLayout(pageSize, QPageLayout::Orientation::Landscape, QMarginsF(0.75, 0.75, 0.75, 0.75), QPageLayout::Unit::Inch);
 	printer->setPageLayout(pageLayout);
+	qreal pixelRatio = QGuiApplication::primaryScreen()->devicePixelRatio();
+
+#if defined(Q_OS_WINDOWS)
+	// For reasons unknown, a hiDPI Windows screen set to scale to something
+	// other than 100% generates printer output with very large fonts and
+	// inadequate margins. The legend labels also get cutoff. This is a hack
+	// to work around it. The Linux and macOS versions are unaffected by this bug.
+	// This hack seems to work for 200% hiDPI scaling. Other scale settings may
+	// not have optimal results.
+
+	qreal rampAxesFontSize;
+	qreal labelFontSize;
+	qreal rampTitleFontSize;
+	QFont labelFont = ui.rampPlotWidget->yAxis->labelFont();
+
+	if (pixelRatio > 1.0)	// indicates hiDPI scaling
+	{
+		QMargins margins;
+		margins = ui.rampPlotWidget->axisRect()->margins();
+		margins *= pixelRatio;
+		ui.rampPlotWidget->axisRect()->setMinimumMargins(margins);
+
+		rampAxesFont.setPointSizeF((rampAxesFontSize = rampAxesFont.pointSizeF()) / pixelRatio);
+		ui.rampPlotWidget->yAxis->setTickLabelFont(rampAxesFont);
+		ui.rampPlotWidget->xAxis->setTickLabelFont(rampAxesFont);
+		labelFont.setPointSizeF((labelFontSize = labelFont.pointSizeF()) / pixelRatio);
+		ui.rampPlotWidget->yAxis->setLabelFont(labelFont);
+		ui.rampPlotWidget->xAxis->setLabelFont(labelFont);
+		rampTitleFont.setPointSizeF((rampTitleFontSize = rampTitleFont.pointSizeF()) / pixelRatio);
+		rampPlotTitle->setFont(rampTitleFont);
+	}
+#endif
 	
 	QCPPainter painter(printer);
 	QRectF pageRect = printer->pageRect(QPrinter::DevicePixel);
@@ -271,6 +306,25 @@ void magnetdaq::renderRampPlot(QPrinter *printer)
 	painter.scale(scale, scale);
 	ui.rampPlotWidget->toPainter(&painter, plotWidth, plotHeight);
 	painter.drawText(-10, -10, QDateTime::currentDateTime().toString());
+
+#if defined(Q_OS_WINDOWS)
+	// Restore the Windows display after corrections for
+	// the above mentioned Windows printing bug for hiDPI screens.
+
+	if (QGuiApplication::primaryScreen()->devicePixelRatio() > 1.0)	// indicates hiDPI scaling
+	{
+		// restore the plot for Windows display
+		ui.rampPlotWidget->axisRect()->setMinimumMargins(QMargins(0, 0, 0, 0));
+		rampAxesFont.setPointSizeF(rampAxesFontSize);
+		ui.rampPlotWidget->yAxis->setTickLabelFont(rampAxesFont);
+		ui.rampPlotWidget->xAxis->setTickLabelFont(rampAxesFont);
+		labelFont.setPointSizeF(labelFontSize);
+		ui.rampPlotWidget->yAxis->setLabelFont(labelFont);
+		ui.rampPlotWidget->xAxis->setLabelFont(labelFont);
+		rampTitleFont.setPointSizeF(rampTitleFontSize);
+		rampPlotTitle->setFont(rampTitleFont);
+	}
+#endif
 }
 #endif
 

@@ -1,5 +1,20 @@
 #include "stdafx.h"
 #include "magnetdaq.h"
+#include "model430.h"
+
+QFont legendFont;
+
+#if defined(Q_OS_MACOS)
+QFont axesFont(".SF NS Text", 13, QFont::Normal);
+#else
+QFont axesFont("Segoe UI", 9, QFont::Normal);
+#endif
+
+#if defined(Q_OS_MACOS)
+QFont titleFont(".SF NS Text", 15, QFont::Bold);
+#else
+QFont titleFont("Segoe UI", 10, QFont::Bold);
+#endif
 
 //---------------------------------------------------------------------------
 // Contains methods related to the main magnet current/field/voltage vs.
@@ -45,7 +60,7 @@ void magnetdaq::initPlot(void)
 {
 	ui.plotWidget->setLocale(QLocale(QLocale::English, QLocale::UnitedStates)); // period as decimal separator and comma as thousand separator
 	ui.plotWidget->legend->setVisible(true);
-	QFont legendFont = font();  // start out with MainWindow's font
+	legendFont = font();  // start out with MainWindow's font
 
 #if defined(Q_OS_MACOS)
 	legendFont.setPointSize(12); // and make a bit smaller for legend
@@ -54,16 +69,36 @@ void magnetdaq::initPlot(void)
 #endif
 
 	ui.plotWidget->legend->setFont(legendFont);
+	ui.plotWidget->legend->setAutoMargins(QCP::msAll);
+	ui.plotWidget->legend->setMinimumMargins(QMargins(10, 5, 10, 5));
+
+	for (int i = 0; i < ui.plotWidget->legend->itemCount(); i++)
+	{
+		ui.plotWidget->legend->item(i)->setAutoMargins(QCP::msAll);
+		ui.plotWidget->legend->item(i)->setMinimumMargins(QMargins(0, 0, 2, 0));
+		ui.plotWidget->legend->item(i)->setMargins(QMargins(0, 0, 2, 0));
+	}
+
 	ui.plotWidget->legend->setSelectedFont(legendFont);
 	ui.plotWidget->legend->setBrush(QBrush(QColor(255, 255, 255, 230)));
 	ui.plotWidget->legend->setIconSize(ui.plotWidget->legend->iconSize().width() + 10, ui.plotWidget->legend->iconSize().height());
 	ui.plotWidget->legend->setIconTextPadding(10);
+
+	// set selection decoration styles (moved to darkMagenta selection colors in v1.14+)
+	{
+		QFont selFont = ui.plotWidget->legend->font();
+		selFont.setBold(true);
+		ui.plotWidget->legend->setSelectedFont(selFont);
+	}
+
 	// by default, the legend is in the inset layout of the main axis rect. So this is how we access it to change legend placement:
 	ui.plotWidget->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignTop | Qt::AlignRight);
 
 	// synchronize the left and right margins of the top and bottom axis rects:
 	QCPMarginGroup *marginGroup = new QCPMarginGroup(ui.plotWidget);
 	ui.plotWidget->axisRect()->setMarginGroup(QCP::msLeft | QCP::msRight, marginGroup);
+	ui.plotWidget->axisRect()->setAutoMargins(QCP::msAll);
+	ui.plotWidget->axisRect()->setMinimumMargins(QMargins(0, 0, 0, 0));
 
 	timeAxis = ui.plotWidget->xAxis = ui.plotWidget->axisRect()->axis(QCPAxis::atBottom);
 	ui.plotWidget->xAxis2 = ui.plotWidget->axisRect()->axis(QCPAxis::atTop);
@@ -85,6 +120,7 @@ void magnetdaq::initPlot(void)
 		QPen pen = QPen(Qt::blue);
 		pen.setWidthF(1.0);
 		ui.plotWidget->graph(MAGNET_CURRENT_GRAPH)->setPen(pen);
+		ui.plotWidget->graph(MAGNET_CURRENT_GRAPH)->selectionDecorator()->setPen(QPen(Qt::darkMagenta, 1));
 	}
 
 	// magnet field graph #1
@@ -95,6 +131,7 @@ void magnetdaq::initPlot(void)
 		pen.setWidthF(1.0);
 		pen.setStyle(Qt::SolidLine);
 		ui.plotWidget->graph(MAGNET_FIELD_GRAPH)->setPen(pen);
+		ui.plotWidget->graph(MAGNET_FIELD_GRAPH)->selectionDecorator()->setPen(QPen(Qt::darkMagenta, 1));
 	}
 
 	// supply current graph #2
@@ -105,6 +142,7 @@ void magnetdaq::initPlot(void)
 		pen.setWidthF(1.0);
 		pen.setStyle(Qt::DashLine);
 		ui.plotWidget->graph(SUPPLY_CURRENT_GRAPH)->setPen(pen);
+		ui.plotWidget->graph(SUPPLY_CURRENT_GRAPH)->selectionDecorator()->setPen(QPen(Qt::darkMagenta, 1));
 	}
 
 	// magnet voltage graph #3
@@ -115,6 +153,7 @@ void magnetdaq::initPlot(void)
 		pen.setWidthF(1.0);
 		pen.setStyle(Qt::SolidLine);
 		ui.plotWidget->graph(MAGNET_VOLTAGE_GRAPH)->setPen(pen);
+		ui.plotWidget->graph(MAGNET_VOLTAGE_GRAPH)->selectionDecorator()->setPen(QPen(Qt::darkMagenta, 1));
 	}
 
 	// supply voltage graph #4
@@ -125,6 +164,7 @@ void magnetdaq::initPlot(void)
 		pen.setWidthF(1.0);
 		pen.setStyle(Qt::DashLine);
 		ui.plotWidget->graph(SUPPLY_VOLTAGE_GRAPH)->setPen(pen);
+		ui.plotWidget->graph(SUPPLY_VOLTAGE_GRAPH)->selectionDecorator()->setPen(QPen(Qt::darkMagenta, 1));
 	}
 
 	// ramp reference graph #5 (if supported by firmware)
@@ -135,6 +175,7 @@ void magnetdaq::initPlot(void)
 		pen.setWidthF(1.0);
 		pen.setStyle(Qt::SolidLine);
 		ui.plotWidget->graph(RAMP_REFERENCE_GRAPH)->setPen(pen);
+		ui.plotWidget->graph(RAMP_REFERENCE_GRAPH)->selectionDecorator()->setPen(QPen(Qt::darkMagenta, 1));
 	}
 
 	// set default scale
@@ -142,30 +183,18 @@ void magnetdaq::initPlot(void)
 	ui.plotWidget->yAxis->setRange(ui.yminEdit->text().toDouble(), ui.ymaxEdit->text().toDouble());
 	ui.plotWidget->yAxis2->setRange(ui.vminEdit->text().toDouble(), ui.vmaxEdit->text().toDouble());
 
-	// set labels
-#if defined(Q_OS_MACOS)
-	QFont titleFont(".SF NS Text", 15, QFont::Bold);
-#else
-	QFont titleFont("Segoe UI", 10, QFont::Bold);
-#endif
-
 	ui.plotWidget->plotLayout()->insertRow(0);
 	ssPlotTitle = new QCPTextElement(ui.plotWidget, mainPlotTitle, titleFont);
 	ui.plotWidget->plotLayout()->addElement(0, 0, ssPlotTitle);
-	ui.plotWidget->plotLayout()->elementAt(0)->setMaximumSize(16777215, 26);
-	ui.plotWidget->plotLayout()->elementAt(0)->setMinimumSize(200, 26);
+	ui.plotWidget->plotLayout()->elementAt(0)->setMaximumSize(16777215, 40);
+	ui.plotWidget->plotLayout()->elementAt(0)->setMinimumSize(200, 20);
 	ui.plotWidget->plotLayout()->elementAt(1)->setMaximumSize(16777215, 16777215);
-
-#if defined(Q_OS_MACOS)
-	QFont axesFont(".SF NS Text", 13, QFont::Normal);
-#else
-	QFont axesFont("Segoe UI", 9, QFont::Normal);
-#endif
 
 	timeAxis->setLabelFont(axesFont);
 	timeAxis->grid()->setSubGridVisible(true);
 	setTimeAxisLabel();
 
+	// need to make this adjustable with trailing zeros display option
 	currentAxis->setNumberFormat("gbc");
 	currentAxis->setNumberPrecision(7);
 	currentAxis->setLabelFont(axesFont);
@@ -340,18 +369,131 @@ void magnetdaq::addDataPoint(qint64 time, double magField, double magCurrent, do
 		timebase /= 60.0;	// convert to minutes
 
 	if (ui.magnetCurrentRadioButton->isChecked())
+	{
 		ui.plotWidget->graph(MAGNET_CURRENT_GRAPH)->addData(timebase, magCurrent);
-	else if (ui.magnetFieldRadioButton->isChecked())
+		
+		if (ui.plotWidget->graph(MAGNET_CURRENT_GRAPH)->selected())
+		{
+			if (selectedTrace != MAGNET_CURRENT_GRAPH)
+			{
+				selectedTrace = MAGNET_CURRENT_GRAPH;
+				clearStats();
+			}
+
+			if (State(state) == State::HOLDING || State(state) == State::PAUSED || State(state) == State::AT_ZERO)
+				avgSelectedTrace(magCurrent);
+			else
+				clearStats();
+		}
+	}
+	else if (selectedTrace == MAGNET_CURRENT_GRAPH)
+	{
+		clearStats();
+		selectedTrace = -1;
+	}
+	
+	if (ui.magnetFieldRadioButton->isChecked())
+	{
 		ui.plotWidget->graph(MAGNET_FIELD_GRAPH)->addData(timebase, magField);
 
+		if (ui.plotWidget->graph(MAGNET_FIELD_GRAPH)->selected())
+		{
+			if (selectedTrace != MAGNET_FIELD_GRAPH)
+			{
+				selectedTrace = MAGNET_FIELD_GRAPH;
+				clearStats();
+			}
+
+			if (State(state) == State::HOLDING || State(state) == State::PAUSED || State(state) == State::AT_ZERO)
+				avgSelectedTrace(magField);
+			else
+				clearStats();
+		}
+	}
+	else if (selectedTrace == MAGNET_FIELD_GRAPH)
+	{
+		clearStats();
+		selectedTrace = -1;
+	}
+
 	if (ui.magnetVoltageCheckBox->isChecked())
+	{
 		ui.plotWidget->graph(MAGNET_VOLTAGE_GRAPH)->addData(timebase, magVoltage);
 
+		if (ui.plotWidget->graph(MAGNET_VOLTAGE_GRAPH)->selected())
+		{
+			if (selectedTrace != MAGNET_VOLTAGE_GRAPH)
+			{
+				selectedTrace = MAGNET_VOLTAGE_GRAPH;
+				clearStats();
+			}
+
+			if ((State(state) >= State::RAMPING && State(state) <= State::ZEROING) || State(state) == State::AT_ZERO)
+				avgSelectedTrace(magVoltage);
+			else
+				clearStats();
+		}
+	}
+	else if (selectedTrace == MAGNET_VOLTAGE_GRAPH)
+	{
+		clearStats();
+		selectedTrace = -1;
+	}
+
 	if (ui.supplyCurrentCheckBox->isChecked())
+	{
 		ui.plotWidget->graph(SUPPLY_CURRENT_GRAPH)->addData(timebase, supCurrent);
 
+		if (ui.plotWidget->graph(SUPPLY_CURRENT_GRAPH)->selected())
+		{
+			if (selectedTrace != SUPPLY_CURRENT_GRAPH)
+			{
+				selectedTrace = SUPPLY_CURRENT_GRAPH;
+				clearStats();
+			}
+
+			if (State(state) == State::HOLDING || State(state) == State::PAUSED || State(state) == State::AT_ZERO)
+				avgSelectedTrace(supCurrent);
+			else
+				clearStats();
+		}
+	}
+	else if (selectedTrace == SUPPLY_CURRENT_GRAPH)
+	{
+		clearStats();
+		selectedTrace = -1;
+	}
+
 	if (ui.supplyVoltageCheckBox->isChecked())
+	{
 		ui.plotWidget->graph(SUPPLY_VOLTAGE_GRAPH)->addData(timebase, supVoltage);
+
+		if (ui.plotWidget->graph(SUPPLY_VOLTAGE_GRAPH)->selected())
+		{
+			if (selectedTrace != SUPPLY_VOLTAGE_GRAPH)
+			{
+				selectedTrace = SUPPLY_VOLTAGE_GRAPH;
+				clearStats();
+			}
+
+			if ((State(state) >= State::RAMPING && State(state) <= State::ZEROING) || State(state) == State::AT_ZERO)
+				avgSelectedTrace(supVoltage);
+			else
+				clearStats();
+		}
+	}
+	else if (selectedTrace == SUPPLY_VOLTAGE_GRAPH)
+	{
+		clearStats();
+		selectedTrace = -1;
+	}
+
+	// if no selection, or ramp reference graph is selected, clear stats display
+	if (!ui.plotWidget->selectedGraphs().count() || ui.plotWidget->graph(RAMP_REFERENCE_GRAPH)->selected())
+	{
+		clearStats();
+		selectedTrace = -1;
+	}
 
 	if (ui.referenceCheckBox->isChecked() && supports_AMITRG())
 		ui.plotWidget->graph(RAMP_REFERENCE_GRAPH)->addData(timebase, refCurrent);
@@ -414,40 +556,112 @@ void magnetdaq::addDataPoint(qint64 time, double magField, double magCurrent, do
 }
 
 //---------------------------------------------------------------------------
-// this function implements a moving average of the data sampling rate
+// resets stats calculations
+void magnetdaq::clearStats(void)
+{
+	selTracePos = 0;	// reset stats calcs
+	statusStats->clear();
+}
+
+//---------------------------------------------------------------------------
+// this function implements an average and variance of the selected 
+// trace in HOLDING, PAUSED, and AT ZERO states using Welford's algorithm
+void magnetdaq::avgSelectedTrace(double newValue)
+{
+	double delta;
+
+	if (selTracePos == 0)
+	{
+		// for Welford's algorithm we must reset mean and sq error sum to zero
+		selTraceAverage = 0.0;
+		selTraceErrorsSum = 0.0;
+	}
+
+	// save new value
+	selTraceValues[selTracePos] = newValue;
+
+	// running mean for first window of data
+	delta = newValue - selTraceAverage;
+	selTraceAverage += delta / (double)(selTracePos + 1);
+
+	// running variance
+	selTraceErrorsSum += delta * (newValue - selTraceAverage);
+		
+	if (selTracePos > 1)
+		selTraceVariance = selTraceErrorsSum / (double)(selTracePos - 1);
+
+	selTracePos += 1;
+
+	if (selTracePos >= N_SAMPLES_MOVING_AVG)	// update interface for each full buffer
+	{
+		double unitsScaledNoiseRMS = selTraceVariance;
+
+		QString units, noiseUnits;
+
+		if (selectedTrace == MAGNET_CURRENT_GRAPH || selectedTrace == SUPPLY_CURRENT_GRAPH)
+		{
+			units = " A";
+			unitsScaledNoiseRMS = pow(selTraceVariance, 0.5) * 1000.0;
+			noiseUnits = " mA";
+		}
+		else if (selectedTrace == MAGNET_FIELD_GRAPH)
+		{
+			if (model430.fieldUnits() == KG)
+			{
+				units = " kG";
+				noiseUnits = " G";
+			}
+			else
+			{
+				units = " T";
+				noiseUnits = " mT";
+			}
+
+			unitsScaledNoiseRMS = pow(selTraceVariance, 0.5) * 1000.0;
+		}
+		else if (selectedTrace == MAGNET_VOLTAGE_GRAPH || selectedTrace == SUPPLY_VOLTAGE_GRAPH)
+		{
+			units = " V";
+			unitsScaledNoiseRMS = pow(selTraceVariance, 0.5) * 1000.0;
+			noiseUnits = " mV";
+		}
+		
+		statusStats->setStyleSheet("color: darkMagenta; font: bold");
+
+		if (unitsScaledNoiseRMS > 1.0)
+			statusStats->setText("Mean: " + QString::number(selTraceAverage, 'g', 4) + units + "   RMS: " + QString::number(unitsScaledNoiseRMS, 'g', 4) + noiseUnits);
+		else
+			statusStats->setText("Mean: " + QString::number(selTraceAverage, 'g', 4) + units + "   RMS: " + QString::number(unitsScaledNoiseRMS, 'g', 3) + noiseUnits);
+
+		selTracePos = 0;
+	}
+}
+
+//---------------------------------------------------------------------------
+// this function implements an average of the data sampling rate
+// using Welford's algorithm
 void magnetdaq::avgSampleTimes(double newValue)
 {
-	if (firstStatsPass)
-	{
-		if (samplePos == 0)
-			meanSampleTime = 0.0;
+	double delta;
 
-		// save new value
-		sampleTimes[samplePos] = newValue;
+	if (samplePos == 0) // for Welford's algorithm we must reset mean to zero
+		meanSampleTime = 0.0;
 
-		// running mean for first window of data
-		meanSampleTime += (newValue - meanSampleTime) / (double)(samplePos + 1);
-	}
-	else
-	{
-		double valueToReplace = sampleTimes[samplePos];
+	// save new value
+	sampleTimes[samplePos] = newValue;
 
-		// save new value
-		sampleTimes[samplePos] = newValue;
-
-		// running mean with value replacement
-		meanSampleTime += (newValue - valueToReplace) / (double)N_SAMPLES_MOVING_AVG;
-	}
-
+	// running mean for first window of data
+	delta = newValue - meanSampleTime;
+	meanSampleTime += delta / (double)(samplePos + 1);
+	
 	samplePos += 1;
 
-	if (samplePos >= N_SAMPLES_MOVING_AVG)
+	if (samplePos >= N_SAMPLES_MOVING_AVG)	// update interface for each buffer fill
 	{
 		if (meanSampleTime > 0)
 			statusSampleRate->setText(QString::number(1.0 / meanSampleTime, 'f', 1) + " samples/sec");
 
 		samplePos = 0;
-		firstStatsPass = false;
 	}
 }
 
@@ -517,6 +731,55 @@ void magnetdaq::renderPlot(QPrinter *printer)
 	QPageSize pageSize(QPageSize::Letter);
 	QPageLayout pageLayout(pageSize, QPageLayout::Orientation::Landscape, QMarginsF(0.75, 0.75, 0.75, 0.75), QPageLayout::Unit::Inch);
 	printer->setPageLayout(pageLayout);
+	qreal pixelRatio = QGuiApplication::primaryScreen()->devicePixelRatio();
+
+#if defined(Q_OS_WINDOWS)
+	// For reasons unknown, a hiDPI Windows screen set to scale to something
+	// other than 100% generates printer output with very large fonts and
+	// inadequate margins. The legend labels also get cutoff. This is a hack
+	// to work around it. The Linux and macOS versions are unaffected by this bug.
+	// This hack seems to work for 200% hiDPI scaling. Other scale settings may
+	// not have optimal results.
+	
+	qreal axesFontSize;
+	qreal labelFontSize;
+	qreal titleFontSize;
+	QFont labelFont = ui.plotWidget->yAxis->labelFont();
+
+	if (pixelRatio > 1.0)	// indicates hiDPI scaling
+	{
+		QMargins margins;
+		margins = ui.plotWidget->axisRect()->margins();
+		margins *= pixelRatio;
+		ui.plotWidget->axisRect()->setMinimumMargins(margins);
+		legendFont.setPointSize(legendFont.pointSizeF() / pixelRatio);
+		ui.plotWidget->legend->setFont(legendFont);
+		ui.plotWidget->legend->setSelectedFont(legendFont);
+
+		qreal greatestWidth = 0;
+
+		// find widest legend entry
+		for (int i = 0; i < ui.plotWidget->legend->itemCount(); i++)
+		{
+			if (ui.plotWidget->legend->item(i)->rect().width() > greatestWidth)
+				greatestWidth = ui.plotWidget->legend->item(i)->rect().width();
+		}
+
+		for (int i = 0; i < ui.plotWidget->legend->itemCount(); i++)
+			ui.plotWidget->legend->item(i)->setMinimumMargins(QMargins(0, 0, (int)(greatestWidth / pixelRatio), 0)); // hack
+
+		axesFont.setPointSizeF((axesFontSize = axesFont.pointSizeF()) / pixelRatio);
+		ui.plotWidget->yAxis->setTickLabelFont(axesFont);
+		ui.plotWidget->xAxis->setTickLabelFont(axesFont);
+		ui.plotWidget->yAxis2->setTickLabelFont(axesFont);
+		labelFont.setPointSizeF((labelFontSize = labelFont.pointSizeF()) / pixelRatio);
+		ui.plotWidget->yAxis->setLabelFont(labelFont);
+		ui.plotWidget->xAxis->setLabelFont(labelFont);
+		ui.plotWidget->yAxis2->setLabelFont(labelFont);
+		titleFont.setPointSizeF((titleFontSize = titleFont.pointSizeF()) / pixelRatio);
+		ssPlotTitle->setFont(titleFont);
+	}
+#endif
 
 	QCPPainter painter(printer);
 	QRectF pageRect = printer->pageRect(QPrinter::DevicePixel);
@@ -540,6 +803,37 @@ void magnetdaq::renderPlot(QPrinter *printer)
 	painter.scale(scale, scale);
 	ui.plotWidget->toPainter(&painter, plotWidth, plotHeight);
 	painter.drawText(-10, -10, QDateTime::currentDateTime().toString());
+
+#if defined(Q_OS_WINDOWS)
+	// Restore the Windows display after corrections for
+	// the above mentioned Windows printing bug for hiDPI screens.
+
+	if (QGuiApplication::primaryScreen()->devicePixelRatio() > 1.0)	// indicates hiDPI scaling
+	{
+		// restore the plot for Windows display
+		ui.plotWidget->axisRect()->setMinimumMargins(QMargins(0, 0, 0, 0));
+		legendFont.setPointSize(8); // and restore
+
+		for (int i = 0; i < ui.plotWidget->legend->itemCount(); i++)
+		{
+			ui.plotWidget->legend->item(i)->setMinimumMargins(QMargins(0, 0, 2, 0));
+			ui.plotWidget->legend->item(i)->setMargins(QMargins(0, 0, 2, 0));
+		}
+
+		ui.plotWidget->legend->setFont(legendFont);
+		ui.plotWidget->legend->setSelectedFont(legendFont);
+		axesFont.setPointSizeF(axesFontSize);
+		ui.plotWidget->yAxis->setTickLabelFont(axesFont);
+		ui.plotWidget->xAxis->setTickLabelFont(axesFont);
+		ui.plotWidget->yAxis2->setTickLabelFont(axesFont);
+		labelFont.setPointSizeF(labelFontSize);
+		ui.plotWidget->yAxis->setLabelFont(labelFont);
+		ui.plotWidget->xAxis->setLabelFont(labelFont);
+		ui.plotWidget->yAxis2->setLabelFont(labelFont);
+		titleFont.setPointSizeF(titleFontSize);
+		ssPlotTitle->setFont(titleFont);
+	}
+#endif
 }
 #endif
 
@@ -820,6 +1114,13 @@ void magnetdaq::syncPlotLegend()
 	{
 		if (legend->hasItemWithPlottable(ui.plotWidget->graph(SUPPLY_VOLTAGE_GRAPH)))
 			legend->removeItem(legend->itemWithPlottable(ui.plotWidget->graph(SUPPLY_VOLTAGE_GRAPH)));
+	}
+
+	// set margins again
+	for (int i = 0; i < ui.plotWidget->legend->itemCount(); i++)
+	{
+		ui.plotWidget->legend->item(i)->setMinimumMargins(QMargins(0, 0, 2, 0));
+		ui.plotWidget->legend->item(i)->setMargins(QMargins(0, 0, 2, 0));
 	}
 }
 

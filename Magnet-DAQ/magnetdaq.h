@@ -179,6 +179,7 @@ private slots:
 	void syncRampdownEvents(QString str);
 	void rampdownEventSelectionChanged(int index);
 	void refreshQuenchList(void);
+	void saveQuenchHistory(void);
 	void syncQuenchEvents(QString str);
 	void quenchEventSelectionChanged(int index);
 
@@ -188,6 +189,7 @@ private slots:
 	void syncTextSettings(QString str);
 	void sendSupportEmailClicked(void);
 	void copySettingsToClipboard(void);
+	void saveSettingsToFile(void);
 
 	// slots for 430 control
 	void persistentSwitchButtonClicked(void);
@@ -268,6 +270,7 @@ private slots:
 	void enableTableControls(void);
 	void abortManualCtrl(QString errorString);
 	void recalculateRemainingTime(void);
+	void chooseAutosaveFolder(void);
 	void doAutosaveReport(bool forceOutput);
 	void browseForAppPath(void);
 	void browseForPythonPath(void);
@@ -317,11 +320,18 @@ private:
 	QToolButton *autoscrollButton;
 
 	// main plot sample rate calculation
-	bool firstStatsPass;
+	int selectedTrace;
 	double sampleTimes[N_SAMPLES_MOVING_AVG];
 	int samplePos;
 	double meanSampleTime;
 	qint64 lastTime;
+
+	// main plot selected trace stat calcs
+	double selTraceValues[N_SAMPLES_MOVING_AVG];
+	int selTracePos;
+	double selTraceAverage;
+	double selTraceErrorsSum;
+	double selTraceVariance;
 
 	// main plot label text
 	QString mainPlotTitle;
@@ -347,6 +357,7 @@ private:
 	ClickableLabel *statusError;
 	QLabel *statusSampleRate;
 	QLabel *statusMisc;
+	QLabel* statusStats;
 	QString lastStatusMiscStyle;
 	QString lastStatusMiscString;
 
@@ -373,6 +384,8 @@ private:
 
 	void setupRampRateArrays(void);
 	void setupRampdownArrays(void);
+	void clearStats(void);
+	void avgSelectedTrace(double newValue);
 	void avgSampleTimes(double newValue);
 	void setTimeAxisLabel(void);
 	QString getCurrentAxisLabel(void);
@@ -419,6 +432,11 @@ private:
 	TableError autostepError;
 	QString lastAppFilePath;
 	QString lastPythonPath;
+	QString autosaveFolder;
+
+	// support tab elements
+	QString lastSettingsSavePath;
+	QString saveSettingsFileName;
 };
 
 #endif // magnetdaq_H

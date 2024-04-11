@@ -64,6 +64,13 @@ void magnetdaq::restoreTableSettings(QSettings *settings)
 	ui.appStartEdit->setText(settings->value("Table/ExecutionTime", "").toString());
 	ui.pythonCheckBox->setChecked(settings->value("Table/PythonScript", false).toBool());
 
+	// restore paths for file dialogs and autosave
+	lastReportPath = settings->value("LastReportPath").toString();
+	lastTableSavePath = settings->value("LastTableSavePath").toString();
+	lastTableLoadPath = settings->value("LastTableFilePath").toString();
+	autosaveFolder = settings->value("Table/AutosaveFolder", "").toString();
+	ui.autosaveReportCheckBox->setToolTip("Autosave folder: " + autosaveFolder);
+
 	// execution initially disabled until connect
 	ui.manualControlGroupBox->setEnabled(false);
 	ui.autoStepGroupBox->setEnabled(false);
@@ -94,6 +101,7 @@ void magnetdaq::restoreTableSettings(QSettings *settings)
 	connect(ui.appLocationButton, SIGNAL(clicked()), this, SLOT(browseForAppPath()));
 	connect(ui.pythonLocationButton, SIGNAL(clicked()), this, SLOT(browseForPythonPath()));
 	connect(ui.executeNowButton, SIGNAL(clicked()), this, SLOT(executeNowClick()));
+	connect(ui.autosavePathButton, SIGNAL(clicked()), this, SLOT(chooseAutosaveFolder()));
 }
 
 //---------------------------------------------------------------------------
@@ -114,8 +122,6 @@ void magnetdaq::actionLoad_Table(void)
 	if (!tableFileName.isEmpty())
 	{
 		QApplication::setOverrideCursor(Qt::WaitCursor);
-
-		lastTableLoadPath = tableFileName;
 
 		FILE *inFile;
 		inFile = fopen(tableFileName.toLocal8Bit(), "r");
@@ -186,7 +192,8 @@ void magnetdaq::actionLoad_Table(void)
 				ui.tableWidget->loadFromFile(tableFileName, false, 1);
 
 			// save path
-			settings.setValue("LastTableFilePath", lastTableLoadPath);
+			QFileInfo path(tableFileName);
+			settings.setValue("LastTableFilePath", path.absolutePath());
 
 			presentTableValue = -1;	// no selection
 			ui.startIndexEdit->clear();
@@ -370,8 +377,6 @@ void magnetdaq::actionSave_Table(void)
 	{
 		QApplication::setOverrideCursor(Qt::WaitCursor);
 
-		lastTableSavePath = saveTableFileName;
-
 		FILE *outFile;
 		outFile = fopen(saveTableFileName.toLocal8Bit(), "w");
 
@@ -379,7 +384,8 @@ void magnetdaq::actionSave_Table(void)
 		ui.tableWidget->saveToFile(saveTableFileName);
 
 		// save path
-		settings.setValue("LastTableSavePath", lastTableSavePath);
+		QFileInfo path(saveTableFileName);
+		settings.setValue("LastTableSavePath", path.absolutePath());
 
 		QApplication::restoreOverrideCursor();
 	}
@@ -563,8 +569,11 @@ void magnetdaq::updatePresentTableSelection(int row, bool removed)
 			// selection shift up by one
 			presentTableValue--;
 			lastTableValue = presentTableValue;
-			lastStatusMiscString = "Target Vector : Table Row #" + QString::number(presentTableValue + 1);
-			setStatusMsg(lastStatusMiscString);
+			if (lastStatusMiscString.contains("Target Value:"))
+			{
+				lastStatusMiscString = "Target Value : Table Row #" + QString::number(presentTableValue + 1);
+				setStatusMsg(lastStatusMiscString);
+			}
 		}
 	}
 	else
@@ -574,8 +583,11 @@ void magnetdaq::updatePresentTableSelection(int row, bool removed)
 			// selection shifted down by one
 			presentTableValue++;
 			lastTableValue = presentTableValue;
-			lastStatusMiscString = "Target Value : Table Row #" + QString::number(presentTableValue + 1);
-			setStatusMsg(lastStatusMiscString);
+			if (lastStatusMiscString.contains("Target Value:"))
+			{
+				lastStatusMiscString = "Target Value : Table Row #" + QString::number(presentTableValue + 1);
+				setStatusMsg(lastStatusMiscString);
+			}
 		}
 	}
 }
@@ -670,7 +682,8 @@ void magnetdaq::saveReport(QString reportFileName)
 		QString pm(const QChar(0x00B1));	// plus minus character
 
 		// save filename path
-		settings.setValue("LastReportPath", reportFileName);
+		QFileInfo path(reportFileName);
+		settings.setValue("LastReportPath", path.absolutePath());
 
 		// set document properties
 		xlsx.setDocumentProperty("title", "AMI Magnet " + ui.caseEdit->text() + " Test Report");
@@ -1255,7 +1268,7 @@ bool magnetdaq::goToTableSelection(int rowIndex, bool makeTarget)
 					}
 					else
 					{
-						lastStatusMiscString = "Target : Table Row #" + QString::number(rowIndex + 1);
+						lastStatusMiscString = "Target Value: Table Row #" + QString::number(rowIndex + 1);
 						setStatusMsg(lastStatusMiscString);
 					}
 				}
@@ -1745,42 +1758,77 @@ void magnetdaq::recalculateRemainingTime(void)
 }
 
 //---------------------------------------------------------------------------
+void magnetdaq::chooseAutosaveFolder(void)
+{
+	QSettings settings;
+
+	autosaveFolder = settings.value("Table/AutosaveFolder").toString();
+ 
+	autosaveFolder = QFileDialog::getExistingDirectory(this, "Choose Autosave Folder", autosaveFolder, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+
+	if (!autosaveFolder.isEmpty())
+	{
+		ui.autosaveReportCheckBox->setToolTip("Autosave folder: " + autosaveFolder);
+
+		// save path
+		settings.setValue("Table/AutosaveFolder", autosaveFolder);
+	}
+}
+
+//---------------------------------------------------------------------------
 void magnetdaq::doAutosaveReport(bool forceOutput)
 {
 	// auto report generation?
 	if ((ui.autosaveReportCheckBox->isChecked() && !haveAutosavedReport) || forceOutput)
 	{
-		// guess appropriate filename using lastVectorsLoadPath
-		if (!lastTableLoadPath.isEmpty())
+		QString filepath;
+		QDir path;
+
+		if (!autosaveFolder.isEmpty())
 		{
-			if (QFileInfo::exists(lastTableLoadPath))
+			path.setPath(autosaveFolder);
+		}
+		else
+		{
+			// guess appropriate path
+			if (QDir(lastReportPath).exists())
+				path.setPath(lastReportPath);
+			else if (QDir(lastTableLoadPath).exists())
+				path.setPath(lastTableLoadPath);
+			else if (QDir(lastTableSavePath).exists())
+				path.setPath(lastTableSavePath);
+			else
+				path.setPath(QStandardPaths::writableLocation(QStandardPaths::TempLocation));
+		}
+
+		// if directory does not exist, use Temp location as backup
+		if (!path.exists())
+			path.setPath(QStandardPaths::writableLocation(QStandardPaths::TempLocation));
+
+		if (path.exists())
+		{
+			QString currentDateTime = QDateTime::currentDateTime().toString("dd.MMM.yy-hh.mm.ss");
+
+			QString reportName = path.absolutePath() + "/Autosave-" + currentDateTime + ".xlsx";
+
+			int i = 1;
+			while (QFileInfo::exists(reportName))
 			{
-				QFileInfo file(lastTableLoadPath);
-				QString filepath = file.absolutePath();
-				QString filename = file.baseName();	// no extension
+				reportName = path.absolutePath() + "/Autosave-" + currentDateTime + "." + QString::number(i) + ".xlsx";
+				i++;
+			}
 
-				if (!filepath.isEmpty())
-				{
-					QString reportName = filepath + "/" + filename + ".xlsx";
+			// filename constructed, now autosave the report
+			saveReport(reportName);
 
-					int i = 1;
-					while (QFileInfo::exists(reportName))
-					{
-						reportName = filepath + "/" + filename + "." + QString::number(i) + ".xlsx";
-						i++;
-					}
+			QFileInfo reportFile(reportName);
 
-					// filename constructed, now autosave the report
-					saveReport(reportName);
-
-					QFileInfo reportFile(reportName);
-
-					if (reportFile.exists())
-					{
-						setStatusMsg("Saved as " + reportFile.fileName());
-						haveAutosavedReport = true;
-					}
-				}
+			if (reportFile.exists())
+			{
+				setStatusMsg("Saved as " + reportFile.fileName());
+				haveAutosavedReport = true;
+				autosaveFolder = path.absolutePath();
+				ui.autosaveReportCheckBox->setToolTip("Autosave folder: " + path.absolutePath());
 			}
 		}
 	}
@@ -1819,11 +1867,11 @@ void magnetdaq::browseForAppPath(void)
 
 	if (!exeFileName.isEmpty())
 	{
-		lastAppFilePath = exeFileName;
 		ui.appLocationEdit->setText(exeFileName);
 
 		// save path
-		settings.setValue("LastAppFilePath", lastAppFilePath);
+		QFileInfo path(exeFileName);
+		settings.setValue("LastAppFilePath", path.absolutePath());
 	}
 }
 
@@ -1839,11 +1887,11 @@ void magnetdaq::browseForPythonPath(void)
 
 	if (!pythonFileName.isEmpty())
 	{
-		lastPythonPath = pythonFileName;
 		ui.pythonPathEdit->setText(pythonFileName);
 
 		// save path
-		settings.setValue("LastPythonPath", lastPythonPath);
+		QFileInfo path(pythonFileName);
+		settings.setValue("LastPythonPath", path.absolutePath());
 	}
 }
 

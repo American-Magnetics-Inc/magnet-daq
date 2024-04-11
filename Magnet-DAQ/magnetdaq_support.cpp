@@ -15,6 +15,7 @@ void magnetdaq::restoreSupportSettings(QSettings *settings)
 	// make connections
 	connect(ui.sendSupportEmailButton, SIGNAL(clicked()), this, SLOT(sendSupportEmailClicked()));
 	connect(ui.copySettingsToClipboardButton, SIGNAL(clicked()), this, SLOT(copySettingsToClipboard()));
+	connect(ui.saveSettingsToFileButton, SIGNAL(clicked()), this, SLOT(saveSettingsToFile()));
 }
 
 //---------------------------------------------------------------------------
@@ -80,6 +81,33 @@ void magnetdaq::copySettingsToClipboard(void)
 {
 	QClipboard *clipboard = QApplication::clipboard();
 	clipboard->setText(ui.settingsTextEdit->toPlainText());
+}
+
+//---------------------------------------------------------------------------
+void magnetdaq::saveSettingsToFile(void)
+{
+	if (!ui.settingsTextEdit->toPlainText().isEmpty())	// if settings have been read
+	{
+		QSettings settings;
+		lastSettingsSavePath = settings.value("LastSettingsSavePath").toString();
+
+		saveSettingsFileName = QFileDialog::getSaveFileName(this, "Save Settings to File", lastSettingsSavePath, "Text Files (*.txt)");
+
+		if (!saveSettingsFileName.isEmpty())
+		{
+			// save filename path
+			QFileInfo path(saveSettingsFileName);
+			settings.setValue("LastSettingsSavePath", path.absolutePath());
+
+			QFile qFile(saveSettingsFileName);
+			if (qFile.open(QIODevice::WriteOnly))
+			{
+				QTextStream out(&qFile);
+				out << ui.settingsTextEdit->toPlainText();
+				qFile.close();
+			}
+		}
+	}
 }
 
 //---------------------------------------------------------------------------

@@ -828,7 +828,10 @@ void Socket::commandTimerTimeout(void)
 			qDebug() << "CMD: " << cmd;
 			#endif
 
-			commandTimer.setInterval(250);
+			if (magnetdaqParent->isARM())	// dual core ARM -- go faster
+				commandTimer.setInterval(100);
+			else
+				commandTimer.setInterval(250);
 		}
 	}
 }

@@ -179,5 +179,39 @@ void magnetdaq::quenchEventSelectionChanged(int index)
 }
 
 //---------------------------------------------------------------------------
+void magnetdaq::saveQuenchHistory(void)
+{
+	QSettings settings;
+	lastSettingsSavePath = settings.value("LastSettingsSavePath").toString();
+	QString historyStr;
+	QString quenchHistoryFileName;
+
+	for (int i = 0; i < quenchSummaries.count(); i++)
+	{
+		historyStr.append(quenchSummaries[i] + "\n\n");
+	}
+
+	if (!historyStr.isEmpty())
+	{
+		quenchHistoryFileName = QFileDialog::getSaveFileName(this, "Save Quench History to File", lastSettingsSavePath, "Text Files (*.txt)");
+
+		if (!quenchHistoryFileName.isEmpty())
+		{
+			// save filename path
+			QFileInfo path(quenchHistoryFileName);
+			settings.setValue("LastSettingsSavePath", path.absolutePath());
+
+			QFile qFile(quenchHistoryFileName);
+			if (qFile.open(QIODevice::WriteOnly))
+			{
+				QTextStream out(&qFile);
+				out << historyStr;
+				qFile.close();
+			}
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------

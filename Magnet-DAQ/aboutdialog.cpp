@@ -12,6 +12,8 @@ aboutdialog::aboutdialog(QDialog *parent)
 	ui.license->setOpenExternalLinks(true);
 	ui.appname->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	ui.appname->setOpenExternalLinks(true);
+	ui.license_2->setTextInteractionFlags(Qt::TextBrowserInteraction);
+	ui.license_2->setOpenExternalLinks(true);
 
 #if defined(Q_OS_MACOS)
     // these font sizes seem to be somehow "frozen" in the ui file

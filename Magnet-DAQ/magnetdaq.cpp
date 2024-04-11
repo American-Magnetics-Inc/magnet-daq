@@ -343,6 +343,10 @@ magnetdaq::magnetdaq(QWidget *parent)
 	statusConnectState->setToolTip("TCP connection status");
 	statusMisc = new QLabel("", this);
 	statusMisc->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+	statusStats = new QLabel("", this);
+	statusStats->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+	statusStats->setToolTip("Selected trace statistics");
+	statusStats->setAlignment(Qt::AlignHCenter);
 	statusError = new ClickableLabel(this);
 	statusError->setFrameStyle(QFrame::Panel | QFrame::Sunken);
 	statusError->setToolTip("Error messages, click for history");
@@ -352,7 +356,8 @@ magnetdaq::magnetdaq(QWidget *parent)
 	statusSampleRate->setAlignment(Qt::AlignHCenter);
 
 	statusBar()->addPermanentWidget(statusConnectState, 1);
-	statusBar()->addPermanentWidget(statusMisc, 3);
+	statusBar()->addPermanentWidget(statusMisc, 2);
+	statusBar()->addPermanentWidget(statusStats, 1);
 	statusBar()->addPermanentWidget(statusSampleRate, 1);
 	statusBar()->addPermanentWidget(statusError, 1);
 	statusConnectState->setStyleSheet("color: red; font: bold");
@@ -438,6 +443,7 @@ magnetdaq::magnetdaq(QWidget *parent)
 	connect(ui.rampdownRefreshButton, SIGNAL(clicked()), this, SLOT(refreshRampdownList()));
 	connect(ui.quenchListWidget, SIGNAL(currentRowChanged(int)), this, SLOT(quenchEventSelectionChanged(int)));
 	connect(ui.quenchRefreshButton, SIGNAL(clicked()), this, SLOT(refreshQuenchList()));
+	connect(ui.saveQuenchHistoryButton, SIGNAL(clicked()), this, SLOT(saveQuenchHistory()));
 	connect(ui.autoscrollXCheckBox, SIGNAL(clicked(bool)), this, SLOT(toggleAutoscrollXCheckBox(bool)));
 	connect(&model430, SIGNAL(shortSampleModeChanged(bool)), this, SLOT(shortSampleModeChanged(bool)));
 
@@ -776,8 +782,7 @@ void magnetdaq::actionRun(void)
 				mainTabChanged(-1);
 
 				// start the plot timer to get data points at regular interval
-				firstStatsPass = true;	// restarts sample rate averaging
-				samplePos = 0;
+				samplePos = 0; // restarts sample rate averaging
 				startTime = QDateTime::currentMSecsSinceEpoch();
 				lastTime = startTime;
 
@@ -1015,6 +1020,7 @@ void magnetdaq::actionStop(void)
 	statusConnectState->setStyleSheet("color: red; font: bold");
 	statusConnectState->setText("Disconnected");
 	statusSampleRate->clear();
+	clearStats();
 
 	ui.droppedConnectionLabel->setText("Emulated display/keypad not presently connected to a remote device.");
 }
@@ -1356,12 +1362,18 @@ void magnetdaq::setDeviceWindowTitle(void)
 //---------------------------------------------------------------------------
 void magnetdaq::chooseLogfile(bool checked)
 {
+	QSettings settings;
+	lastPath = settings.value("LastLogPath").toString();
+
 	QString logFileName = QFileDialog::getSaveFileName(this, "Choose Log File", lastPath, "Log Files (*.txt *.log *.csv)");
 
 	if (!logFileName.isEmpty())
 	{
 		ui.logFileEdit->setText(logFileName);
-		lastPath = logFileName;
+		
+		// save log path
+		QFileInfo path(logFileName);
+		settings.setValue("LastLogPath", path.absolutePath());
 	}
 }
 
@@ -1596,6 +1608,12 @@ void magnetdaq::rampPauseButtonClicked(void)
 {
 	if (telnet)
 		telnet->sendCommand("W_KEY_RAMPPAUSE\r\n");
+
+	if (!autostepTimer->isActive())
+	{
+		if (statusMisc->text().contains("Auto-step Completed"))
+			clearMiscDisplay();
+	}
 }
 
 //---------------------------------------------------------------------------
