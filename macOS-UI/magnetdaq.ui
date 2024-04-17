@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>974</width>
+    <width>1024</width>
     <height>750</height>
    </rect>
   </property>
@@ -18,7 +18,7 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>770</width>
+    <width>750</width>
     <height>210</height>
    </size>
   </property>
@@ -383,7 +383,7 @@
            <widget class="QLabel" name="droppedConnectionLabel">
             <property name="font">
              <font>
-              <pointsize>11</pointsize>
+              <pointsize>12</pointsize>
              </font>
             </property>
             <property name="styleSheet">
@@ -419,7 +419,7 @@
             </property>
             <property name="font">
              <font>
-              <pointsize>20</pointsize>
+              <pointsize>18</pointsize>
              </font>
             </property>
             <property name="focusPolicy">
@@ -468,8 +468,8 @@ p, li { white-space: pre-wrap; }
 hr { height: 1px; border-width: 0; }
 li.unchecked::marker { content: &quot;\2610&quot;; }
 li.checked::marker { content: &quot;\2612&quot;; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Segoe UI'; font-size:14pt; font-weight:400; font-style:normal;&quot; bgcolor=&quot;#000000&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Bubbledot Fine Positive';&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'.AppleSystemUIFont'; font-size:18pt; font-weight:400; font-style:normal;&quot; bgcolor=&quot;#000000&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Bubbledot Fine Positive'; font-size:14pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="acceptRichText">
              <bool>true</bool>
@@ -1949,7 +1949,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
           </property>
           <property name="font">
            <font>
-            <pointsize>11</pointsize>
+            <pointsize>12</pointsize>
             <bold>false</bold>
            </font>
           </property>
@@ -2497,7 +2497,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
              <property name="title">
               <string> Manual Control </string>
              </property>
-             <layout class="QVBoxLayout" name="manualControlLayout_2">
+             <layout class="QVBoxLayout" name="manualControlLayout">
               <property name="spacing">
                <number>7</number>
               </property>
@@ -2558,7 +2558,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                <widget class="QLabel" name="endIndexLabel">
                 <property name="font">
                  <font>
-                  <pointsize>11</pointsize>
+                  <pointsize>12</pointsize>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2574,7 +2574,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                 </property>
                 <property name="font">
                  <font>
-                  <pointsize>11</pointsize>
+                  <pointsize>12</pointsize>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2593,7 +2593,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                 </property>
                 <property name="font">
                  <font>
-                  <pointsize>11</pointsize>
+                  <pointsize>12</pointsize>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2606,7 +2606,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                 </property>
                 <property name="font">
                  <font>
-                  <pointsize>11</pointsize>
+                  <pointsize>12</pointsize>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2622,7 +2622,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                <widget class="QPushButton" name="autostepStartButton">
                 <property name="font">
                  <font>
-                  <pointsize>11</pointsize>
+                  <pointsize>12</pointsize>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2638,7 +2638,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                 </property>
                 <property name="font">
                  <font>
-                  <pointsize>11</pointsize>
+                  <pointsize>12</pointsize>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2660,7 +2660,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                 </property>
                 <property name="font">
                  <font>
-                  <pointsize>11</pointsize>
+                  <pointsize>12</pointsize>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2670,7 +2670,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                <widget class="QLabel" name="startIndexLabel">
                 <property name="font">
                  <font>
-                  <pointsize>11</pointsize>
+                  <pointsize>12</pointsize>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2699,17 +2699,17 @@ li.checked::marker { content: &quot;\2612&quot;; }
              <property name="lineWidth">
               <number>0</number>
              </property>
-             <layout class="QVBoxLayout" name="tableDataFrameLayout">
-              <property name="spacing">
-               <number>6</number>
-              </property>
+             <layout class="QGridLayout" name="tableDataFrameLayout">
               <property name="topMargin">
-               <number>0</number>
+               <number>7</number>
               </property>
-              <property name="bottomMargin">
-               <number>0</number>
+              <property name="horizontalSpacing">
+               <number>12</number>
               </property>
-              <item>
+              <property name="verticalSpacing">
+               <number>10</number>
+              </property>
+              <item row="0" column="0" colspan="2">
                <widget class="QPushButton" name="importDataButton">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -2750,7 +2750,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                 </property>
                </widget>
               </item>
-              <item>
+              <item row="1" column="0" colspan="2">
                <widget class="QPushButton" name="saveDataButton">
                 <property name="minimumSize">
                  <size>
@@ -2779,7 +2779,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                 </property>
                </widget>
               </item>
-              <item>
+              <item row="2" column="0" colspan="2">
                <widget class="QPushButton" name="saveToExcelReportButton">
                 <property name="minimumSize">
                  <size>
@@ -2805,7 +2805,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                 </property>
                </widget>
               </item>
-              <item>
+              <item row="3" column="0">
                <widget class="QCheckBox" name="autosaveReportCheckBox">
                 <property name="minimumSize">
                  <size>
@@ -2821,7 +2821,29 @@ li.checked::marker { content: &quot;\2612&quot;; }
                 </property>
                </widget>
               </item>
-              <item>
+              <item row="3" column="1">
+               <widget class="QPushButton" name="autosavePathButton">
+                <property name="minimumSize">
+                 <size>
+                  <width>20</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>40</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="toolTip">
+                 <string>Choose Autosave Folder...</string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0">
                <spacer name="verticalSpacer_22">
                 <property name="orientation">
                  <enum>Qt::Vertical</enum>
@@ -2903,14 +2925,14 @@ li.checked::marker { content: &quot;\2612&quot;; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>612</width>
-             <height>419</height>
+             <width>662</width>
+             <height>434</height>
             </rect>
            </property>
            <attribute name="label">
             <string>Supply</string>
            </attribute>
-           <layout class="QGridLayout" name="supplyPageLayout" columnstretch="1,2,3">
+           <layout class="QGridLayout" name="supplyPageLayout" columnstretch="1,0,0,0">
             <property name="leftMargin">
              <number>18</number>
             </property>
@@ -2926,203 +2948,32 @@ li.checked::marker { content: &quot;\2612&quot;; }
             <property name="horizontalSpacing">
              <number>18</number>
             </property>
-            <item row="0" column="0">
-             <widget class="QLabel" name="currentRangeLabel">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
+            <item row="2" column="0" colspan="4">
+             <widget class="QLabel" name="supplyLabel">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+                <bold>false</bold>
+               </font>
               </property>
               <property name="text">
-               <string>  Select Current Range * :</string>
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:9pt; color:#4b4b4b;&quot;&gt;*&lt;/span&gt;&lt;span style=&quot; color:#4b4b4b;&quot;&gt; These values may only be set via the Model 430 front panel interface with the system at zero current.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
+              <property name="textFormat">
+               <enum>Qt::AutoText</enum>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+              <property name="margin">
+               <number>2</number>
+              </property>
+              <property name="indent">
+               <number>20</number>
               </property>
              </widget>
             </item>
-            <item row="0" column="1">
-             <widget class="QComboBox" name="currentRangeComboBox">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <item>
-               <property name="text">
-                <string>Normal (High)</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Low</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item row="1" column="0" colspan="2">
-             <widget class="QGroupBox" name="supplySelectGroupBox">
-              <property name="title">
-               <string>Select Supply *</string>
-              </property>
-              <layout class="QVBoxLayout" name="verticalLayout">
-               <item>
-                <widget class="QListWidget" name="supplyListWidget">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>294</height>
-                  </size>
-                 </property>
-                 <property name="focusPolicy">
-                  <enum>Qt::NoFocus</enum>
-                 </property>
-                 <property name="frameShape">
-                  <enum>QFrame::Panel</enum>
-                 </property>
-                 <property name="alternatingRowColors">
-                  <bool>true</bool>
-                 </property>
-                 <property name="selectionBehavior">
-                  <enum>QAbstractItemView::SelectRows</enum>
-                 </property>
-                 <property name="currentRow">
-                  <number>-1</number>
-                 </property>
-                 <item>
-                  <property name="text">
-                   <string>AMI 12100PS</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>AMI 12200PS</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>AMI 4Q05100PS</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>AMI 4Q06125PS</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>AMI 4Q06250PS</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>AMI 4Q12125PS</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>AMI 10100PS</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>AMI 10200PS</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>HP 6260B</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Kepco BOP 20-5M</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Kepco BOP 20-10M</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Xantrex XFR 7.5-140</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Custom...</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>AMI 08150PS</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>AMI 05120PS</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>AMI 05240PS</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>AMI 05360PS</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>AMI 05600PS</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>AMI 03300PS</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Accel Instruments TS250-8</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>AMI 4Q10120PS (Range: 120A/5V)</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>AMI 4Q10120PS (Range: 100A/6V)</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>AMI 4Q10120PS (Range: 75A/8V)</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>AMI 4Q10120PS (Range: 60A/10V)</string>
-                  </property>
-                 </item>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item row="1" column="2">
+            <item row="1" column="3">
              <widget class="QGroupBox" name="customSupplyGroupBox">
               <property name="title">
                <string>Custom Supply Parameters *</string>
@@ -3299,43 +3150,216 @@ li.checked::marker { content: &quot;\2612&quot;; }
               </layout>
              </widget>
             </item>
-            <item row="2" column="0" colspan="3">
-             <widget class="QLabel" name="supplyLabel">
-              <property name="font">
-               <font>
-                <pointsize>11</pointsize>
-                <bold>false</bold>
-               </font>
+            <item row="1" column="0" colspan="3">
+             <widget class="QGroupBox" name="supplySelectGroupBox">
+              <property name="title">
+               <string>Select Supply *</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout">
+               <item>
+                <widget class="QListWidget" name="supplyListWidget">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>294</height>
+                  </size>
+                 </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::NoFocus</enum>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::Panel</enum>
+                 </property>
+                 <property name="alternatingRowColors">
+                  <bool>true</bool>
+                 </property>
+                 <property name="selectionBehavior">
+                  <enum>QAbstractItemView::SelectRows</enum>
+                 </property>
+                 <property name="currentRow">
+                  <number>-1</number>
+                 </property>
+                 <item>
+                  <property name="text">
+                   <string>AMI 12100PS</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>AMI 12200PS</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>AMI 4Q05100PS</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>AMI 4Q06125PS</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>AMI 4Q06250PS</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>AMI 4Q12125PS</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>AMI 10100PS</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>AMI 10200PS</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>HP 6260B</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Kepco BOP 20-5M</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Kepco BOP 20-10M</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Xantrex XFR 7.5-140</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Custom...</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>AMI 08150PS</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>AMI 05120PS</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>AMI 05240PS</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>AMI 05360PS</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>AMI 05600PS</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>AMI 03300PS</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Accel Instruments TS250-0</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>AMI 4Q10120PS (Range: 120A/5V)</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>AMI 4Q10120PS (Range: 100A/6V)</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>AMI 4Q10120PS (Range: 75A/8V)</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>AMI 4Q10120PS (Range: 60A/10V)</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>MagnaPower SL10-150</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>MagnaPower SL10-250</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>MagnaPower XR10-600</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="currentRangeLabel">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
               <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:9pt; color:#4b4b4b;&quot;&gt;*&lt;/span&gt;&lt;span style=&quot; color:#4b4b4b;&quot;&gt; These values may only be set via the Model 430 front panel interface with the system at zero current.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               <string>  Select Current Range * :</string>
               </property>
-              <property name="textFormat">
-               <enum>Qt::AutoText</enum>
-              </property>
-              <property name="wordWrap">
-               <bool>true</bool>
-              </property>
-              <property name="margin">
-               <number>2</number>
-              </property>
-              <property name="indent">
-               <number>20</number>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
               </property>
              </widget>
             </item>
-            <item row="3" column="0">
-             <spacer name="verticalSpacer_14">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="currentRangeComboBox">
+              <property name="enabled">
+               <bool>false</bool>
               </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>0</height>
-               </size>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
-             </spacer>
+              <item>
+               <property name="text">
+                <string>Normal (High)</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Low</string>
+               </property>
+              </item>
+             </widget>
             </item>
            </layout>
           </widget>
@@ -3344,8 +3368,8 @@ li.checked::marker { content: &quot;\2612&quot;; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>429</width>
-             <height>264</height>
+             <width>528</width>
+             <height>273</height>
             </rect>
            </property>
            <attribute name="label">
@@ -3545,8 +3569,8 @@ li.checked::marker { content: &quot;\2612&quot;; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>442</width>
-             <height>362</height>
+             <width>534</width>
+             <height>364</height>
             </rect>
            </property>
            <attribute name="label">
@@ -3821,8 +3845,8 @@ li.checked::marker { content: &quot;\2612&quot;; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>531</width>
-             <height>467</height>
+             <width>656</width>
+             <height>500</height>
             </rect>
            </property>
            <attribute name="label">
@@ -5230,7 +5254,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
              <widget class="QLabel" name="rampdownLabel">
               <property name="font">
                <font>
-                <pointsize>11</pointsize>
+                <pointsize>12</pointsize>
                 <italic>false</italic>
                 <bold>false</bold>
                 <stylestrategy>PreferDefault</stylestrategy>
@@ -5325,6 +5349,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
           </property>
           <property name="font">
            <font>
+            <family>.Lucida Grande UI</family>
             <pointsize>14</pointsize>
             <bold>false</bold>
            </font>
@@ -5342,6 +5367,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
          <widget class="QPlainTextEdit" name="rampdownEventTextEdit">
           <property name="font">
            <font>
+            <family>Monaco</family>
             <pointsize>13</pointsize>
             <bold>false</bold>
            </font>
@@ -5361,16 +5387,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
         <string>Quench Events</string>
        </attribute>
        <layout class="QGridLayout" name="quenchEventsLayout">
-        <item row="0" column="0">
-         <widget class="QLabel" name="quenchEventsLabel">
-          <property name="text">
-           <string>Quench Events List:</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
         <item row="1" column="0">
          <widget class="QListWidget" name="quenchListWidget">
           <property name="minimumSize">
@@ -5387,6 +5403,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
           </property>
           <property name="font">
            <font>
+            <family>.Lucida Grande UI</family>
             <pointsize>14</pointsize>
             <bold>false</bold>
            </font>
@@ -5400,10 +5417,28 @@ li.checked::marker { content: &quot;\2612&quot;; }
           </property>
          </widget>
         </item>
-        <item row="1" column="1" rowspan="2">
+        <item row="0" column="0">
+         <widget class="QLabel" name="quenchEventsLabel">
+          <property name="text">
+           <string>Quench Events List:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QPushButton" name="saveQuenchHistoryButton">
+          <property name="text">
+           <string>Save Entire History to File...</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1" rowspan="3">
          <widget class="QPlainTextEdit" name="quenchEventTextEdit">
           <property name="font">
            <font>
+            <family>Monaco</family>
             <pointsize>13</pointsize>
             <bold>false</bold>
            </font>
@@ -5434,6 +5469,12 @@ li.checked::marker { content: &quot;\2612&quot;; }
         </property>
         <item row="2" column="1">
          <widget class="QLineEdit" name="caseEdit">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="text">
            <string/>
           </property>
@@ -5442,26 +5483,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
           </property>
           <property name="placeholderText">
            <string>Subject</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="caseLabel">
-          <property name="text">
-           <string>Magnet ID or Support Case # :</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="0">
-         <widget class="QLabel" name="settingsLabel">
-          <property name="text">
-           <string>Present Model 430 Settings :</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
           </property>
          </widget>
         </item>
@@ -5499,13 +5520,45 @@ li.checked::marker { content: &quot;\2612&quot;; }
           </property>
          </widget>
         </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="notesLabel">
+        <item row="2" column="2">
+         <widget class="QPushButton" name="sendSupportEmailButton">
+          <property name="minimumSize">
+           <size>
+            <width>200</width>
+            <height>32</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string/>
+          </property>
           <property name="text">
-           <string>Notes :</string>
+           <string>Send to AMI Technical Support</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0">
+         <widget class="QLabel" name="settingsLabel">
+          <property name="text">
+           <string>Present Model 430 Settings :</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="2">
+         <widget class="QPushButton" name="copySettingsToClipboardButton">
+          <property name="minimumSize">
+           <size>
+            <width>200</width>
+            <height>32</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Paste into your own email client</string>
+          </property>
+          <property name="text">
+           <string>Copy Settings to Clipboard</string>
           </property>
          </widget>
         </item>
@@ -5519,6 +5572,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
           </property>
           <property name="font">
            <font>
+            <family>Monaco</family>
             <pointsize>13</pointsize>
             <bold>false</bold>
            </font>
@@ -5534,35 +5588,48 @@ li.checked::marker { content: &quot;\2612&quot;; }
           </property>
          </widget>
         </item>
-        <item row="6" column="2">
-         <widget class="QPushButton" name="copySettingsToClipboardButton">
-          <property name="minimumSize">
-           <size>
-            <width>250</width>
-            <height>32</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Paste into your own email client</string>
-          </property>
+        <item row="2" column="0">
+         <widget class="QLabel" name="caseLabel">
           <property name="text">
-           <string>Copy Settings to Clipboard</string>
+           <string>Magnet ID or Support Case # :</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
-        <item row="2" column="2">
-         <widget class="QPushButton" name="sendSupportEmailButton">
+        <item row="4" column="0">
+         <widget class="QLabel" name="notesLabel">
+          <property name="text">
+           <string>Notes :</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="1">
+         <widget class="QPushButton" name="saveSettingsToFileButton">
           <property name="minimumSize">
            <size>
-            <width>250</width>
+            <width>180</width>
             <height>32</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>180</width>
+            <height>16777215</height>
            </size>
           </property>
           <property name="toolTip">
            <string/>
           </property>
+          <property name="layoutDirection">
+           <enum>Qt::RightToLeft</enum>
+          </property>
           <property name="text">
-           <string>Send to AMI Technical Support</string>
+           <string>Save Settings to File...</string>
           </property>
          </widget>
         </item>
@@ -5599,7 +5666,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <widget class="QDockWidget" name="setupDockWidget">
    <property name="minimumSize">
     <size>
-     <width>238</width>
+     <width>259</width>
      <height>576</height>
     </size>
    </property>
@@ -5693,7 +5760,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
          <widget class="QLabel" name="serialNumLabel">
           <property name="font">
            <font>
-            <pointsize>11</pointsize>
+            <pointsize>12</pointsize>
            </font>
           </property>
           <property name="text">
@@ -5711,7 +5778,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
           </property>
           <property name="font">
            <font>
-            <pointsize>11</pointsize>
+            <pointsize>12</pointsize>
            </font>
           </property>
           <property name="focusPolicy">
@@ -5880,7 +5947,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
          <widget class="QRadioButton" name="noProxyRadioButton">
           <property name="font">
            <font>
-            <pointsize>11</pointsize>
+            <pointsize>12</pointsize>
            </font>
           </property>
           <property name="text">
@@ -5895,7 +5962,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
          <widget class="QRadioButton" name="systemProxyRadioButton">
           <property name="font">
            <font>
-            <pointsize>11</pointsize>
+            <pointsize>12</pointsize>
            </font>
           </property>
           <property name="text">
@@ -7002,7 +7069,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
        </property>
        <layout class="QVBoxLayout" name="timebaseLayout">
         <property name="spacing">
-         <number>4</number>
+         <number>7</number>
         </property>
         <property name="topMargin">
          <number>7</number>
@@ -7079,7 +7146,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
        </property>
        <layout class="QVBoxLayout" name="plotSelectionsLayout">
         <property name="spacing">
-         <number>4</number>
+         <number>9</number>
         </property>
         <property name="topMargin">
          <number>7</number>

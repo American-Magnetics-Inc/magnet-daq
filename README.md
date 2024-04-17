@@ -46,11 +46,9 @@ Pre-compiled, ready-to-use binaries are available in the Downloads section of th
 
 [Installer for 32-bit Microsoft Windows 7 or later](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/MagnetDAQ-Setup-Win32.msi)
 
-The downloads for Linux and macOS versions are still version 1.13, but will be updated ASAP:
-
 [Executable for 64-bit Linux (Ubuntu 18.04 or later recommended)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/Magnet-DAQ.tar.gz) - See the README file in the download for the instructions for deploying on Ubuntu.
 
-[Application for 64-bit Apple macOS (High Sierra or later recommended)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/Magnet-DAQ.dmg) - Download and copy the Magnet-DAQ.app folder to your desired location (Applications folder recommended). Enabling execution via Gatekeeper may be required.
+[Application for 64-bit Apple macOS (High Sierra or later recommended)](https://bitbucket.org/americanmagneticsinc/magnet-daq/downloads/Magnet-DAQ.dmg) - Download and copy the Magnet-DAQ app to your desired location (Applications folder recommended). Enabling execution via Gatekeeper may be required.
 
 ## How do I compile the source to produce my own binary? ##
 

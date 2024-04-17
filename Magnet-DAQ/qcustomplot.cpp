@@ -26,8 +26,8 @@
 #include "qcustomplot.h"
 
 
-/* including file 'src/vector2d.cpp'       */
-/* modified 2022-11-06T12:45:56, size 7973 */
+/* including file 'vector2d.cpp', size 8240                                  */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPVector2D
@@ -268,11 +268,11 @@ QCPVector2D &QCPVector2D::operator-=(const QCPVector2D &vector)
   mY -= vector.mY;
   return *this;
 }
-/* end of 'src/vector2d.cpp' */
+/* end of 'vector2d.cpp' */
 
 
-/* including file 'src/painter.cpp'        */
-/* modified 2022-11-06T12:45:56, size 8656 */
+/* including file 'painter.cpp', size 8895                                   */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPPainter
@@ -485,11 +485,11 @@ void QCPPainter::makeNonCosmetic()
     QPainter::setPen(p);
   }
 }
-/* end of 'src/painter.cpp' */
+/* end of 'painter.cpp' */
 
 
-/* including file 'src/paintbuffer.cpp'     */
-/* modified 2022-11-06T12:45:56, size 18915 */
+/* including file 'paintbuffer.cpp', size 19425                              */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPAbstractPaintBuffer
@@ -972,11 +972,11 @@ void QCPPaintBufferGlFbo::reallocateBuffer()
 #endif
 }
 #endif // QCP_OPENGL_FBO
-/* end of 'src/paintbuffer.cpp' */
+/* end of 'paintbuffer.cpp' */
 
 
-/* including file 'src/layer.cpp'           */
-/* modified 2022-11-06T12:45:56, size 37615 */
+/* including file 'layer.cpp', size 38499                                    */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPLayer
@@ -1832,11 +1832,11 @@ void QCPLayerable::wheelEvent(QWheelEvent *event)
 {
   event->ignore();
 }
-/* end of 'src/layer.cpp' */
+/* end of 'layer.cpp' */
 
 
-/* including file 'src/axis/range.cpp'      */
-/* modified 2022-11-06T12:45:56, size 12221 */
+/* including file 'axis/range.cpp', size 12564                               */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPRange
@@ -2154,11 +2154,11 @@ bool QCPRange::validRange(const QCPRange &range)
           !(range.lower > 0 && qIsInf(range.upper/range.lower)) &&
           !(range.upper < 0 && qIsInf(range.lower/range.upper)));
 }
-/* end of 'src/axis/range.cpp' */
+/* end of 'axis/range.cpp' */
 
 
-/* including file 'src/selection.cpp'       */
-/* modified 2022-11-06T12:45:56, size 21837 */
+/* including file 'selection.cpp', size 22463                                */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPDataRange
@@ -2755,11 +2755,11 @@ QCPDataSelection QCPDataSelection::inverse(const QCPDataRange &outerRange) const
   result.simplify();
   return result;
 }
-/* end of 'src/selection.cpp' */
+/* end of 'selection.cpp' */
 
 
-/* including file 'src/selectionrect.cpp'  */
-/* modified 2022-11-06T12:45:56, size 9215 */
+/* including file 'selectionrect.cpp', size 9470                             */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPSelectionRect
@@ -2984,11 +2984,11 @@ void QCPSelectionRect::draw(QCPPainter *painter)
     painter->drawRect(mRect);
   }
 }
-/* end of 'src/selectionrect.cpp' */
+/* end of 'selectionrect.cpp' */
 
 
-/* including file 'src/layout.cpp'          */
-/* modified 2022-11-06T12:45:56, size 78863 */
+/* including file 'layout.cpp', size 81058                                   */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPMarginGroup
@@ -5157,11 +5157,11 @@ void QCPLayoutInset::addElement(QCPLayoutElement *element, const QRectF &rect)
   } else
     qDebug() << Q_FUNC_INFO << "Can't add nullptr element";
 }
-/* end of 'src/layout.cpp' */
+/* end of 'layout.cpp' */
 
 
-/* including file 'src/lineending.cpp'      */
-/* modified 2022-11-06T12:45:56, size 11189 */
+/* including file 'lineending.cpp', size 11506                               */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPLineEnding
@@ -5451,11 +5451,11 @@ void QCPLineEnding::draw(QCPPainter *painter, const QCPVector2D &pos, double ang
 {
   draw(painter, pos, QCPVector2D(qCos(angle), qSin(angle)));
 }
-/* end of 'src/lineending.cpp' */
+/* end of 'lineending.cpp' */
 
 
-/* including file 'src/axis/labelpainter.cpp' */
-/* modified 2022-11-06T12:45:56, size 27519   */
+/* including file 'axis/labelpainter.cpp', size 28147                        */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -6054,11 +6054,11 @@ void QCPLabelPainterPrivate::analyzeFontMetrics()
   mLetterCapHeight = fm.tightBoundingRect(QLatin1String("8")).height(); // this method is slow, that's why we query it only upon font change
   mLetterDescent = fm.descent();
 }
-/* end of 'src/axis/labelpainter.cpp' */
+/* end of 'axis/labelpainter.cpp' */
 
 
-/* including file 'src/axis/axisticker.cpp' */
-/* modified 2022-11-06T12:45:56, size 18693 */
+/* including file 'axis/axisticker.cpp', size 19134                          */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPAxisTicker
@@ -6474,11 +6474,11 @@ double QCPAxisTicker::cleanMantissa(double input) const
   }
   return input;
 }
-/* end of 'src/axis/axisticker.cpp' */
+/* end of 'axis/axisticker.cpp' */
 
 
-/* including file 'src/axis/axistickerdatetime.cpp' */
-/* modified 2022-11-06T12:45:56, size 18829         */
+/* including file 'axis/axistickerdatetime.cpp', size 19207                  */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPAxisTickerDateTime
@@ -6831,11 +6831,11 @@ double QCPAxisTickerDateTime::dateTimeToKey(const QDate &date, Qt::TimeSpec time
   return date.startOfDay(timeSpec).toMSecsSinceEpoch()/1000.0;
 # endif
 }
-/* end of 'src/axis/axistickerdatetime.cpp' */
+/* end of 'axis/axistickerdatetime.cpp' */
 
 
-/* including file 'src/axis/axistickertime.cpp' */
-/* modified 2022-11-06T12:45:56, size 11745     */
+/* including file 'axis/axistickertime.cpp', size 12017                      */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPAxisTickerTime
@@ -7080,11 +7080,11 @@ void QCPAxisTickerTime::replaceUnit(QString &text, QCPAxisTickerTime::TimeUnit u
   
   text.replace(mFormatPattern.value(unit), valueStr);
 }
-/* end of 'src/axis/axistickertime.cpp' */
+/* end of 'axis/axistickertime.cpp' */
 
 
-/* including file 'src/axis/axistickerfixed.cpp' */
-/* modified 2022-11-06T12:45:56, size 5575       */
+/* including file 'axis/axistickerfixed.cpp', size 5698                      */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPAxisTickerFixed
@@ -7182,11 +7182,11 @@ double QCPAxisTickerFixed::getTickStep(const QCPRange &range)
   }
   return mTickStep;
 }
-/* end of 'src/axis/axistickerfixed.cpp' */
+/* end of 'axis/axistickerfixed.cpp' */
 
 
-/* including file 'src/axis/axistickertext.cpp' */
-/* modified 2022-11-06T12:45:56, size 8742      */
+/* including file 'axis/axistickertext.cpp', size 8980                       */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPAxisTickerText
@@ -7399,11 +7399,11 @@ QVector<double> QCPAxisTickerText::createTickVector(double tickStep, const QCPRa
   
   return result;
 }
-/* end of 'src/axis/axistickertext.cpp' */
+/* end of 'axis/axistickertext.cpp' */
 
 
-/* including file 'src/axis/axistickerpi.cpp' */
-/* modified 2022-11-06T12:45:56, size 11177   */
+/* including file 'axis/axistickerpi.cpp', size 11485                        */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPAxisTickerPi
@@ -7686,11 +7686,11 @@ QString QCPAxisTickerPi::unicodeSubscript(int number) const
   }
   return result;
 }
-/* end of 'src/axis/axistickerpi.cpp' */
+/* end of 'axis/axistickerpi.cpp' */
 
 
-/* including file 'src/axis/axistickerlog.cpp' */
-/* modified 2022-11-06T12:45:56, size 7890     */
+/* including file 'axis/axistickerlog.cpp', size 8052                        */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPAxisTickerLog
@@ -7827,11 +7827,11 @@ QVector<double> QCPAxisTickerLog::createTickVector(double tickStep, const QCPRan
   
   return result;
 }
-/* end of 'src/axis/axistickerlog.cpp' */
+/* end of 'axis/axistickerlog.cpp' */
 
 
-/* including file 'src/axis/axis.cpp'       */
-/* modified 2022-11-06T12:45:56, size 99911 */
+/* including file 'axis/axis.cpp', size 102692                               */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -8207,19 +8207,19 @@ QCPAxis::QCPAxis(QCPAxisRect *parent, AxisType type) :
   mSelectableParts(spAxis | spTickLabels | spAxisLabel),
   mSelectedParts(spNone),
   mBasePen(QPen(Qt::black, 0, Qt::SolidLine, Qt::SquareCap)),
-  mSelectedBasePen(QPen(Qt::blue, 2)),
+  mSelectedBasePen(QPen(Qt::darkMagenta, 2)),
   // axis label:
   mLabel(),
   mLabelFont(mParentPlot->font()),
   mSelectedLabelFont(QFont(mLabelFont.family(), mLabelFont.pointSize(), QFont::Bold)),
   mLabelColor(Qt::black),
-  mSelectedLabelColor(Qt::blue),
+  mSelectedLabelColor(Qt::darkMagenta),
   // tick labels:
   mTickLabels(true),
   mTickLabelFont(mParentPlot->font()),
   mSelectedTickLabelFont(QFont(mTickLabelFont.family(), mTickLabelFont.pointSize(), QFont::Bold)),
   mTickLabelColor(Qt::black),
-  mSelectedTickLabelColor(Qt::blue),
+  mSelectedTickLabelColor(Qt::darkMagenta),
   mNumberPrecision(6),
   mNumberFormatChar('g'),
   mNumberBeautifulPowers(true),
@@ -8227,9 +8227,9 @@ QCPAxis::QCPAxis(QCPAxisRect *parent, AxisType type) :
   mTicks(true),
   mSubTicks(true),
   mTickPen(QPen(Qt::black, 0, Qt::SolidLine, Qt::SquareCap)),
-  mSelectedTickPen(QPen(Qt::blue, 2)),
+  mSelectedTickPen(QPen(Qt::darkMagenta, 2)),
   mSubTickPen(QPen(Qt::black, 0, Qt::SolidLine, Qt::SquareCap)),
-  mSelectedSubTickPen(QPen(Qt::blue, 2)),
+  mSelectedSubTickPen(QPen(Qt::darkMagenta, 2)),
   // scale and range:
   mRange(0, 5),
   mRangeReversed(false),
@@ -10545,11 +10545,11 @@ void QCPAxisPainterPrivate::getMaxTickLabelSize(const QFont &font, const QString
   if (finalSize.height() > tickLabelsSize->height())
     tickLabelsSize->setHeight(finalSize.height());
 }
-/* end of 'src/axis/axis.cpp' */
+/* end of 'axis/axis.cpp' */
 
 
-/* including file 'src/scatterstyle.cpp'    */
-/* modified 2022-11-06T12:45:56, size 17466 */
+/* including file 'scatterstyle.cpp', size 17963                             */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPScatterStyle
@@ -11018,11 +11018,11 @@ void QCPScatterStyle::drawShape(QCPPainter *painter, double x, double y) const
     }
   }
 }
-/* end of 'src/scatterstyle.cpp' */
+/* end of 'scatterstyle.cpp' */
 
 
-/* including file 'src/plottable.cpp'       */
-/* modified 2022-11-06T12:45:56, size 38818 */
+/* including file 'plottable.cpp', size 39816                                */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPSelectionDecorator
@@ -11989,11 +11989,11 @@ void QCPAbstractPlottable::deselectEvent(bool *selectionStateChanged)
       *selectionStateChanged = mSelection != selectionBefore;
   }
 }
-/* end of 'src/plottable.cpp' */
+/* end of 'plottable.cpp' */
 
 
-/* including file 'src/item.cpp'            */
-/* modified 2022-11-06T12:45:56, size 49486 */
+/* including file 'item.cpp', size 50784                                     */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPItemAnchor
@@ -13261,11 +13261,11 @@ QCP::Interaction QCPAbstractItem::selectionCategory() const
 {
   return QCP::iSelectItems;
 }
-/* end of 'src/item.cpp' */
+/* end of 'item.cpp' */
 
 
-/* including file 'src/core.cpp'             */
-/* modified 2022-11-06T12:45:56, size 127625 */
+/* including file 'core.cpp', size 130892                                    */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCustomPlot
@@ -16495,11 +16495,11 @@ void QCustomPlot::toPainter(QCPPainter *painter, int width, int height)
   } else
     qDebug() << Q_FUNC_INFO << "Passed painter is not active";
 }
-/* end of 'src/core.cpp' */
+/* end of 'core.cpp' */
 
 
-/* including file 'src/colorgradient.cpp'   */
-/* modified 2022-11-06T12:45:56, size 25408 */
+/* including file 'colorgradient.cpp', size 26064                            */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -17130,11 +17130,11 @@ void QCPColorGradient::updateColorBuffer()
   }
   mColorBufferInvalidated = false;
 }
-/* end of 'src/colorgradient.cpp' */
+/* end of 'colorgradient.cpp' */
 
 
-/* including file 'src/selectiondecorator-bracket.cpp' */
-/* modified 2022-11-06T12:45:56, size 12308            */
+/* including file 'selectiondecorator-bracket.cpp', size 12625               */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPSelectionDecoratorBracket
@@ -17416,11 +17416,11 @@ QPointF QCPSelectionDecoratorBracket::getPixelCoordinates(const QCPPlottableInte
   else
     return {valueAxis->coordToPixel(interface1d->dataMainValue(dataIndex)), keyAxis->coordToPixel(interface1d->dataMainKey(dataIndex))};
 }
-/* end of 'src/selectiondecorator-bracket.cpp' */
+/* end of 'selectiondecorator-bracket.cpp' */
 
 
-/* including file 'src/layoutelements/layoutelement-axisrect.cpp' */
-/* modified 2022-11-06T12:45:56, size 47193                       */
+/* including file 'layoutelements/layoutelement-axisrect.cpp', size 48517    */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -18701,11 +18701,11 @@ void QCPAxisRect::wheelEvent(QWheelEvent *event)
     }
   }
 }
-/* end of 'src/layoutelements/layoutelement-axisrect.cpp' */
+/* end of 'layoutelements/layoutelement-axisrect.cpp' */
 
 
-/* including file 'src/layoutelements/layoutelement-legend.cpp' */
-/* modified 2022-11-06T12:45:56, size 31762                     */
+/* including file 'layoutelements/layoutelement-legend.cpp', size 32732      */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPAbstractLegendItem
@@ -19088,13 +19088,13 @@ QCPLegend::QCPLegend() :
   setSelectedParts(spNone);
   
   setBorderPen(QPen(Qt::black, 0));
-  setSelectedBorderPen(QPen(Qt::blue, 2));
+  setSelectedBorderPen(QPen(Qt::darkMagenta, 2));
   setIconBorderPen(Qt::NoPen);
-  setSelectedIconBorderPen(QPen(Qt::blue, 2));
+  setSelectedIconBorderPen(QPen(Qt::darkMagenta, 2));
   setBrush(Qt::white);
   setSelectedBrush(Qt::white);
   setTextColor(Qt::black);
-  setSelectedTextColor(Qt::blue);
+  setSelectedTextColor(Qt::darkMagenta);
 }
 
 QCPLegend::~QCPLegend()
@@ -19625,11 +19625,11 @@ void QCPLegend::parentPlotInitialized(QCustomPlot *parentPlot)
   if (parentPlot && !parentPlot->legend)
     parentPlot->legend = this;
 }
-/* end of 'src/layoutelements/layoutelement-legend.cpp' */
+/* end of 'layoutelements/layoutelement-legend.cpp' */
 
 
-/* including file 'src/layoutelements/layoutelement-textelement.cpp' */
-/* modified 2022-11-06T12:45:56, size 12925                          */
+/* including file 'layoutelements/layoutelement-textelement.cpp', size 13376 */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPTextElement
@@ -19683,7 +19683,7 @@ QCPTextElement::QCPTextElement(QCustomPlot *parentPlot) :
   mFont(QFont(QLatin1String("sans serif"), 12)), // will be taken from parentPlot if available, see below
   mTextColor(Qt::black),
   mSelectedFont(QFont(QLatin1String("sans serif"), 12)), // will be taken from parentPlot if available, see below
-  mSelectedTextColor(Qt::blue),
+  mSelectedTextColor(Qt::darkGray),
   mSelectable(false),
   mSelected(false)
 {
@@ -19708,7 +19708,7 @@ QCPTextElement::QCPTextElement(QCustomPlot *parentPlot, const QString &text) :
   mFont(QFont(QLatin1String("sans serif"), 12)), // will be taken from parentPlot if available, see below
   mTextColor(Qt::black),
   mSelectedFont(QFont(QLatin1String("sans serif"), 12)), // will be taken from parentPlot if available, see below
-  mSelectedTextColor(Qt::blue),
+  mSelectedTextColor(Qt::darkGray),
   mSelectable(false),
   mSelected(false)
 {
@@ -19733,7 +19733,7 @@ QCPTextElement::QCPTextElement(QCustomPlot *parentPlot, const QString &text, dou
   mFont(QFont(QLatin1String("sans serif"), int(pointSize))), // will be taken from parentPlot if available, see below
   mTextColor(Qt::black),
   mSelectedFont(QFont(QLatin1String("sans serif"), int(pointSize))), // will be taken from parentPlot if available, see below
-  mSelectedTextColor(Qt::blue),
+  mSelectedTextColor(Qt::darkGray),
   mSelectable(false),
   mSelected(false)
 {
@@ -19761,7 +19761,7 @@ QCPTextElement::QCPTextElement(QCustomPlot *parentPlot, const QString &text, con
   mFont(QFont(fontFamily, int(pointSize))),
   mTextColor(Qt::black),
   mSelectedFont(QFont(fontFamily, int(pointSize))),
-  mSelectedTextColor(Qt::blue),
+  mSelectedTextColor(Qt::darkGray),
   mSelectable(false),
   mSelected(false)
 {
@@ -19782,7 +19782,7 @@ QCPTextElement::QCPTextElement(QCustomPlot *parentPlot, const QString &text, con
   mFont(font),
   mTextColor(Qt::black),
   mSelectedFont(font),
-  mSelectedTextColor(Qt::blue),
+  mSelectedTextColor(Qt::darkGray),
   mSelectable(false),
   mSelected(false)
 {
@@ -20031,11 +20031,11 @@ QColor QCPTextElement::mainTextColor() const
 {
   return mSelected ? mSelectedTextColor : mTextColor;
 }
-/* end of 'src/layoutelements/layoutelement-textelement.cpp' */
+/* end of 'layoutelements/layoutelement-textelement.cpp' */
 
 
-/* including file 'src/layoutelements/layoutelement-colorscale.cpp' */
-/* modified 2022-11-06T12:45:56, size 26531                         */
+/* including file 'layoutelements/layoutelement-colorscale.cpp', size 27242  */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -20715,11 +20715,11 @@ void QCPColorScaleAxisRectPrivate::axisSelectableChanged(QCPAxis::SelectablePart
     }
   }
 }
-/* end of 'src/layoutelements/layoutelement-colorscale.cpp' */
+/* end of 'layoutelements/layoutelement-colorscale.cpp' */
 
 
-/* including file 'src/plottables/plottable-graph.cpp' */
-/* modified 2022-11-06T12:45:57, size 74926            */
+/* including file 'plottables/plottable-graph.cpp', size 76726               */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPGraphData
@@ -22489,11 +22489,11 @@ int QCPGraph::findIndexBelowY(const QVector<QPointF> *data, double y) const
   }
   return -1;
 }
-/* end of 'src/plottables/plottable-graph.cpp' */
+/* end of 'plottables/plottable-graph.cpp' */
 
 
-/* including file 'src/plottables/plottable-curve.cpp' */
-/* modified 2022-11-06T12:45:56, size 63851            */
+/* including file 'plottables/plottable-curve.cpp', size 65335               */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPCurveData
@@ -23947,11 +23947,11 @@ double QCPCurve::pointDistance(const QPointF &pixelPoint, QCPCurveDataContainer:
   
   return qSqrt(minDistSqr);
 }
-/* end of 'src/plottables/plottable-curve.cpp' */
+/* end of 'plottables/plottable-curve.cpp' */
 
 
-/* including file 'src/plottables/plottable-bars.cpp' */
-/* modified 2022-11-06T12:45:56, size 43907           */
+/* including file 'plottables/plottable-bars.cpp', size 45111                */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -25123,11 +25123,11 @@ void QCPBars::connectBars(QCPBars *lower, QCPBars *upper)
     upper->mBarBelow = lower;
   }
 }
-/* end of 'src/plottables/plottable-bars.cpp' */
+/* end of 'plottables/plottable-bars.cpp' */
 
 
-/* including file 'src/plottables/plottable-statisticalbox.cpp' */
-/* modified 2022-11-06T12:45:57, size 28951                     */
+/* including file 'plottables/plottable-statisticalbox.cpp', size 29639      */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPStatisticalBoxData
@@ -25785,11 +25785,11 @@ QVector<QLineF> QCPStatisticalBox::getWhiskerBarLines(QCPStatisticalBoxDataConta
   result[1].setPoints(coordsToPixels(it->key-mWhiskerWidth*0.5, it->maximum), coordsToPixels(it->key+mWhiskerWidth*0.5, it->maximum)); // max bar
   return result;
 }
-/* end of 'src/plottables/plottable-statisticalbox.cpp' */
+/* end of 'plottables/plottable-statisticalbox.cpp' */
 
 
-/* including file 'src/plottables/plottable-colormap.cpp' */
-/* modified 2022-11-06T12:45:56, size 48189               */
+/* including file 'plottables/plottable-colormap.cpp', size 49346            */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPColorMapData
@@ -26916,11 +26916,11 @@ void QCPColorMap::drawLegendIcon(QCPPainter *painter, const QRectF &rect) const
   painter->drawRect(rect.adjusted(1, 1, 0, 0));
   */
 }
-/* end of 'src/plottables/plottable-colormap.cpp' */
+/* end of 'plottables/plottable-colormap.cpp' */
 
 
-/* including file 'src/plottables/plottable-financial.cpp' */
-/* modified 2022-11-06T12:45:57, size 42914                */
+/* including file 'plottables/plottable-financial.cpp', size 43902           */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPFinancialData
@@ -27878,11 +27878,11 @@ QRectF QCPFinancial::selectionHitBox(QCPFinancialDataContainer::const_iterator i
   else
     return QRectF(highPixel, keyPixel-keyWidthPixels, lowPixel-highPixel, keyWidthPixels*2).normalized();
 }
-/* end of 'src/plottables/plottable-financial.cpp' */
+/* end of 'plottables/plottable-financial.cpp' */
 
 
-/* including file 'src/plottables/plottable-errorbar.cpp' */
-/* modified 2022-11-06T12:45:56, size 37679               */
+/* including file 'plottables/plottable-errorbar.cpp', size 38673            */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPErrorBarsData
@@ -28846,11 +28846,11 @@ bool QCPErrorBars::rectIntersectsLine(const QRectF &pixelRect, const QLineF &lin
   else
     return true;
 }
-/* end of 'src/plottables/plottable-errorbar.cpp' */
+/* end of 'plottables/plottable-errorbar.cpp' */
 
 
-/* including file 'src/items/item-straightline.cpp' */
-/* modified 2022-11-06T12:45:56, size 7596          */
+/* including file 'items/item-straightline.cpp', size 7808                   */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPItemStraightLine
@@ -28879,7 +28879,7 @@ QCPItemStraightLine::QCPItemStraightLine(QCustomPlot *parentPlot) :
   point2->setCoords(1, 1);
   
   setPen(QPen(Qt::black));
-  setSelectedPen(QPen(Qt::blue,2));
+  setSelectedPen(QPen(Qt::darkMagenta,2));
 }
 
 QCPItemStraightLine::~QCPItemStraightLine()
@@ -29027,11 +29027,11 @@ QPen QCPItemStraightLine::mainPen() const
 {
   return mSelected ? mSelectedPen : mPen;
 }
-/* end of 'src/items/item-straightline.cpp' */
+/* end of 'items/item-straightline.cpp' */
 
 
-/* including file 'src/items/item-line.cpp' */
-/* modified 2022-11-06T12:45:56, size 8525  */
+/* including file 'items/item-line.cpp', size 8787                           */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPItemLine
@@ -29062,7 +29062,7 @@ QCPItemLine::QCPItemLine(QCustomPlot *parentPlot) :
   end->setCoords(1, 1);
   
   setPen(QPen(Qt::black));
-  setSelectedPen(QPen(Qt::blue,2));
+  setSelectedPen(QPen(Qt::darkMagenta,2));
 }
 
 QCPItemLine::~QCPItemLine()
@@ -29258,11 +29258,11 @@ QPen QCPItemLine::mainPen() const
 {
   return mSelected ? mSelectedPen : mPen;
 }
-/* end of 'src/items/item-line.cpp' */
+/* end of 'items/item-line.cpp' */
 
 
-/* including file 'src/items/item-curve.cpp' */
-/* modified 2022-11-06T12:45:56, size 7273   */
+/* including file 'items/item-curve.cpp', size 7473                          */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPItemCurve
@@ -29304,7 +29304,7 @@ QCPItemCurve::QCPItemCurve(QCustomPlot *parentPlot) :
   end->setCoords(1, 1);
   
   setPen(QPen(Qt::black));
-  setSelectedPen(QPen(Qt::blue,2));
+  setSelectedPen(QPen(Qt::darkMagenta,2));
 }
 
 QCPItemCurve::~QCPItemCurve()
@@ -29427,11 +29427,11 @@ QPen QCPItemCurve::mainPen() const
 {
   return mSelected ? mSelectedPen : mPen;
 }
-/* end of 'src/items/item-curve.cpp' */
+/* end of 'items/item-curve.cpp' */
 
 
-/* including file 'src/items/item-rect.cpp' */
-/* modified 2022-11-06T12:45:56, size 6472  */
+/* including file 'items/item-rect.cpp', size 6660                           */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPItemRect
@@ -29466,7 +29466,7 @@ QCPItemRect::QCPItemRect(QCustomPlot *parentPlot) :
   bottomRight->setCoords(1, 0);
   
   setPen(QPen(Qt::black));
-  setSelectedPen(QPen(Qt::blue,2));
+  setSelectedPen(QPen(Qt::darkMagenta,2));
   setBrush(Qt::NoBrush);
   setSelectedBrush(Qt::NoBrush);
 }
@@ -29584,11 +29584,11 @@ QBrush QCPItemRect::mainBrush() const
 {
   return mSelected ? mSelectedBrush : mBrush;
 }
-/* end of 'src/items/item-rect.cpp' */
+/* end of 'items/item-rect.cpp' */
 
 
-/* including file 'src/items/item-text.cpp' */
-/* modified 2022-11-06T12:45:56, size 13335 */
+/* including file 'items/item-text.cpp', size 13714                          */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPItemText
@@ -29637,7 +29637,7 @@ QCPItemText::QCPItemText(QCustomPlot *parentPlot) :
   setBrush(Qt::NoBrush);
   setSelectedBrush(Qt::NoBrush);
   setColor(Qt::black);
-  setSelectedColor(Qt::blue);
+  setSelectedColor(Qt::darkMagenta);
 }
 
 QCPItemText::~QCPItemText()
@@ -29932,11 +29932,11 @@ QBrush QCPItemText::mainBrush() const
 {
   return mSelected ? mSelectedBrush : mBrush;
 }
-/* end of 'src/items/item-text.cpp' */
+/* end of 'items/item-text.cpp' */
 
 
-/* including file 'src/items/item-ellipse.cpp' */
-/* modified 2022-11-06T12:45:56, size 7881     */
+/* including file 'items/item-ellipse.cpp', size 8101                        */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPItemEllipse
@@ -29974,7 +29974,7 @@ QCPItemEllipse::QCPItemEllipse(QCustomPlot *parentPlot) :
   bottomRight->setCoords(1, 0);
   
   setPen(QPen(Qt::black));
-  setSelectedPen(QPen(Qt::blue, 2));
+  setSelectedPen(QPen(Qt::darkMagenta, 2));
   setBrush(Qt::NoBrush);
   setSelectedBrush(Qt::NoBrush);
 }
@@ -30121,11 +30121,11 @@ QBrush QCPItemEllipse::mainBrush() const
 {
   return mSelected ? mSelectedBrush : mBrush;
 }
-/* end of 'src/items/item-ellipse.cpp' */
+/* end of 'items/item-ellipse.cpp' */
 
 
-/* including file 'src/items/item-pixmap.cpp' */
-/* modified 2022-11-06T12:45:56, size 10622   */
+/* including file 'items/item-pixmap.cpp', size 10923                        */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPItemPixmap
@@ -30170,7 +30170,7 @@ QCPItemPixmap::QCPItemPixmap(QCustomPlot *parentPlot) :
   bottomRight->setCoords(1, 0);
   
   setPen(Qt::NoPen);
-  setSelectedPen(QPen(Qt::blue));
+  setSelectedPen(QPen(Qt::darkMagenta));
 }
 
 QCPItemPixmap::~QCPItemPixmap()
@@ -30391,11 +30391,11 @@ QPen QCPItemPixmap::mainPen() const
 {
   return mSelected ? mSelectedPen : mPen;
 }
-/* end of 'src/items/item-pixmap.cpp' */
+/* end of 'items/item-pixmap.cpp' */
 
 
-/* including file 'src/items/item-tracer.cpp' */
-/* modified 2022-11-06T12:45:56, size 14645   */
+/* including file 'items/item-tracer.cpp', size 15047                        */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPItemTracer
@@ -30451,7 +30451,7 @@ QCPItemTracer::QCPItemTracer(QCustomPlot *parentPlot) :
   setBrush(Qt::NoBrush);
   setSelectedBrush(Qt::NoBrush);
   setPen(QPen(Qt::black));
-  setSelectedPen(QPen(Qt::blue, 2));
+  setSelectedPen(QPen(Qt::darkMagenta, 2));
 }
 
 QCPItemTracer::~QCPItemTracer()
@@ -30761,11 +30761,11 @@ QBrush QCPItemTracer::mainBrush() const
 {
   return mSelected ? mSelectedBrush : mBrush;
 }
-/* end of 'src/items/item-tracer.cpp' */
+/* end of 'items/item-tracer.cpp' */
 
 
-/* including file 'src/items/item-bracket.cpp' */
-/* modified 2022-11-06T12:45:56, size 10705    */
+/* including file 'items/item-bracket.cpp', size 10977                       */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPItemBracket
@@ -30809,7 +30809,7 @@ QCPItemBracket::QCPItemBracket(QCustomPlot *parentPlot) :
   right->setCoords(1, 1);
   
   setPen(QPen(Qt::black));
-  setSelectedPen(QPen(Qt::blue, 2));
+  setSelectedPen(QPen(Qt::darkMagenta, 2));
 }
 
 QCPItemBracket::~QCPItemBracket()
@@ -31002,11 +31002,11 @@ QPen QCPItemBracket::mainPen() const
 {
     return mSelected ? mSelectedPen : mPen;
 }
-/* end of 'src/items/item-bracket.cpp' */
+/* end of 'items/item-bracket.cpp' */
 
 
-/* including file 'src/polar/radialaxis.cpp' */
-/* modified 2022-11-06T12:45:57, size 49415  */
+/* including file 'polar/radialaxis.cpp', size 50902                         */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 
 
@@ -32463,11 +32463,11 @@ QCP::Interaction QCPPolarAxisRadial::selectionCategory() const
 {
   return QCP::iSelectAxes;
 }
-/* end of 'src/polar/radialaxis.cpp' */
+/* end of 'polar/radialaxis.cpp' */
 
 
-/* including file 'src/polar/layoutelement-angularaxis.cpp' */
-/* modified 2022-11-06T12:45:57, size 57266                 */
+/* including file 'polar/layoutelement-angularaxis.cpp', size 58997          */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -34154,11 +34154,11 @@ bool QCPPolarAxisAngular::registerPolarGraph(QCPPolarGraph *graph)
     graph->setLayer(mParentPlot->currentLayer());
   return true;
 }
-/* end of 'src/polar/layoutelement-angularaxis.cpp' */
+/* end of 'polar/layoutelement-angularaxis.cpp' */
 
 
-/* including file 'src/polar/polargrid.cpp' */
-/* modified 2022-11-06T12:45:57, size 7493  */
+/* including file 'polar/polargrid.cpp', size 7706                           */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -34342,11 +34342,11 @@ void QCPPolarGrid::drawAngularGrid(QCPPainter *painter, const QPointF &center, d
   for (int i=0; i<ticksCosSin.size(); ++i)
     painter->drawLine(center, center+ticksCosSin.at(i)*radius);
 }
-/* end of 'src/polar/polargrid.cpp' */
+/* end of 'polar/polargrid.cpp' */
 
 
-/* including file 'src/polar/polargraph.cpp' */
-/* modified 2022-11-06T12:45:57, size 44035  */
+/* including file 'polar/polargraph.cpp', size 45241                         */
+/* commit c4ee9b546bade9007be8af646820b1afe3358eda 2022-11-06 12:47:03 +0100 */
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -35524,6 +35524,6 @@ QVector<QPointF> QCPPolarGraph::dataToLines(const QVector<QCPGraphData> &data) c
     result[i] = mValueAxis->coordToPixel(data.at(i).key, data.at(i).value);
   return result;
 }
-/* end of 'src/polar/polargraph.cpp' */
+/* end of 'polar/polargraph.cpp' */
 
 
